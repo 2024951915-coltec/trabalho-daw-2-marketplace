@@ -15,7 +15,7 @@
 
 import {init} from './modelos/app.js'
 import {pages} from './modelos/pages.js'
-import {socket} from './modelos/sockets.js'
+import {sockets} from './modelos/sockets.js'
 
 pages();
 sockets();

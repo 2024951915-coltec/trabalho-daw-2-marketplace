@@ -1,6 +1,7 @@
 //Configurar as páginas não-estáticas (login, compras, etc)
 //(A concluir. Última edição: Pedro)
-import {app} from './app.js'
+import {app} from './app.js';
+import {database, tabelas} from './db.js';
 
 //Função para carregar as páginas
 function pages()

@@ -1,4 +1,4 @@
-//Configurar app, servidor e 
+//Configurar app, servidor e sockets
 //(Concluído: Pedro)
 
 import express from 'express';
