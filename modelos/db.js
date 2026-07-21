@@ -1,5 +1,5 @@
 //Banco de dados que deverá ser incluído por todos os arquivos de modelo
-//(A concluir. Última edição: Pedro Silva)
+//(Concluído. Última edição: Pedro Silva 21/07/2026)
 
 import {Sequelize, DataTypes} from '@sequelize/core';
 import {SqliteDialect as SQLite} from '@sequelize/sqlite3';
