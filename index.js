@@ -3,9 +3,9 @@
     Tá tudo separado em arquivos diferentes, na pasta "modelos"
 
      - app.js (concluído): Configuração básica do Express e do SocketIO
-     - db.js (a concluir): Inicializa o banco de dados, as tabelas, e o relacionamento entre elas
+     - db.js (concluído): Inicializa o banco de dados, as tabelas, e o relacionamento entre elas
      - pages.js (a concluir): Inicializa as páginas
-     - 
+     - sockets.js (a concluir): Configura os WebSockets
 
     - Pedro
 
