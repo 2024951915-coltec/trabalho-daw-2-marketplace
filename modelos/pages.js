@@ -10,6 +10,19 @@ function pages()
     app.get('/', (req, res)=>{
         res.send('Hello World')
     });
+
+    app.get('/login', (req, res)=>{
+        res.render('login.ejs');
+    })
+
+    app.get('/cadastro', (req, res)=>{
+        res.render('cadastro.ejs');
+    })
+
+    app.post('/cadastro', (req,res)=>{
+        //adicionar usuário ao db
+        res.redirect('/login');
+    })
 }
 
 //Não é necessário incluir o app.listen(), ele já está incluso em outro arquivo :D
