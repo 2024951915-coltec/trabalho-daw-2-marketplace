@@ -44,6 +44,7 @@ const tabelas = {
             category: {
                 type: DataTypes.TEXT,
                 allowNull: false,
+                defaultValue: 'user',
             }
         },
 

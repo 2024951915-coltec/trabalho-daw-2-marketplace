@@ -5,6 +5,7 @@ import express from 'express';
 import session from 'express-session';
 import {Server} from 'socket.io';
 import http from 'http';
+import bcrypt from 'bcryptjs';
 
 const app = express();
 const server = http.createServer(app);
@@ -41,4 +42,6 @@ function requireAuth(req, res, next)
     else res.redirect('/login');
 }
 
-export {app, io, init, requireAuth};
+const comparePass = bcrypt.compare;
+
+export {app, io, init, requireAuth, comparePass};

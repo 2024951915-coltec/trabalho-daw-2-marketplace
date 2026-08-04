@@ -21,21 +21,22 @@
     <div class="Cadastro">
         <h2>Cadastrar</h2>
         <form action="/cadastro" method="POST">
+
             <div class="input">
-                <label for="username"> Username </label>
-                <input type="username" id="username" name="username" required placeholder="username">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome" required placeholder="João Silva...">
             </div>
+
+            <div class="input">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="joaosilva...">
+            </div>
+            
     
-        <div class="input">
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" name="senha" required placeholder="Sua senha">
-        </div>
-
-         <div class="input">
-            <label for="email">email</label>
-            <input type="email" id="email" name="email" required placeholder="email">
-        </div>
-
+            <div class="input">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required placeholder="...">
+            </div>
         
             <button type="submit">Cadastrar</button>
 
