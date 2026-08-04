@@ -42,7 +42,7 @@ function pages()
         const isValid = await bcrypt.compare(password, user.password);
 
         if(isValid){
-            res.session.user =  {
+            req.session.user =  {
                 id: user.id,
                 name: user.username
             };
