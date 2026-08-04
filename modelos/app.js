@@ -16,14 +16,29 @@ app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}))
 
 app.use(session({
-    secret: 'eusoumonobola-segredo-secreto',
+    secret: 'patosaladosnadadores',
     resave: false,
     saveUninitialized: false
 }));
 
 //Inicializa o servidor (Substitui o app.listen())
-function init() {
+function init() 
+{
+    app.use((req,res,next)=>{
+        res.status(404);
+        res.render('404'); //Criar EJS da página 404
+    })
+
     server.listen(PORTA, ()=>{console.log('Aberto na porta', PORTA, '\nLink:', 'http://localhost:' + PORTA + '/')})
 }
 
-export {app, io, init};
+function requireAuth(req, res, next)
+{
+    if(req.session.user !== undefined)
+    {
+        next();
+    }
+    else res.redirect('/login');
+}
+
+export {app, io, init, requireAuth};
