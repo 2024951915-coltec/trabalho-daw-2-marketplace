@@ -7,55 +7,52 @@ import {database, tabelas} from './db.js';
 function pages()
 {
 
-    app.get('/', (req, res) => {
-        return res.render('/login');
+    app.get('/', requireAuth, (req, res) => {
+        res.send('Hello World!');
     });
 
     app.get('/cadastro', (req, res)=>{
         res.render('cadastro.ejs');
     })
 
-   app.post('/cadastro', (req, res) => {
-       const {username, password} = req.body; //Req.body é os dados que o cliente envia para o servidor
-   
-       const user = await User.findOne({where : {username}});
-   
-       if(!user){
-           const novoUsuario = await User.create({username, password});
-           res.send('Novo usuário cadastrado.');
-           return res.redirect('/login');
-       }
-   
-       res.send('Usuário já existente.');
-   })
+    app.post('/cadastro', async (req, res) => {
+        const {username, password} = req.body; //Req.body é os dados que o cliente envia para o servidor
+    
+        const user = await tabelas.usuario.findOne({where : {username}});
+    
+        if(!user){
+            const novoUsuario = await tabelas.usuario.create({username, password});
+            res.send('Novo usuário cadastrado.');
+            return res.redirect('/login');
+        }
+    
+        res.send('Usuário já existente.');
+    })
 
-       app.get('/login', (req, res)=>{
-        res.render('login.ejs');
+    app.get('/login', (req, res)=>{
+       res.render('login');
     })
    
     app.post('/login', async (req, res) =>{ 
-    const {username, password} = req.body;
+        const {username, password} = req.body;
 
-    const user = await user.findOne({ where: {username}});
+        const user = await tabelas.usuario.findOne({ where: {username}});
 
-    if(user){
-        const isValid = await bcrypt.compare(password, user.password);
+        if(user){
+            const isValid = await bcrypt.compare(password, user.password);
 
-        if(isValid){
-            req.session.user =  {
-                id: user.id,
-                name: user.username
-            };
-          return res.redirect('/lobby');
+            if(isValid){
+                req.session.user =  {
+                    id: user.id,
+                    name: user.username
+                };
+            return res.redirect('/lobby');
+            }
         }
-    }
 
-    res.send('Usuário ou senha incorretos. Tente novamente');
-});
+        res.send('Usuário ou senha incorretos. Tente novamente');
+    });
 
-app.get('/lobby', requireAuth, (req, res) =>{ //Passa pelo require e renderiza o lobby
-    res.render('/lobby');
-})
 
 }
 
