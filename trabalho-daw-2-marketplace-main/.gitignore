@@ -1,0 +1,9 @@
+#todos os arquivos/pastas no .gitignore vão ser ignorados nos commits
+
+#Os diretórios abaixo vão ser ignorados para evitar erros de instalação em SO's diferentes
+node_modules/
+package-lock.json
+
+#Os diretórios abaixo vão ser ignorados pq são usados para guardar 
+#dados em binário irrelevantes para o funcionamento do app
+bin/
