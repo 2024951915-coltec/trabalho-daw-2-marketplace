@@ -42,8 +42,10 @@ function pages()
         const isValid = await bcrypt.compare(password, user.password);
 
         if(isValid){
-            res.session.userId = user.id;
-            res.session.username = user.username;
+            res.session.user =  {
+                id: user.id,
+                name: user.username
+            };
           return res.redirect('/lobby');
         }
     }
