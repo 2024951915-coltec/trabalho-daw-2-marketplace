@@ -1,5 +1,6 @@
 //Configurar as páginas não-estáticas (login, compras, etc)
 //(A concluir. Última edição: Pedro)
+
 import {app, requireAuth, comparePass} from './app.js';
 import {database, tabelas} from './db.js';
 
@@ -8,29 +9,15 @@ function pages()
 {
 
     app.get('/', requireAuth, (req, res) => {
-        res.send('Hello World!');
+        res.redirect('/home');
     });
 
     app.get('/cadastro', (req, res)=>{
         res.render('cadastro.ejs');
     })
 
-    app.post('/cadastro', async (req, res) => {
-        const {username, senha, nome} = req.body; //Req.body é os dados que o cliente envia para o servidor
-    
-        const user = await tabelas.usuario.findOne({where : {username}});
-    
-        if(!user){
-            const novoUsuario = await tabelas.usuario.create({
-                username: username, 
-                name: nome,
-                passhash: senha,
-            });
-            res.redirect('/login');
-            return;
-        }
-    
-        res.send('Usuário já existente.');
+    app.get('/home', (req,res)=>{
+        res.render('home.ejs');
     })
 
     app.get('/login', (req, res)=>{
