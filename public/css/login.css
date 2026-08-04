@@ -11,7 +11,7 @@ body {
 .Login {
     background-color: #d1a000; /* Cor de fundo creme vintage */
     padding: 20px;
-    width: 300px;
+    width: auto;
     
     /* MODIFICAÇÕES RETRÔ: */
     border: 4px solid #000; /* Borda grossa e preta */

@@ -1,6 +1,6 @@
 //Configurar as páginas não-estáticas (login, compras, etc)
 //(A concluir. Última edição: Pedro)
-import {app, requireAuth} from './app.js';
+import {app, requireAuth, comparePass} from './app.js';
 import {database, tabelas} from './db.js';
 
 //Função para carregar as páginas
@@ -16,14 +16,18 @@ function pages()
     })
 
     app.post('/cadastro', async (req, res) => {
-        const {username, password} = req.body; //Req.body é os dados que o cliente envia para o servidor
+        const {username, senha, nome} = req.body; //Req.body é os dados que o cliente envia para o servidor
     
         const user = await tabelas.usuario.findOne({where : {username}});
     
         if(!user){
-            const novoUsuario = await tabelas.usuario.create({username, password});
-            res.send('Novo usuário cadastrado.');
-            return res.redirect('/login');
+            const novoUsuario = await tabelas.usuario.create({
+                username: username, 
+                name: nome,
+                passhash: senha,
+            });
+            res.redirect('/login');
+            return;
         }
     
         res.send('Usuário já existente.');
@@ -34,12 +38,12 @@ function pages()
     })
    
     app.post('/login', async (req, res) =>{ 
-        const {username, password} = req.body;
+        const {username, senha} = req.body;
 
         const user = await tabelas.usuario.findOne({ where: {username}});
 
         if(user){
-            const isValid = await bcrypt.compare(password, user.password);
+            const isValid = await comparePass(senha, user.passhash);
 
             if(isValid){
                 req.session.user =  {
