@@ -36,6 +36,18 @@ const tabelas = {
                 allowNull: false,
             },
 
+            cpf: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                unique: true,
+            },
+
+            phone_number: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                unique: true,
+            },
+
             passhash: {
                 type: DataTypes.TEXT,
                 allowNull: false,
@@ -59,6 +71,7 @@ const tabelas = {
         }
     ),
 
+    // Usar chave estrangeira para conectar ao usuário
     endereco: 
     database.define('endereco', 
         {
