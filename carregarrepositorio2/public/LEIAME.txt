@@ -1,0 +1,3 @@
+Aqui vai ser onde arquivos HTML, CSS e JS (front-end) "estáticos" vão ser mantidos
+
+ - Pedro
