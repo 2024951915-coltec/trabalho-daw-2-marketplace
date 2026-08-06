@@ -37,14 +37,30 @@ function pages()
                     id: user.id,
                     name: user.username
                 };
-            return res.redirect('/lobby');
+            return res.redirect('/home');
             }
         }
 
         res.send('Usuário ou senha incorretos. Tente novamente');
     });
 
+    app.post('/cadastro', async (req, res)=>{
+        const {nome, username, senha} = req.body;
 
+        const user = await tabelas.usuario.findOne({ where: {username}});
+
+        if(!user){
+            tabelas.usuario.create({
+                name: nome,
+                username: username,
+                passhash: senha,
+            });
+
+            return res.redirect('/login');
+        }
+
+        res.send("Usuário", username, "já existente");
+    });
 }
 
 
