@@ -110,7 +110,7 @@ app.post('/password_change', async (req, res) => {
     app.post('/edit_profile', (req, res) => {
         const {name, username, cpf, phone_number} = req.body;
     })
-
+ 
     app.get('/adresses', requireAuth, (req, res) => {
         return res.render('adresses.ejs');
     })
