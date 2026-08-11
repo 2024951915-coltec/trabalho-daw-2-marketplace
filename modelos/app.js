@@ -43,5 +43,6 @@ function requireAuth(req, res, next)
 }
 
 const comparePass = bcrypt.compare;
+const hashPass = bcrypt.hash;
 
-export {app, io, init, requireAuth, comparePass};
+export {app, io, init, requireAuth, comparePass, hashPass};

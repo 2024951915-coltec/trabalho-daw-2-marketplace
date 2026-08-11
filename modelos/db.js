@@ -36,6 +36,18 @@ const tabelas = {
                 allowNull: false,
             },
 
+            cpf: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                unique: true,
+            },
+
+            phone_number: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                unique: true,
+            },
+
             passhash: {
                 type: DataTypes.TEXT,
                 allowNull: false,
@@ -59,6 +71,7 @@ const tabelas = {
         }
     ),
 
+    // Usar chave estrangeira para conectar ao usuário
     endereco: 
     database.define('endereco', 
         {
@@ -71,6 +84,20 @@ const tabelas = {
 
             local: {
                 type: DataTypes.TEXT,
+                allowNull: false,
+            }
+        }
+    ),
+
+    usuario_endereco: database.define('usuario_endereco',
+        {
+            id_usuario: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            id_endereco: {
+                type: DataTypes.INTEGER,
                 allowNull: false,
             }
         }
@@ -249,9 +276,13 @@ const tabelas = {
 tabelas.usuario.hasMany(tabelas.avaliacao, {foreignKey: 'poster'});
 tabelas.avaliacao.belongsTo(tabelas.usuario, {foreignKey: 'poster'});
 
-//Endereco-usuario (1-n)
-tabelas.endereco.hasMany(tabelas.usuario, {foreignKey: 'address'});
-tabelas.usuario.belongsTo(tabelas.endereco, {foreignKey: 'address'})
+//Endereco-usuario (n-n)
+tabelas.endereco.belongsToMany(tabelas.usuario, {
+    through: usuario_endereco // Usa usuario_endereco como tabela intermediária
+});
+tabelas.usuario.belongsToMany(tabelas.endereco, {
+    through: usuario_endereco 
+});
 
 //Usuário-perfil (1-1)
 tabelas.usuario.hasOne(tabelas.vendedor_perfil, {foreignKey: 'user'});

@@ -1,19 +1,21 @@
 //Configurar as páginas não-estáticas (login, compras, etc)
 //(A concluir. Última edição: Pedro)
 
-import {app, requireAuth, comparePass} from './app.js';
+import {app, requireAuth, comparePass, hashPass} from './app.js';
 import {database, tabelas} from './db.js';
 
 //Função para carregar as páginas
 function pages()
 {
 
+    // CARREGAMENTO DE PÁGINAS 
+
     app.get('/', requireAuth, (req, res) => {
         res.redirect('/home');
     });
 
-    app.get('/cadastro', (req, res)=>{
-        res.render('cadastro.ejs');
+    app.get('/register', (req, res)=>{
+        res.render('register.ejs');
     })
 
     app.get('/home', (req,res)=>{
@@ -21,9 +23,42 @@ function pages()
     })
 
     app.get('/login', (req, res)=>{
-       res.render('login');
+       res.render('login.ejs');
     })
-   
+
+    app.get('/create_adresses', requireAuth, (req, res) => {
+        return res.render('create_adresses');
+    })
+
+    app.get('profile_information', requireAuth, (req, res) => {
+        return res.render('profile_information.ejs');
+    })
+
+    app.get('password_change', requireAuth, (req, res) => {
+        return res.render('password_change.ejs');
+    })
+
+        // Edição de perfil
+    app.get('/edit_profile', async, requireAuth, (req, res) => {
+
+        // Procura o usuário para puxar os dados exatos
+        const user = await tabelas.usuario.findByPk(req.session.user.id);
+
+        return res.render('edit_profile.ejs', {user});
+    })
+
+     // Apenas carregar a página e passar pelo requireAuth
+    app.get('/information_adresses', requireAuth, (req, res) => {
+        return res.render('infomartion_adress.ejs');
+    })
+
+    app.get('/edit_adresses', requireAuth, (req, res) => {
+        return res.render('edit_adresses.ejs');
+    })
+
+    // CRIAÇÃO E LOGIN
+
+    // Login
     app.post('/login', async (req, res) =>{ 
         const {username, senha} = req.body;
 
@@ -44,11 +79,13 @@ function pages()
         res.send('Usuário ou senha incorretos. Tente novamente');
     });
 
-    app.post('/cadastro', async (req, res)=>{
+    // Cadastro
+    app.post('/register', async (req, res)=>{
         const {nome, username, senha} = req.body;
 
         const user = await tabelas.usuario.findOne({ where: {username}});
 
+        // Se o usuário não existir em todo o BD, ele é criado
         if(!user){
             tabelas.usuario.create({
                 name: nome,
@@ -61,8 +98,141 @@ function pages()
 
         res.send("Usuário", username, "já existente");
     });
-}
 
+        // Criar endereço
+        // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
+        app.post('create_adresses', async (req, res) => {
+
+            const {local} = req.body;
+
+            let isValid = true; 
+
+            // Procura todas as associações do usuário e faz com que apenas o usuário atual seja verificado
+            const relacoes = await tabelas.usuario_endereco.findAll({where: {
+                id_usuario : req.session.user.id
+            }})
+
+            // For para comparação
+            for(const relacao of relacoes){
+
+                // endereco é um objeto (id = x, local = referente ao x)
+                const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
+
+                if(endereco.local == local){
+                    isValid = false;
+                }
+
+            }
+
+            if(isValid == false){
+                return res.send('Endereço já cadastrado.');
+            }
+              
+          const endereco = await tabelas.endereco.create({
+                local:local,
+            })
+
+           await tabelas.usuario_endereco.create({
+                id_usuario: req.session.user.id,
+                id_endereco: endereco.id,
+            })
+                
+            // Essa lógica está errada pq ta verificando o bd todo e tem que limitar ao usuário
+        });
+
+    // EDIÇÃO PEFIL
+
+    // Alterar senha
+    app.post('/password_change', async (req, res) => {
+        const { oldPassword, newPassword} = req.body;
+
+    const username = req.session.user.username;
+
+    const user = await tabelas.usuario.findOne({where: {username}});
+
+    if(user){
+        const isValid = await comparePass(oldPassword, user.passhash);
+
+        if(!isValid){
+            res.send('Senha incorreta. Digite novamente');
+        }
+
+        user.passhash = await hashPass(newPassword, 10);
+        await user.save(); // Salvar os dados atualizados
+
+        res.send('Senha atualizada.');
+    }
+
+});
+
+    // Alterar username, nome, cpf e número de telefone (Perfil)
+    app.post('/edit_profile', async (req, res) => {
+        const {name, username, cpf, phone_number} = req.body;
+
+        const user = await tabelas.usuario.findByPk(req.session.user.id);
+
+        // Receber os dados atualizados
+        user.name = name;
+        user.username = username;
+        user.cpf = cpf;
+        user.phone_number = phone_number;
+
+        // Salvar os dados atualizados
+        await user.save();
+
+        res.send('Dados atualizados.');
+    });
+
+    // Editar endereço (Está errado)
+
+    // Pegar a tabela intermediária e editar ela caso o endereço seja igual ao de outra pessoa
+    app.post('/edit_adresses', async (req, res) => {
+        const { local } = req.body;
+
+        let isValid = true;
+        let idEnderecoAlterado = null;
+        let idUsuarioAlterado = null;
+
+        const relacoes = await tabelas.usuario_endereco.findAll({
+            where : {
+                id_usuario : req.session.user.id,
+            }
+        })
+
+        // For para comparação
+            for(const relacao of relacoes){
+
+                const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
+
+                // Verifica se existe dentro da conta
+                if(endereco.local == local){
+                    isValid = false;
+                }
+
+                else{
+                     // Verifica se o endereço existe cadastrado com outro usuário
+                    const verificaBD = await tabelas.endereco.findOne({where:{local}});
+
+                    if(verificaBD){
+                        // relacao.id_endereco = verificaBD.id; 
+                        idEnderecoAlterado = verificaBD.id;
+                    }
+                }
+
+            }
+
+            if(isValid == false){
+                return res.send('Endereco já cadastrado nesta conta.');
+            }
+
+           // const idEnderecoUser = await tabelas.ender    relacoes.id_endereco = idEnderecoAlterado;
+            tabelas.endereco.local = local; // Alterar o registro específico
+            await relacoes.save();
+            await tabelas.endereco.save();
+
+            return res.send('Endereço atualizado.');
+    });
+}
 
 
 //Não é necessário incluir o app.listen(), ele já está incluso em outro arquivo :D
