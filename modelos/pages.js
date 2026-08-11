@@ -21,48 +21,7 @@ function pages()
 
     //Páginas de usuário
 
-    app.get('/:user', requireAuth, (req, res)=>{
-        const u = req.params.user;
-        res.redirect('/' + u + '/view-profile');
-    })
-
-
-    app.get('/:user/create-addresses', requireAuth, (req, res) => {
-        const u = req.params.user;
-        return res.render('create_addresses.ejs');
-    })
-
-    app.get('/:user/view-profile', requireAuth, (req, res) => {
-        const u = req.params.user;
-        return res.render('profile_information.ejs');
-    })
-
-    app.get('/:user/password-change', requireAuth, (req, res) => {
-        const u = req.params.user;
-        return res.render('password_change.ejs');
-    })
-
-    // Edição de perfil
-    app.get('/:user/edit-profile', async, requireAuth, (req, res) => 
-    {
-        const u = req.params.user;
-        return res.render('edit_profile.ejs', {USER: req.session.user});
-    })
-
-    // Apenas carregar a página e passar pelo requireAuth
-    app.get('/:user/view-addresses', requireAuth, (req, res) => {
-        return res.render('view_addresses.ejs');
-    })
-
-    app.get('/:user/edit-addresses', requireAuth, (req, res) => {
-        return res.render('edit_addresses.ejs');
-    })
-
-    // CADASTRO E LOGIN
-
-    // Login
-
-    app.get('/login', (req, res)=>{
+ app.get('/login', (req, res)=>{
        res.render('login.ejs');
     })
 
@@ -111,6 +70,49 @@ function pages()
 
         res.send("Usuário", username, "já existente");
     });
+
+    app.get('/:user', requireAuth, (req, res)=>{
+        const u = req.params.user;
+        res.redirect('/' + u + '/view-profile');
+    })
+
+
+    app.get('/:user/create-addresses', requireAuth, (req, res) => {
+        const u = req.params.user;
+        return res.render('create_addresses.ejs');
+    })
+
+    app.get('/:user/view-profile', requireAuth, (req, res) => {
+        const u = req.params.user;
+        return res.render('profile_information.ejs');
+    })
+
+    app.get('/:user/password-change', requireAuth, (req, res) => {
+        const u = req.params.user;
+        return res.render('password_change.ejs');
+    })
+
+    // Edição de perfil
+    app.get('/:user/edit-profile', requireAuth, async (req, res) => 
+    {
+        const u = req.params.user;
+        return res.render('edit_profile.ejs', {USER: req.session.user});
+    })
+
+    // Apenas carregar a página e passar pelo requireAuth
+    app.get('/:user/view-addresses', requireAuth, (req, res) => {
+        return res.render('view_addresses.ejs');
+    })
+
+    app.get('/:user/edit-addresses', requireAuth, (req, res) => {
+        return res.render('edit_addresses.ejs');
+    })
+
+    // CADASTRO E LOGIN
+
+    // Login
+
+   
 
     // Criar endereço
     // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
