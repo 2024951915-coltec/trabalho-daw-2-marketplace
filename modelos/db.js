@@ -36,18 +36,6 @@ const tabelas = {
                 allowNull: false,
             },
 
-            cpf: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                unique: true,
-            },
-
-            phone_number: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                unique: true,
-            },
-
             passhash: {
                 type: DataTypes.TEXT,
                 allowNull: false,
@@ -278,10 +266,10 @@ tabelas.avaliacao.belongsTo(tabelas.usuario, {foreignKey: 'poster'});
 
 //Endereco-usuario (n-n)
 tabelas.endereco.belongsToMany(tabelas.usuario, {
-    through: usuario_endereco // Usa usuario_endereco como tabela intermediária
+    through: tabelas.usuario_endereco // Usa usuario_endereco como tabela intermediária
 });
 tabelas.usuario.belongsToMany(tabelas.endereco, {
-    through: usuario_endereco 
+    through: tabelas.usuario_endereco 
 });
 
 //Usuário-perfil (1-1)
