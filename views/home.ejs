@@ -32,21 +32,6 @@
             </a>
         </div>
 
-        <!-- Campo de Pesquisa com as classes adicionadas -->
-        <form action="/pesquisa" method="GET" role="search" class="search-form">
-            <label for="search-input" style="display: none;">Buscar no site</label>
-            <input 
-                type="search" 
-                id="search-input"
-                class="search-input"
-                name="q" 
-                placeholder="Pesquisar produtos..." 
-                aria-label="Buscar no site"
-                required
-            >
-            <button type="submit" class="search-button">Buscar</button>
-        </form>
-
         <!-- Área de Login e Carrinho com as classes adicionadas -->
         <div class="user-actions">
             
@@ -64,4 +49,40 @@
 
     </header>
 
+    <main class="container-fluid mt-3 row">
+        <aside class="col-md-4 p-4">
+            <form action="/pesquisa" method="GET" role="search" class="input-group">
+                <input 
+                    type="search" 
+                    id="search-input"
+                    class="form-control"
+                    name="q" 
+                    placeholder="Pesquisar produtos..." 
+                    aria-label="Buscar no site"
+                    required
+                >
+                <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
+            </form>
+        </aside>
+
+        <article class="col-md-8 p-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-body">
+                        <h1 class="card-title">Produto 1</h1>
+                        <p>Lorem ipsum...</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-body">
+                        <h1 class="card-title">Produto 2</h1>
+                        <p>Lorem ipsum...</p>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        
+    </main>
 </html>
