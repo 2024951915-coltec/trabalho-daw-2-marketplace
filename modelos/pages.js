@@ -14,51 +14,59 @@ function pages()
         res.redirect('/home');
     });
 
-    app.get('/register', (req, res)=>{
-        res.render('register.ejs');
-    })
-
     app.get('/home', (req,res)=>{
         res.render('home.ejs');
     })
+    
+
+    //Páginas de usuário
+
+    app.get('/:user', requireAuth, (req, res)=>{
+        const u = req.params.user;
+        res.redirect('/' + u + '/view-profile');
+    })
+
+
+    app.get('/:user/create-addresses', requireAuth, (req, res) => {
+        const u = req.params.user;
+        return res.render('create_addresses.ejs');
+    })
+
+    app.get('/:user/view-profile', requireAuth, (req, res) => {
+        const u = req.params.user;
+        return res.render('profile_information.ejs');
+    })
+
+    app.get('/:user/password-change', requireAuth, (req, res) => {
+        const u = req.params.user;
+        return res.render('password_change.ejs');
+    })
+
+    // Edição de perfil
+    app.get('/:user/edit-profile', async, requireAuth, (req, res) => 
+    {
+        const u = req.params.user;
+        return res.render('edit_profile.ejs', {USER: req.session.user});
+    })
+
+    // Apenas carregar a página e passar pelo requireAuth
+    app.get('/:user/view-addresses', requireAuth, (req, res) => {
+        return res.render('view_addresses.ejs');
+    })
+
+    app.get('/:user/edit-addresses', requireAuth, (req, res) => {
+        return res.render('edit_addresses.ejs');
+    })
+
+    // CADASTRO E LOGIN
+
+    // Login
 
     app.get('/login', (req, res)=>{
        res.render('login.ejs');
     })
 
-    app.get('/create_adresses', requireAuth, (req, res) => {
-        return res.render('create_adresses');
-    })
 
-    app.get('profile_information', requireAuth, (req, res) => {
-        return res.render('profile_information.ejs');
-    })
-
-    app.get('password_change', requireAuth, (req, res) => {
-        return res.render('password_change.ejs');
-    })
-
-        // Edição de perfil
-    app.get('/edit_profile', async, requireAuth, (req, res) => {
-
-        // Procura o usuário para puxar os dados exatos
-        const user = await tabelas.usuario.findByPk(req.session.user.id);
-
-        return res.render('edit_profile.ejs', {user});
-    })
-
-     // Apenas carregar a página e passar pelo requireAuth
-    app.get('/information_adresses', requireAuth, (req, res) => {
-        return res.render('infomartion_adress.ejs');
-    })
-
-    app.get('/edit_adresses', requireAuth, (req, res) => {
-        return res.render('edit_adresses.ejs');
-    })
-
-    // CRIAÇÃO E LOGIN
-
-    // Login
     app.post('/login', async (req, res) =>{ 
         const {username, senha} = req.body;
 
@@ -80,7 +88,12 @@ function pages()
     });
 
     // Cadastro
-    app.post('/register', async (req, res)=>{
+
+    app.get('/sign-in', (req, res)=>{
+        res.render('signin.ejs');
+    })
+
+    app.post('/sign-in', async (req, res)=>{
         const {nome, username, senha} = req.body;
 
         const user = await tabelas.usuario.findOne({ where: {username}});
@@ -99,74 +112,73 @@ function pages()
         res.send("Usuário", username, "já existente");
     });
 
-        // Criar endereço
-        // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
-        app.post('create_adresses', async (req, res) => {
+    // Criar endereço
+    // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
+    app.post('/:user/create-addresses', async (req, res) => {
 
-            const {local} = req.body;
+        const {local} = req.body;
 
-            let isValid = true; 
+        let isValid = true; 
 
-            // Procura todas as associações do usuário e faz com que apenas o usuário atual seja verificado
-            const relacoes = await tabelas.usuario_endereco.findAll({where: {
-                id_usuario : req.session.user.id
-            }})
+        // Procura todas as associações do usuário e faz com que apenas o usuário atual seja verificado
+        const relacoes = await tabelas.usuario_endereco.findAll({where: {
+            id_usuario : req.session.user.id
+        }})
 
-            // For para comparação
-            for(const relacao of relacoes){
+        // For para comparação
+        for(const relacao of relacoes){
 
-                // endereco é um objeto (id = x, local = referente ao x)
-                const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
+            // endereco é um objeto (id = x, local = referente ao x)
+            const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
 
-                if(endereco.local == local){
-                    isValid = false;
-                }
-
+            if(endereco.local == local){
+                isValid = false;
             }
 
-            if(isValid == false){
-                return res.send('Endereço já cadastrado.');
-            }
-              
-          const endereco = await tabelas.endereco.create({
-                local:local,
-            })
+        }
 
-           await tabelas.usuario_endereco.create({
-                id_usuario: req.session.user.id,
-                id_endereco: endereco.id,
-            })
-                
-            // Essa lógica está errada pq ta verificando o bd todo e tem que limitar ao usuário
-        });
+        if(isValid == false){
+            return res.send('Endereço já cadastrado.');
+        }
+        
+    const endereco = await tabelas.endereco.create({
+            local:local,
+        })
+
+    await tabelas.usuario_endereco.create({
+            id_usuario: req.session.user.id,
+            id_endereco: endereco.id,
+        })
+            
+        // Essa lógica está errada pq ta verificando o bd todo e tem que limitar ao usuário
+    });
 
     // EDIÇÃO PEFIL
 
     // Alterar senha
-    app.post('/password_change', async (req, res) => {
+    app.post('/:user/password-change', async (req, res) => {
         const { oldPassword, newPassword} = req.body;
 
-    const username = req.session.user.username;
+        const username = req.session.user.username;
 
-    const user = await tabelas.usuario.findOne({where: {username}});
+        const user = await tabelas.usuario.findOne({where: {username}});
 
-    if(user){
-        const isValid = await comparePass(oldPassword, user.passhash);
+        if(user){
+            const isValid = await comparePass(oldPassword, user.passhash);
 
-        if(!isValid){
-            res.send('Senha incorreta. Digite novamente');
+            if(!isValid){
+                res.send('Senha incorreta. Digite novamente');
+            }
+
+            user.passhash = await hashPass(newPassword, 10);
+            await user.save(); // Salvar os dados atualizados
+
+            res.send('Senha atualizada.');
         }
-
-        user.passhash = await hashPass(newPassword, 10);
-        await user.save(); // Salvar os dados atualizados
-
-        res.send('Senha atualizada.');
-    }
-
-});
+    });
 
     // Alterar username, nome, cpf e número de telefone (Perfil)
-    app.post('/edit_profile', async (req, res) => {
+    app.post('/:user/edit-profile', async (req, res) => {
         const {name, username, cpf, phone_number} = req.body;
 
         const user = await tabelas.usuario.findByPk(req.session.user.id);
@@ -186,7 +198,7 @@ function pages()
     // Editar endereço (Está errado)
 
     // Pegar a tabela intermediária e editar ela caso o endereço seja igual ao de outra pessoa
-    app.post('/edit_adresses', async (req, res) => {
+    app.post('/:user/edit-addresses', async (req, res) => {
         const { local } = req.body;
 
         let isValid = true;
