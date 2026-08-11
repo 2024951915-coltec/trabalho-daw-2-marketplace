@@ -89,6 +89,20 @@ const tabelas = {
         }
     ),
 
+    usuario_endereco: database.define('usuario_endereco',
+        {
+            id_usuario: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            id_endereco: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            }
+        }
+    ),
+
     vendedor_perfil:
     database.define('vendedor', 
         {
@@ -262,9 +276,13 @@ const tabelas = {
 tabelas.usuario.hasMany(tabelas.avaliacao, {foreignKey: 'poster'});
 tabelas.avaliacao.belongsTo(tabelas.usuario, {foreignKey: 'poster'});
 
-//Endereco-usuario (1-n)
-tabelas.endereco.hasMany(tabelas.usuario, {foreignKey: 'address'});
-tabelas.usuario.belongsTo(tabelas.endereco, {foreignKey: 'address'})
+//Endereco-usuario (n-n)
+tabelas.endereco.belongsToMany(tabelas.usuario, {
+    through: usuario_endereco // Usa usuario_endereco como tabela intermediária
+});
+tabelas.usuario.belongsToMany(tabelas.endereco, {
+    through: usuario_endereco 
+});
 
 //Usuário-perfil (1-1)
 tabelas.usuario.hasOne(tabelas.vendedor_perfil, {foreignKey: 'user'});
