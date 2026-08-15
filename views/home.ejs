@@ -10,58 +10,123 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
+    <!--Bootstrap JS Script-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
+    crossorigin="anonymous"></script>
+
     <link class="style-local" rel="stylesheet" href="/css/home.css">
     
 </head>
 
 <body>
         
-    <!-- Barra de Acessibilidade Superior com as classes adicionadas -->
-    <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
-        <a href="#main-content" accesskey="1">Ir para o conteúdo</a>
-        <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
-    </div>
+    
 
     <!-- Header Principal com as classes adicionadas -->
-    <header class="site-header">
+    <header class="mb-3">
+        <!-- Barra de Acessibilidade Superior com as classes adicionadas -->
+        <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
+            <a href="#main-content" accesskey="1">Ir para o conteúdo</a>
+            <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
+        </div>
         
-        <!-- Logotipo -->
-        <div class="logo">
-            <a href="/" aria-label="Página inicial GalinhasGordas">
-                <img src="/imagens/logo.png" alt="GalinhasGordas Home" width="120">
-            </a>
-        </div>
+        <nav class="site-header">
+            <!-- Logotipo -->
+            <div class="logo">
+                <a href="/" aria-label="Página inicial GalinhasGordas">
+                    <img src="/imagens/logo.png" alt="GalinhasGordas Home" width="120"> <!--Removeu o i-->
+                </a>
+            </div>
 
-        <!-- Campo de Pesquisa com as classes adicionadas -->
-        <form action="/pesquisa" method="GET" role="search" class="search-form">
-            <label for="search-input" style="display: none;">Buscar no site</label>
-            <input 
-                type="search" 
-                id="search-input"
-                class="search-input"
-                name="q" 
-                placeholder="Pesquisar produtos..." 
-                aria-label="Buscar no site"
-                required
-            >
-            <button type="submit" class="search-button">Buscar</button>
-        </form>
+            <!-- MENU COMPUTADOR/TV -->
+            <div class="d-none d-sm-flex user-actions">
+                
+                <!-- Área de Login -->
+                <a href="/login" class="action-link" aria-label="Entrar na minha conta">
+                    Minha Conta / Entrar
+                </a>
 
-        <!-- Área de Login e Carrinho com as classes adicionadas -->
-        <div class="user-actions">
-            
-            <!-- Área de Login -->
-            <a href="/login" class="action-link" aria-label="Entrar na minha conta">
-                 Minha Conta / Entrar
-            </a>
+                <!-- Carrinho de Compras -->
+                <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
+                    Carrinho (<span class="cart-badge">0</span>)
+                </a>
 
-            <!-- Carrinho de Compras -->
-            <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
-                 Carrinho (<span class="cart-badge">0</span>)
-            </a>
+            </div>
 
-        </div>
+            <!-- MENU TELEFONE/PDA -->
+            <div class="d-block d-sm-none">
+                <!--TODO: adicionar menu para mobile-->
+                <a class="btn btn-outline-secondary" data-bs-toggle="offcanvas" href="#sm-offcanvas" role="button" aria-controls="sm-offcanvas">
+                    &#9776;
+                </a>
+
+                <div class="offcanvas offcanvas-start" id="sm-offcanvas">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Menu</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+
+                    <div class="offcanvas-body">
+                        <!-- Área de Login -->
+                        <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
+                            Minha Conta / Entrar
+                        </a>
+
+                        <!-- Carrinho de Compras -->
+                        <a href="/carrinho" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
+                            Carrinho (<span class="cart-badge">0</span>)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
     </header>
 
+    <main id="maincontent" class="container-md">
+        <h1>Bem vindo, <strong><%= USER.name %></strong>!</h1>
+        <p>O que deseja comprar hoje?</p>
+        <!--A página principal -->
+        <article class="container-md row mt-3">
+            <div class="col-md-5">
+                <!-- Campo de Pesquisa com as classes adicionadas -->
+                <form action="/pesquisa" method="GET" role="search" class="input-group mb-3">
+                    <input 
+                        type="search" 
+                        id="search-input"
+                        class="form-control"
+                        name="q" 
+                        placeholder="Pesquisar produtos..." 
+                        aria-label="Buscar no site"
+                        required
+                    >
+                    <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
+                </form>
+                <!--Add opções de filtragem-->
+            </div>
+
+            <aside class="destaque col-md-6 mt-3">        
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <!--Exemplo de cartão-->
+                        <div class="card">
+                            <img src="algum.link/da/internet" class="card-img-top" alt="imagine uma imagem de um produto.png" height="120">
+                            <div class="card-body">
+                                <a class="card-title h3 link-underline link-underline-opacity-0" href="/link/do-produto">Meu produto</a>
+
+                                <p class="card-subtitle fw-semibold text-secondary">R$ 200.00</p>
+                                <p class="card-text">Compre meu produto pfv</p>
+                                <p class="card-text">Avenida Avenildo, nº 67</p>
+                            </div>
+                        </div>
+                        <!--Exemplo de cartão-->
+                    </div>
+                </div>
+            </aside>
+        </article>
+    </main>
+
+
+    
 </html>

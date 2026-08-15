@@ -48,8 +48,8 @@ body {
 
 /* Logotipo */
 .site-header .logo img {
-    max-height: 75px;
-    max-width: 75px;
+    max-height: 50px;
+    max-width: 50px;
 }
 
 /*
@@ -127,30 +127,7 @@ body {
     border-radius: 20px;
 }
 
-/*
-   RESPONSIVIDADE (TELAS ATÉ 768px)
-*/
-@media (max-width: 768px) {
-    .site-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
-        padding: 15px;
-    }
-
-    .site-header .logo {
-        margin: 0 auto;
-    }
-
-    .search-form {
-        max-width: 100%;
-        order: 3; /* Move a pesquisa para baixo do login/logo no celular */
-    }
-
-    .user-actions {
-        justify-content: space-around;
-        border-top: 1px solid #f1f3f5;
-        border-bottom: 1px solid #f1f3f5;
-        padding: 10px 0;
-    }
+.destaque {
+    border-left: black solid 2px;
+    border-radius: 2px;
 }
