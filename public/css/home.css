@@ -126,3 +126,8 @@ body {
     padding: 2px 7px;
     border-radius: 20px;
 }
+
+.destaque {
+    border-left: black solid 2px;
+    border-radius: 2px;
+}

@@ -15,7 +15,7 @@ function pages()
     });
 
     app.get('/home', (req,res)=>{
-        res.render('home.ejs');
+        res.render('home.ejs', {USER: req.session.user});
     })
     
 

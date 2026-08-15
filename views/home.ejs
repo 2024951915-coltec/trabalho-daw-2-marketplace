@@ -19,7 +19,7 @@
     
 
     <!-- Header Principal com as classes adicionadas -->
-    <header>
+    <header class="mb-3">
         <!-- Barra de Acessibilidade Superior com as classes adicionadas -->
         <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
             <a href="#main-content" accesskey="1">Ir para o conteúdo</a>
@@ -30,7 +30,7 @@
             <!-- Logotipo -->
             <div class="logo">
                 <a href="/" aria-label="Página inicial GalinhasGordas">
-                    <img src="/imagens/logo.png" alt="GalinhasGordas Home" width="120">i
+                    <img src="/imagens/logo.png" alt="GalinhasGordas Home" width="120"> <!--Removeu o i-->
                 </a>
             </div>
 
@@ -59,39 +59,63 @@
 
     </header>
 
-    <!--A página principal -->
-    <main class="container-md row mt-3">
-        <article class="col-md-5">
-            <!-- Campo de Pesquisa com as classes adicionadas -->
-            <form action="/pesquisa" method="GET" role="search" class="input-group mb-3">
-                <input 
-                    type="search" 
-                    id="search-input"
-                    class="form-control"
-                    name="q" 
-                    placeholder="Pesquisar produtos..." 
-                    aria-label="Buscar no site"
-                    required
-                >
-                <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
-            </form>
+    <main id="maincontent" class="container-md">
+        <h1>Bem vindo, <strong><%= USER.name %></strong>!</h1>
+        <p>O que deseja comprar hoje?</p>
+        <!--A página principal -->
+        <article class="container-md row mt-3">
+            <div class="col-md-5">
+                <!-- Campo de Pesquisa com as classes adicionadas -->
+                <form action="/pesquisa" method="GET" role="search" class="input-group mb-3">
+                    <input 
+                        type="search" 
+                        id="search-input"
+                        class="form-control"
+                        name="q" 
+                        placeholder="Pesquisar produtos..." 
+                        aria-label="Buscar no site"
+                        required
+                    >
+                    <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
+                </form>
+                <!--Add opções de filtragem-->
+            </div>
 
-            Lorem ipsum...
+            <aside class="destaque col-md-6 mt-3">        
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <!--Exemplo de cartão-->
+                        <div class="card">
+                            <img src="algum.link/da/internet" class="card-img-top" alt="imagine uma imagem de um produto.png" height="120">
+                            <div class="card-body">
+                                <h3 class="card-title">Meu produto</h3>
+
+                                <p class="card-subtitle fw-semibold text-secondary">R$ 200.00</p>
+                                <p class="card-text">Compre meu produto pfv</p>
+                                <p class="card-text">Avenida Avenildo, nº 67</p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-6">
+                        <!--Exemplo de cartão-->
+                        <div class="card">
+                            <img src="algum.link/da/internet" class="card-img-top" alt="imagine uma imagem de um produto.png" height="120">
+                            <div class="card-body">
+                                <h3 class="card-title">Meu produto 2</h3>
+
+                                <p class="card-subtitle fw-semibold text-secondary">R$ 100.00</p>
+                                <p class="card-text">Compre meu produto pfvr</p>
+                                <p class="card-text">Avenida Avenildo, nº 69</p>
+                            </div>
+                        </div>
+                        <!--Exemplo de cartão-->
+                    </div>
+                </div>
+            </aside>
         </article>
-
-        <aside class="col-md-7 mt-3">
-            
-            <!--Para testar exibição. Remover depois-->
-            <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque non mauris eu lorem iaculis sodales ut vitae magna. 
-                Praesent id elit magna. Nulla facilisi. Vestibulum id elementum turpis. Donec ultricies lacus facilisis porttitor 
-                consequat. Nunc ultrices ipsum laoreet urna tristique ultrices. Curabitur feugiat at orci id efficitur. Integer lobortis 
-                pretium orci, dapibus laoreet orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Quisque fringilla 
-                egestas augue sed aliquet. Integer lobortis condimentum ultrices. Pellentesque mollis turpis quis arcu laoreet, egestas 
-                aliquet odio elementum. Aliquam lobortis iaculis iaculis. Cras luctus imperdiet dui eget ultrices. Aliquam tortor lorem, 
-                fringilla quis mauris ac, imperdiet eleifend justo. Vivamus consequat elit lectus, nec dictum nisi fermentum ac.
-            </p>
-        </aside>
     </main>
 
 
