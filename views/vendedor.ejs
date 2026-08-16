@@ -15,7 +15,7 @@
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
     crossorigin="anonymous"></script>
 
-    <link class="style-local" rel="stylesheet" href="/css/home.css">
+    <link class="style-local" rel="stylesheet" href="/css/vendedor.css">
     
 </head>
 
@@ -46,12 +46,7 @@
                 <a href="/login" class="action-link" aria-label="Entrar na minha conta">
                     Minha Conta / Entrar
                 </a>
-
-                <!-- Carrinho de Compras -->
-                <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
-                    Carrinho (<span class="cart-badge">0</span>)
-                </a>
-
+                
             </div>
 
             <!-- MENU TELEFONE/PDA -->
@@ -73,10 +68,6 @@
                             Minha Conta / Entrar
                         </a>
 
-                        <!-- Carrinho de Compras -->
-                        <a href="/carrinho" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
-                            Carrinho (<span class="cart-badge">0</span>)
-                        </a>
                     </div>
                 </div>
             </div>
@@ -86,7 +77,7 @@
 
     <main id="maincontent" class="container-md">
         <h1>Bem vindo, <strong><%= USER.name %></strong>!</h1>
-        <p>O que deseja comprar hoje?</p>
+        <p>Gerencie sua loja e seus produtos.</p>
         <!--A página principal -->
         <article class="container-md row mt-3">
             <div class="col-md-5">
@@ -106,39 +97,76 @@
                 <!--Add opções de filtragem-->
             </div>
 
+            <h2>Adicionar produto</h2>
+
+        <form action="/vendedor/produto" method="POST">
+
+            <div>
+                <label for="name">Nome do produto</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="description">Descrição</label>
+                <textarea
+                    id="description"
+                    name="description"
+                ></textarea>
+            </div>
+
+            <div>
+                <label for="stock">Estoque</label>
+                <input
+                    type="number"
+                    id="stock"
+                    name="stock"
+                    min="0"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="categoriaId">Categoria</label>
+            <select name="categoriaId" id="categoriaId" required>
+                <option value="">Selecione uma categoria</option>
+                <% categorias.forEach(categoria => { %>
+                    <option value="<%= categoria.id %>">
+                        <%= categoria.name %>
+                    </option>
+                <% }) %>
+            </select>
+            </div>
+
+            <button type="submit">
+                Adicionar produto
+            </button>
+
+        </form>
+        <!--
             <aside class="destaque col-md-6 mt-3">        
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <!--Exemplo de cartão-->
+                        
                         <div class="card">
-                            <h2>Produtos disponíveis</h2>
-                            <div class="produtos">
-                                <% produtos.forEach(produto => { %>
-                                    <article class="produto">
-                                        <h3>
-                                            <%= produto.name %>
-                                        </h3>
-                                        <p>
-                                            <%= produto.description %>
-                                        </p>
-                                        <p>
-                                            Estoque: <%= produto.stock %>
-                                        </p>
-                                        <p>
-                                            Loja:
-                                            <strong>
-                                                <%= produto.loja.name %>
-                                            </strong>
-                                        </p>
-                                    </article>
-                                <% }) %>
-                            </div>
+                            <img src="algum.link/da/internet" class="card-img-top" alt="imagine uma imagem de um produto.png" height="120">
+                            <div class="card-body">
+                                <a class="card-title h3 link-underline link-underline-opacity-0" href="/link/do-produto">Meu produto</a>
+
+                                <p class="card-subtitle fw-semibold text-secondary">R$ 200.00</p>
+                                <p class="card-text">SEU PRODUTO </p>
+                                <p class="card-text">Avenida Avenildo, nº 69</p>
                             </div>
                         </div>
-                        <!--Exemplo de cartão-->
+                        
                     </div>
                 </div>
             </aside>
+        -->
         </article>
     </main>
 

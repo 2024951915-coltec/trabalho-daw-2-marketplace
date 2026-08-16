@@ -8,7 +8,7 @@ body {
     margin: 0;
 }
 
-.Login {
+.Cadastro {
     background-color: #d1a000; /* Cor de fundo creme vintage */
     padding: 20px;
     width: 300px;
@@ -19,7 +19,7 @@ body {
     box-shadow: 8px 8px 0px #000; /* Sombra sólida, sem desfoque (pixel art style) */
 }
 
-.Login h2 {
+.Cadastro h2 {
     text-align: center;
     margin-bottom: 20px;
     text-transform: uppercase; /* Letras maiúsculas combinam mais */
@@ -47,6 +47,50 @@ body {
     font-family: inherit;
 }
 
+.input input:focus {
+    outline: none;
+    background-color: #f5f5f5;
+    box-shadow: 4px 4px 0 #000;
+}
+
+.Cadastro > form > label {
+    display: block;
+    margin-bottom: 10px;
+
+    font-weight: bold;
+}
+
+.tipo-usuario {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tipo-opcao {
+    flex: 1;
+
+    padding: 10px;
+
+    text-align: center;
+
+    background-color: #fff;
+
+    border: 3px solid #000;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+/* Radio escondido */
+.tipo-opcao input {
+    margin-right: 5px;
+}
+
+/* Hover */
+.tipo-opcao:hover {
+    background-color: #e8e8e8;
+}
 
 button {
     width: 100%;

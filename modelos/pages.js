@@ -14,11 +14,55 @@ function pages()
         res.redirect('/home');
     });
 
-    app.get('/home', (req,res)=>{
-        res.render('home.ejs', {USER: req.session.user});
-    })
-    
+    app.get('/home', async (req, res) => {
 
+    const produtos = await tabelas.produto.findAll({
+        include: [
+            {
+                model: tabelas.loja,
+                attributes: ['id', 'name']
+            }
+        ]
+    });
+
+    res.render('home.ejs', {
+        USER: req.session.user,
+        produtos
+    });
+});
+
+    app.get('/vendedor', async (req, res) => {
+
+    try {
+
+        const lojaId = req.session.user.lojaId;
+
+        const produtos = await tabelas.produto.findAll({
+            where: {
+                lojaId: lojaId
+            }
+        });
+
+        const categorias = await tabelas.categoria.findAll({
+            order: [['name', 'ASC']]
+        });
+
+        res.render('vendedor', {
+            produtos,
+            categorias,
+            USER: req.session.user
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).send(
+            'Erro ao carregar a página do vendedor.'
+        );
+    }
+});
+    
     //Páginas de usuário
 
  app.get('/login', (req, res)=>{
@@ -26,25 +70,60 @@ function pages()
     })
 
 
-    app.post('/login', async (req, res) =>{ 
-        const {username, senha} = req.body;
+    app.post('/login', async (req, res) => {
 
-        const user = await tabelas.usuario.findOne({ where: {username}});
+    const { username, senha } = req.body;
 
-        if(user){
-            const isValid = await comparePass(senha, user.passhash);
-
-            if(isValid){
-                req.session.user =  {
-                    id: user.id,
-                    name: user.username
-                };
-            return res.redirect('/home');
-            }
-        }
-
-        res.send('Usuário ou senha incorretos. Tente novamente');
+    // Procura o usuário pelo username
+    const user = await tabelas.usuario.findOne({
+        where: { username }
     });
+
+
+    // Usuário não encontrado
+    if (!user) {
+        return res.send('Usuário ou senha incorretos. Tente novamente');
+    }
+
+    // Verifica a senha
+    const isValid = await comparePass(senha, user.passhash);
+
+    if (!isValid) {
+        return res.send('Usuário ou senha incorretos. Tente novamente');
+    }
+
+    // Procura o vendedors
+    const vendedor = await tabelas.vendedor_perfil.findOne({
+    where: {
+        user: user.id
+    }
+    });
+
+    console.log('USUÁRIO LOGADO:', user.id, user.username, user.category);
+    console.log('VENDEDOR ENCONTRADO:', vendedor);
+    console.log('LOJA ID:', vendedor ? vendedor.lojaId : null);
+
+    // Cria a sessão
+    req.session.user = {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    category: user.category,
+    lojaId: vendedor ? vendedor.lojaId : null
+};
+
+    // Decide para onde enviar de acordo com o banco
+    if (user.category === 'user') {
+        return res.redirect('/home');
+    }
+
+    if (user.category === 'vendedor') {
+        return res.redirect('/vendedor');
+    }
+
+    // Caso exista uma categoria inválida
+    return res.status(403).send('Categoria de usuário inválida');
+});
 
     // Cadastro
 
@@ -52,24 +131,81 @@ function pages()
         res.render('signin.ejs');
     })
 
-    app.post('/sign-in', async (req, res)=>{
-        const {nome, username, senha} = req.body;
+    app.post('/sign-in', async (req, res) => {
+    try {
+        const { nome, username, senha, category } = req.body;
 
-        const user = await tabelas.usuario.findOne({ where: {username}});
+        const userExistente = await tabelas.usuario.findOne({
+            where: { username }
+        });
 
-        // Se o usuário não existir em todo o BD, ele é criado
-        if(!user){
-            tabelas.usuario.create({
-                name: nome,
-                username: username,
-                passhash: senha,
-            });
-
-            return res.redirect('/login');
+        // Usuário já existe
+        if (userExistente) {
+            return res.send(`Usuário ${username} já existente`);
         }
 
-        res.send("Usuário", username, "já existente");
-    });
+        // Cria o usuário
+        const user = await tabelas.usuario.create({
+            name: nome,
+            username: username,
+            passhash: senha,
+            category: category
+        });
+
+        // Se for vendedor, cria automaticamente a loja
+        // e o perfil de vendedor
+        if (category === 'vendedor') {
+
+            const loja = await tabelas.loja.create({
+                name: `Loja de ${nome}`,
+                description: ''
+            });
+
+            await tabelas.vendedor_perfil.create({
+                user: user.id,
+                lojaId: loja.id,
+                description: ''
+            });
+        }
+
+        return res.redirect('/login');
+
+    } catch (error) {
+        console.error('Erro ao criar usuário:', error);
+        return res.status(500).send('Erro ao criar usuário.');
+    }
+});
+
+    app.post('/vendedor/produto', async (req, res) => {
+    try {
+        const { name, description, stock, categoriaId } = req.body;
+
+        const lojaId = req.session.user.lojaId;
+
+        //console.log('LOJA ID:', lojaId);
+        //console.log('CATEGORIA ID:', categoriaId);
+
+        const loja = await tabelas.loja.findByPk(lojaId);
+        const categoria = await tabelas.categoria.findByPk(categoriaId);
+
+        //console.log('LOJA ENCONTRADA:', loja);
+        //console.log('CATEGORIA ENCONTRADA:', categoria);
+
+        await tabelas.produto.create({
+            name,
+            description,
+            stock,
+            lojaId,
+            categoriaId
+        });
+
+        res.redirect('/vendedor');
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao adicionar produto.');
+    }
+});
 
     app.get('/:user', requireAuth, (req, res)=>{
         const u = req.params.user;
