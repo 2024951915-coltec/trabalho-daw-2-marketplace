@@ -92,7 +92,35 @@ const tabelas = {
     ),
 
     vendedor_perfil:
-    database.define('vendedor', 
+database.define('vendedor',
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            autoIncrement: true,
+        },
+
+        user: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+
+        description: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            defaultValue: ''
+        },
+
+        lojaId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        }
+    }
+),
+
+    loja:
+    database.define('loja',
         {
             id: {
                 type: DataTypes.INTEGER,
@@ -101,10 +129,15 @@ const tabelas = {
                 autoIncrement: true,
             },
 
+            name: {
+                type: DataTypes.TEXT,
+                allowNull: false,
+            },
+
             description: {
                 type: DataTypes.TEXT,
-                allowNull: false, 
-                defaultValue: ''
+                allowNull: false,
+                defaultValue: '',
             }
         }
     ),
@@ -127,32 +160,42 @@ const tabelas = {
     ),
 
     produto:
-    database.define('produto',
-        {
-            id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                allowNull: false,
-                autoIncrement: true,
-            },
+database.define('produto',
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            autoIncrement: true,
+        },
 
-            name: {
-                type: DataTypes.TEXT,
-                allowNull: false,
-            },
+        name: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
 
-            description: {
-                type: DataTypes.TEXT,
-                allowNull: false,
-                defaultValue: '',
-            },
+        description: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            defaultValue: '',
+        },
 
-            stock: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
+        stock: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+
+        lojaId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+
+        categoriaId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         }
-    ),
+    }
+),
 
     item_carrinho:
     database.define('item_carrinho',
@@ -276,9 +319,29 @@ tabelas.usuario.belongsToMany(tabelas.endereco, {
 tabelas.usuario.hasOne(tabelas.vendedor_perfil, {foreignKey: 'user'});
 tabelas.vendedor_perfil.belongsTo(tabelas.usuario, {foreignKey: 'user'});
 
+tabelas.loja.hasMany(tabelas.vendedor_perfil, {
+    foreignKey: 'lojaId'
+});
+tabelas.vendedor_perfil.belongsTo(tabelas.loja, {
+    foreignKey: 'lojaId'
+});
+
+// Loja-produto (1-n)
+tabelas.loja.hasMany(tabelas.produto, {
+    foreignKey: 'lojaId'
+});
+tabelas.produto.belongsTo(tabelas.loja, {
+    foreignKey: 'lojaId'
+});
+
 //Categoria-produto (1-n)
-tabelas.categoria.hasMany(tabelas.produto, {foreignKey: 'category'});
-tabelas.produto.belongsTo(tabelas.categoria, {foreignKey: 'category'});
+tabelas.categoria.hasMany(tabelas.produto, {
+    foreignKey: 'categoriaId'
+});
+
+tabelas.produto.belongsTo(tabelas.categoria, {
+    foreignKey: 'categoriaId'
+});
 
 //Produto-item de carrinho (1-n)
 tabelas.produto.hasMany(tabelas.item_carrinho, {foreignKey: 'product'});
@@ -302,11 +365,39 @@ tabelas.item_pedido.belongsToMany(tabelas.usuario, {through: tabelas.pedido});
 
 //sincronização
 database.sync()
-.then(()=>{
+.then(async () => {
+
     console.log('Banco de dados sincronizado com sucesso!');
+
+    const quantidadeCategorias = await tabelas.categoria.count();
+
+    if (quantidadeCategorias === 0) {
+
+        await tabelas.categoria.bulkCreate([
+            {
+                name: 'Roupas'
+            },
+            {
+                name: 'Eletrônicos'
+            },
+            {
+                name: 'Alimentos'
+            },
+            {
+                name: 'Calçados'
+            }
+        ]);
+
+        console.log('Categorias padrão criadas com sucesso!');
+    }
+
 })
-.catch((error)=>{
-    console.error('Não é possível prosseguir com o funcionamento do app devido a um erro de sincronização com o banco de dados:\n');
+.catch((error) => {
+
+    console.error(
+        'Não é possível prosseguir com o funcionamento do app devido a um erro de sincronização com o banco de dados:\n'
+    );
+
     console.error('\t> ' + error + '\n');
 })
 

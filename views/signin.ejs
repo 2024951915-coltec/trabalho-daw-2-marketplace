@@ -37,6 +37,33 @@
                 <label for="senha">Senha</label>
                 <input type="password" id="senha" name="senha" required placeholder="...">
             </div>
+
+           <label>Você deseja se cadastrar como:</label>
+
+            <div class="tipo-usuario">
+
+                <label class="tipo-opcao" for="cliente">
+                    <input
+                        type="radio"
+                        id="cliente"
+                        name="category"
+                        value="user"
+                        checked
+                    >
+                    Cliente
+                </label>
+
+                <label class="tipo-opcao" for="vendedor">
+                    <input
+                        type="radio"
+                        id="vendedor"
+                        name="category"
+                        value="vendedor"
+                    >
+                    Vendedor
+                </label>
+
+            </div>
         
             <button type="submit">Cadastrar</button>
         </form>
