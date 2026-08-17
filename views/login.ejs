@@ -31,7 +31,12 @@
                 <input type="password" id="senha" name="senha" required placeholder="Sua senha">
             </div>
 
-        
+            <%if (erro) {%>
+                <div class="alert alert-danger mt-3" role="alert">
+                    <%= erro %>
+                </div>
+
+            <% } %>
             <button type="submit">Entrar</button>
 
         </form>

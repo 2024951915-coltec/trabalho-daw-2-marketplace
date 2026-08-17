@@ -24,9 +24,9 @@ function pages()
             }
         ]
     });
-
+    
     res.render('home.ejs', {
-        USER: req.session.user,
+        USER: req.session.user || null,
         produtos
     });
 });
@@ -65,9 +65,11 @@ function pages()
     
     //Páginas de usuário
 
- app.get('/login', (req, res)=>{
-       res.render('login.ejs');
-    })
+app.get('/login', (req, res) => {
+    res.render('login.ejs', {
+        erro: null
+    });
+});
 
 
     app.post('/login', async (req, res) => {
@@ -81,15 +83,19 @@ function pages()
 
 
     // Usuário não encontrado
-    if (!user) {
-        return res.send('Usuário ou senha incorretos. Tente novamente');
+   if (!user) {
+        return res.render('login.ejs', {
+            erro: 'Usuário ou senha incorretos. Tente novamente.'
+        });
     }
 
     // Verifica a senha
     const isValid = await comparePass(senha, user.passhash);
 
     if (!isValid) {
-        return res.send('Usuário ou senha incorretos. Tente novamente');
+        return res.render('login.ejs', {
+            erro: 'Usuário ou senha incorretos. Tente novamente.'
+        });
     }
 
     // Procura o vendedors
@@ -128,7 +134,9 @@ function pages()
     // Cadastro
 
     app.get('/sign-in', (req, res)=>{
-        res.render('signin.ejs');
+        res.render('signin.ejs', {
+            erro: null
+        });
     })
 
     app.post('/sign-in', async (req, res) => {
@@ -141,7 +149,8 @@ function pages()
 
         // Usuário já existe
         if (userExistente) {
-            return res.send(`Usuário ${username} já existente`);
+            return res.render(`signin.ejs`,{
+                erro: `Usuário ${username} já existente`});
         }
 
         // Cria o usuário
@@ -220,7 +229,9 @@ function pages()
 
     app.get('/:user/view-profile', requireAuth, (req, res) => {
         const u = req.params.user;
-        return res.render('profile_information.ejs');
+        return res.render('profile_information.ejs',{
+            USER: req.session.user
+        });
     })
 
     app.get('/:user/password-change', requireAuth, (req, res) => {

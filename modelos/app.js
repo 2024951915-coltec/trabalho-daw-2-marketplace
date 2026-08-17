@@ -39,7 +39,7 @@ function requireAuth(req, res, next)
     {
         next();
     }
-    else res.redirect('/login');
+    else res.redirect('/home');
 }
 
 const comparePass = bcrypt.compare;

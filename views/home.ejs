@@ -43,9 +43,16 @@
             <div class="d-none d-sm-flex user-actions">
                 
                 <!-- Área de Login -->
-                <a href="/login" class="action-link" aria-label="Entrar na minha conta">
-                    Minha Conta / Entrar
-                </a>
+                <% if (!USER) { %>
+                    <a href="/login" class="action-link" aria-label="Entrar na minha conta">
+                        Entrar
+                    </a>
+                <% } else { %>
+                    <a href="/profile_information" class="action-link" aria-label="Minha conta">
+                        Minha conta
+                    </a>
+                <% } %>
+
 
                 <!-- Carrinho de Compras -->
                 <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
@@ -85,7 +92,7 @@
     </header>
 
     <main id="maincontent" class="container-md">
-        <h1>Bem vindo, <strong><%= USER.name %></strong>!</h1>
+        <h1>Bem vindo!</h1>
         <p>O que deseja comprar hoje?</p>
         <!--A página principal -->
         <article class="container-md row mt-3">
