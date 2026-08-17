@@ -106,38 +106,40 @@
                 <!--Add opções de filtragem-->
             </div>
 
-            <aside class="destaque col-md-6 mt-3">        
-                <div class="row">
+            <aside class="destaque col-md-6 mt-3">   
+                
+                <h2>Produtos disponíveis</h2>
+                <% PRODUTOS.forEach((produto, idx) => { %>
+                <% if(idx % 2 == 0) { %>
+                <div class="row mb-md-3">
+                <% } %>
+                    
                     <div class="col-md-6 mb-3">
                         <!--Exemplo de cartão-->
-                        <div class="card">
-                            <h2>Produtos disponíveis</h2>
-                            <div class="produtos">
-                                <% produtos.forEach(produto => { %>
-                                    <article class="produto">
-                                        <h3>
-                                            <%= produto.name %>
-                                        </h3>
-                                        <p>
-                                            <%= produto.description %>
-                                        </p>
-                                        <p>
-                                            Estoque: <%= produto.stock %>
-                                        </p>
-                                        <p>
-                                            Loja:
-                                            <strong>
-                                                <%= produto.loja.name %>
-                                            </strong>
-                                        </p>
-                                    </article>
-                                <% }) %>
-                            </div>
-                            </div>
+                        <div class="card card-body">
+                            <h3 class="card-title">
+                                <%= produto.name %>
+                            </h3>
+                            <p class="card-subtitle fw-semibold text-secondary">
+                                <%= produto.description %>
+                            </p>
+                            <p class="card-text">
+                                Estoque: <%= produto.stock %>
+                            </p>
+                            <p class="card-text">
+                                Loja:
+                                <strong>
+                                    <%= produto.loja.name %>
+                                </strong>
+                            </p>                        
                         </div>
                         <!--Exemplo de cartão-->
                     </div>
+                    
+                <% if(idx % 2 == 0) { %>
                 </div>
+                <% } %>
+                <% }) %>
             </aside>
         </article>
     </main>

@@ -4,6 +4,11 @@
 import {app, requireAuth, comparePass, hashPass} from './app.js';
 import {database, tabelas} from './db.js';
 
+//set com categorias válidas
+const CATEGORIAS = new Set(['admin', 'vendedor', 'user']);
+
+const E_UMA_CATEGORIA_VALIDA = (cat)=>{return CATEGORIAS.has(cat)};
+
 //Função para carregar as páginas
 function pages()
 {
@@ -16,114 +21,114 @@ function pages()
 
     app.get('/home', async (req, res) => {
 
-    const produtos = await tabelas.produto.findAll({
-        include: [
-            {
-                model: tabelas.loja,
-                attributes: ['id', 'name']
-            }
-        ]
-    });
+        const produtos = await tabelas.produto.findAll({
+            include: [
+                {
+                    model: tabelas.loja,
+                    attributes: ['id', 'name']
+                }
+            ]
+        });
 
-    res.render('home.ejs', {
-        USER: req.session.user,
-        produtos
+        res.render('home.ejs', {
+            USER: req.session.user,
+            PRODUTOS: produtos
+        });
     });
-});
 
     app.get('/vendedor', async (req, res) => {
 
-    try {
+        try {
 
-        const lojaId = req.session.user.lojaId;
+            const lojaId = req.session.user.lojaId;
 
-        const produtos = await tabelas.produto.findAll({
-            where: {
-                lojaId: lojaId
-            }
-        });
+            const produtos = await tabelas.produto.findAll({
+                where: {
+                    lojaId: lojaId
+                }
+            });
 
-        const categorias = await tabelas.categoria.findAll({
-            order: [['name', 'ASC']]
-        });
+            const categorias = await tabelas.categoria.findAll({
+                order: [['name', 'ASC']]
+            });
 
-        res.render('vendedor', {
-            produtos,
-            categorias,
-            USER: req.session.user
-        });
+            res.render('vendedor', {
+                produtos,
+                categorias,
+                USER: req.session.user
+            });
 
-    } catch (error) {
+        } catch (error) {
 
-        console.error(error);
+            console.error(error);
 
-        res.status(500).send(
-            'Erro ao carregar a página do vendedor.'
-        );
-    }
-});
+            res.status(500).send(
+                'Erro ao carregar a página do vendedor.'
+            );
+        }
+    });
     
     //Páginas de usuário
 
- app.get('/login', (req, res)=>{
+    app.get('/login', (req, res)=>{
        res.render('login.ejs');
     })
 
 
     app.post('/login', async (req, res) => {
 
-    const { username, senha } = req.body;
+        const { username, senha } = req.body;
 
-    // Procura o usuário pelo username
-    const user = await tabelas.usuario.findOne({
-        where: { username }
+        // Procura o usuário pelo username
+        const user = await tabelas.usuario.findOne({
+            where: { username }
+        });
+
+
+        // Usuário não encontrado
+        if (!user) {
+            return res.send('Usuário ou senha incorretos. Tente novamente');
+        }
+
+        // Verifica a senha
+        const isValid = await comparePass(senha, user.passhash);
+
+        if (!isValid) {
+            return res.send('Usuário ou senha incorretos. Tente novamente');
+        }
+
+        // Procura o vendedors
+        const vendedor = await tabelas.vendedor_perfil.findOne({
+            where: {
+                user: user.id
+            }
+        });
+
+        console.log('USUÁRIO LOGADO:', user.id, user.username, user.category);
+        if(vendedor)
+        {
+            console.log('VENDEDOR ENCONTRADO:', vendedor);
+            console.log('LOJA ID:', vendedor ? vendedor.lojaId : null);
+        }
+
+        // Cria a sessão
+        req.session.user = {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            category: user.category,
+            lojaId: vendedor ? vendedor.lojaId : null
+        };
+
+        // se for valida a categoria, redirecionar para /home
+        // TODOS os usuários devem ser redirecionados para /home independente de categoria
+        if (E_UMA_CATEGORIA_VALIDA(user.category)) {
+            return res.redirect('/home');
+        }
+
+        // Caso exista uma categoria inválida
+        return res.status(403).send('Categoria de usuário inválida');
     });
-
-
-    // Usuário não encontrado
-    if (!user) {
-        return res.send('Usuário ou senha incorretos. Tente novamente');
-    }
-
-    // Verifica a senha
-    const isValid = await comparePass(senha, user.passhash);
-
-    if (!isValid) {
-        return res.send('Usuário ou senha incorretos. Tente novamente');
-    }
-
-    // Procura o vendedors
-    const vendedor = await tabelas.vendedor_perfil.findOne({
-    where: {
-        user: user.id
-    }
-    });
-
-    console.log('USUÁRIO LOGADO:', user.id, user.username, user.category);
-    console.log('VENDEDOR ENCONTRADO:', vendedor);
-    console.log('LOJA ID:', vendedor ? vendedor.lojaId : null);
-
-    // Cria a sessão
-    req.session.user = {
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    category: user.category,
-    lojaId: vendedor ? vendedor.lojaId : null
-};
-
-    // Decide para onde enviar de acordo com o banco
-    if (user.category === 'user') {
-        return res.redirect('/home');
-    }
-
-    if (user.category === 'vendedor') {
-        return res.redirect('/vendedor');
-    }
-
-    // Caso exista uma categoria inválida
-    return res.status(403).send('Categoria de usuário inválida');
-});
 
     // Cadastro
 
@@ -176,9 +181,9 @@ function pages()
     }
 });
 
-    app.post('/vendedor/produto', async (req, res) => {
+    app.post('/vendedor/produto', requireAuth, async (req, res) => {
     try {
-        const { name, description, stock, categoriaId } = req.body;
+        const { name, description, stock, categoriaId, preco } = req.body;
 
         const lojaId = req.session.user.lojaId;
 
@@ -193,6 +198,7 @@ function pages()
 
         await tabelas.produto.create({
             name,
+            preco,
             description,
             stock,
             lojaId,
