@@ -15,244 +15,236 @@ function pages()
     });
 
     app.get('/home', async (req, res) => {
+        const produtos = await tabelas.produto.findAll({
+            include: [
+                {
+                    model: tabelas.loja,
+                    attributes: ['id', 'name']
+                }
+            ]
+        });
 
-    const produtos = await tabelas.produto.findAll({
-        include: [
-            {
-                model: tabelas.loja,
-                attributes: ['id', 'name']
-            }
-        ]
+        res.render('home.ejs', {
+            USER: req.session.user,
+            produtos
+        });
     });
-
-    res.render('home.ejs', {
-        USER: req.session.user,
-        produtos
-    });
-});
 
     app.get('/vendedor', async (req, res) => {
+        try {
+            const lojaId = req.session.user.lojaId;
 
-    try {
+            const produtos = await tabelas.produto.findAll({
+                where: {
+                    lojaId: lojaId
+                }
+            });
 
-        const lojaId = req.session.user.lojaId;
+            const categorias = await tabelas.categoria.findAll({
+                order: [['name', 'ASC']]
+            });
 
-        const produtos = await tabelas.produto.findAll({
-            where: {
-                lojaId: lojaId
-            }
-        });
+            res.render('vendedor', {
+                produtos,
+                categorias,
+                USER: req.session.user
+            });
 
-        const categorias = await tabelas.categoria.findAll({
-            order: [['name', 'ASC']]
-        });
+        } catch (error) {
 
-        res.render('vendedor', {
-            produtos,
-            categorias,
-            USER: req.session.user
-        });
+            console.error(error);
 
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).send(
-            'Erro ao carregar a página do vendedor.'
-        );
-    }
-});
+            res.status(500).send(
+                'Erro ao carregar a página do vendedor.'
+            );
+        }
+    });
     
     //Páginas de usuário
 
- app.get('/login', (req, res)=>{
+    app.get('/login', (req, res)=>{
        res.render('login.ejs');
     })
 
 
     app.post('/login', async (req, res) => {
+        const { username, senha } = req.body;
 
-    const { username, senha } = req.body;
+        // Procura o usuário pelo username
+        const user = await tabelas.usuario.findOne({
+            where: { username }
+        });
 
-    // Procura o usuário pelo username
-    const user = await tabelas.usuario.findOne({
-        where: { username }
+
+        // Usuário não encontrado
+        if (!user) {
+            return res.send('Usuário ou senha incorretos. Tente novamente');
+        }
+
+        // Verifica a senha
+        const isValid = await comparePass(senha, user.passhash);
+
+        if (!isValid) {
+            return res.send('Usuário ou senha incorretos. Tente novamente');
+        }
+
+        // Procura o vendedors
+        const vendedor = await tabelas.vendedor_perfil.findOne({
+        where: {
+            user: user.id
+        }
+        });
+
+        console.log('USUÁRIO LOGADO:', user.id, user.username, user.category);
+        console.log('VENDEDOR ENCONTRADO:', vendedor);
+        console.log('LOJA ID:', vendedor ? vendedor.lojaId : null);
+
+        // Cria a sessão
+        req.session.user = {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            category: user.category,
+            lojaId: vendedor ? vendedor.lojaId : null
+        };
+
+        // Decide para onde enviar de acordo com o banco
+        if (user.category === 'user') {
+            return res.redirect('/home');
+        }
+
+        if (user.category === 'vendedor') {
+            return res.redirect('/vendedor');
+        }
+
+        // Caso exista uma categoria inválida
+        return res.status(403).send('Categoria de usuário inválida');
     });
-
-
-    // Usuário não encontrado
-    if (!user) {
-        return res.send('Usuário ou senha incorretos. Tente novamente');
-    }
-
-    // Verifica a senha
-    const isValid = await comparePass(senha, user.passhash);
-
-    if (!isValid) {
-        return res.send('Usuário ou senha incorretos. Tente novamente');
-    }
-
-    // Procura o vendedors
-    const vendedor = await tabelas.vendedor_perfil.findOne({
-    where: {
-        user: user.id
-    }
-    });
-
-    console.log('USUÁRIO LOGADO:', user.id, user.username, user.category);
-    console.log('VENDEDOR ENCONTRADO:', vendedor);
-    console.log('LOJA ID:', vendedor ? vendedor.lojaId : null);
-
-    // Cria a sessão
-    req.session.user = {
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    category: user.category,
-    lojaId: vendedor ? vendedor.lojaId : null
-};
-
-    // Decide para onde enviar de acordo com o banco
-    if (user.category === 'user') {
-        return res.redirect('/home');
-    }
-
-    if (user.category === 'vendedor') {
-        return res.redirect('/vendedor');
-    }
-
-    // Caso exista uma categoria inválida
-    return res.status(403).send('Categoria de usuário inválida');
-});
 
     // Cadastro
-
     app.get('/sign-in', (req, res)=>{
         res.render('signin.ejs');
     })
 
     app.post('/sign-in', async (req, res) => {
-    try {
-        const { nome, username, senha, category } = req.body;
+        try {
+            const { nome, username, senha, category } = req.body;
 
-        const userExistente = await tabelas.usuario.findOne({
-            where: { username }
-        });
-
-        // Usuário já existe
-        if (userExistente) {
-            return res.send(`Usuário ${username} já existente`);
-        }
-
-        // Cria o usuário
-        const user = await tabelas.usuario.create({
-            name: nome,
-            username: username,
-            passhash: senha,
-            category: category
-        });
-
-        // Se for vendedor, cria automaticamente a loja
-        // e o perfil de vendedor
-        if (category === 'vendedor') {
-
-            const loja = await tabelas.loja.create({
-                name: `Loja de ${nome}`,
-                description: ''
+            const userExistente = await tabelas.usuario.findOne({
+                where: { username }
             });
 
-            await tabelas.vendedor_perfil.create({
-                user: user.id,
-                lojaId: loja.id,
-                description: ''
+            // Usuário já existe
+            if (userExistente) {
+                return res.send(`Usuário ${username} já existente`);
+            }
+
+            // Cria o usuário
+            const user = await tabelas.usuario.create({
+                name: nome,
+                username: username,
+                passhash: senha,
+                category: category
             });
+
+            // Se for vendedor, cria automaticamente a loja
+            // e o perfil de vendedor
+            if (category === 'vendedor') {
+
+                const loja = await tabelas.loja.create({
+                    name: `Loja de ${nome}`,
+                    description: ''
+                });
+
+                await tabelas.vendedor_perfil.create({
+                    user: user.id,
+                    lojaId: loja.id,
+                    description: ''
+                });
+            }
+
+            return res.redirect('/login');
+
+        } catch (error) {
+            console.error('Erro ao criar usuário:', error);
+            return res.status(500).send('Erro ao criar usuário.');
         }
-
-        return res.redirect('/login');
-
-    } catch (error) {
-        console.error('Erro ao criar usuário:', error);
-        return res.status(500).send('Erro ao criar usuário.');
-    }
-});
+    });
 
     app.post('/vendedor/produto', async (req, res) => {
-    try {
-        const { name, description, stock, categoriaId } = req.body;
+        try {
+            const { name, description, stock, categoriaId } = req.body;
 
-        const lojaId = req.session.user.lojaId;
+            const lojaId = req.session.user.lojaId;
 
-        //console.log('LOJA ID:', lojaId);
-        //console.log('CATEGORIA ID:', categoriaId);
+            //console.log('LOJA ID:', lojaId);
+            //console.log('CATEGORIA ID:', categoriaId);
 
-        const loja = await tabelas.loja.findByPk(lojaId);
-        const categoria = await tabelas.categoria.findByPk(categoriaId);
+            const loja = await tabelas.loja.findByPk(lojaId);
+            const categoria = await tabelas.categoria.findByPk(categoriaId);
 
-        //console.log('LOJA ENCONTRADA:', loja);
-        //console.log('CATEGORIA ENCONTRADA:', categoria);
+            //console.log('LOJA ENCONTRADA:', loja);
+            //console.log('CATEGORIA ENCONTRADA:', categoria);
 
-        await tabelas.produto.create({
-            name,
-            description,
-            stock,
-            lojaId,
-            categoriaId
-        });
+            await tabelas.produto.create({
+                name,
+                description,
+                stock,
+                lojaId,
+                categoriaId
+            });
 
-        res.redirect('/vendedor');
+            res.redirect('/vendedor');
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Erro ao adicionar produto.');
-    }
-});
-
-    app.get('/:user', requireAuth, (req, res)=>{
-        const u = req.params.user;
-        res.redirect('/' + u + '/view-profile');
-    })
+        } catch (error) {
+            console.error(error);
+            res.status(500).send('Erro ao adicionar produto.');
+        }
+    });
 
 
-    app.get('/:user/create-addresses', requireAuth, (req, res) => {
-        const u = req.params.user;
-        return res.render('create_addresses.ejs');
-    })
 
     app.get('/:user/view-profile', requireAuth, (req, res) => {
         const u = req.params.user;
         return res.render('profile_information.ejs');
     })
 
-    app.get('/:user/password-change', requireAuth, (req, res) => {
-        const u = req.params.user;
+    app.get('/create-addresses', requireAuth, (req, res) => {
+        return res.render('create_addresses.ejs');
+    })
+
+    app.get('/config/change-password', requireAuth, (req, res) => {
+        const user = req.session.user;
         return res.render('password_change.ejs');
     })
 
-    // Edição de perfil
-    app.get('/:user/edit-profile', requireAuth, async (req, res) => 
+    app.get('/config/edit-profile', requireAuth, async (req, res) => 
     {
-        const u = req.params.user;
         return res.render('edit_profile.ejs', {USER: req.session.user});
     })
 
-    // Apenas carregar a página e passar pelo requireAuth
-    app.get('/:user/view-addresses', requireAuth, (req, res) => {
+    app.get('/config/view-addresses', requireAuth, (req, res) => {
         return res.render('view_addresses.ejs');
     })
 
-    app.get('/:user/edit-addresses', requireAuth, (req, res) => {
+    app.get('/config/edit-addresses', requireAuth, (req, res) => {
         return res.render('edit_addresses.ejs');
+    })
+
+    //página de configuração de conta
+    app.get('/config', requireAuth, (req, res)=>{
+        const user = req.session.user;
+
+        return res.render('config.ejs', {USER : user});
     })
 
     // CADASTRO E LOGIN
 
     // Login
 
-   
-
     // Criar endereço
     // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
-    app.post('/:user/create-addresses', async (req, res) => {
+    app.post('/create-addresses', async (req, res) => {
 
         const {local} = req.body;
 
@@ -279,11 +271,11 @@ function pages()
             return res.send('Endereço já cadastrado.');
         }
         
-    const endereco = await tabelas.endereco.create({
+        const endereco = await tabelas.endereco.create({
             local:local,
         })
 
-    await tabelas.usuario_endereco.create({
+        await tabelas.usuario_endereco.create({
             id_usuario: req.session.user.id,
             id_endereco: endereco.id,
         })
@@ -294,7 +286,7 @@ function pages()
     // EDIÇÃO PEFIL
 
     // Alterar senha
-    app.post('/:user/password-change', async (req, res) => {
+    app.post('/password-change', async (req, res) => {
         const { oldPassword, newPassword} = req.body;
 
         const username = req.session.user.username;
@@ -316,7 +308,7 @@ function pages()
     });
 
     // Alterar username, nome, cpf e número de telefone (Perfil)
-    app.post('/:user/edit-profile', async (req, res) => {
+    app.post('/edit-profile', async (req, res) => {
         const {name, username, cpf, phone_number} = req.body;
 
         const user = await tabelas.usuario.findByPk(req.session.user.id);
@@ -381,6 +373,11 @@ function pages()
             await tabelas.endereco.save();
 
             return res.send('Endereço atualizado.');
+    });
+
+    app.get('/leave', requireAuth, (req, res)=>{
+        req.session.user = undefined;
+        res.redirect('/login');
     });
 }
 
