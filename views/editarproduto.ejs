@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Editar produto</title>
+
+    <link rel="stylesheet" href="/css/vendedor.css">
+
+    </head>
+
+    <body>
+        <main class="adicionar-produto">
+
+            <h2>Editar Produto</h2>
+
+            <form
+            action="/vendedor/produto/<%= produto.id %>/editar"
+            method="POST"
+            >
+
+                <div class="campo-produto">
+
+                    <label for="name">
+                        Nome do produto
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="<%= produto.name %>"
+                        required
+                        >
+
+                </div>
+
+
+                <div class="campo-produto">
+                    <label for="description">
+                        Descrição do produto
+                    </label>
+
+                    <textarea
+                    id="description"
+                    name="description"
+                    ><%= produto.description %>
+                    </textarea>
+
+
+                </div>
+
+                <div class="campo-produto">
+                    <label for="stock">
+                        Estoque do produto
+                    </label>
+
+                    <input
+                    type="text"
+                    id="Estoque"
+                    name="name"
+                    value="<%= produto.stock %>"
+                    required
+                    >
+                </div>
+
+
+            </form>
+
+
+        </main>
+
+
+    </body>
+
+
+</html>

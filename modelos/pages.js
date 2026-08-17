@@ -32,7 +32,7 @@ function pages()
 
         res.render('home.ejs', {
             USER: req.session.user,
-            PRODUTOS: produtos
+            produtos: produtos
         });
     });
 
@@ -44,8 +44,14 @@ function pages()
 
             const produtos = await tabelas.produto.findAll({
                 where: {
-                    lojaId: lojaId
-                }
+                    lojaId: req.session.user.lojaId
+                },
+                include: [
+                    {
+                        model: tabelas.loja,
+                        required: false
+                    }
+                ]
             });
 
             const categorias = await tabelas.categoria.findAll({
@@ -75,60 +81,65 @@ function pages()
     })
 
 
+    app.get('/login', (req, res)=>{
+       res.render('login.ejs');
+    })
+
+
     app.post('/login', async (req, res) => {
 
-        const { username, senha } = req.body;
+    const { username, senha } = req.body;
 
-        // Procura o usuário pelo username
-        const user = await tabelas.usuario.findOne({
-            where: { username }
-        });
-
-
-        // Usuário não encontrado
-        if (!user) {
-            return res.send('Usuário ou senha incorretos. Tente novamente');
-        }
-
-        // Verifica a senha
-        const isValid = await comparePass(senha, user.passhash);
-
-        if (!isValid) {
-            return res.send('Usuário ou senha incorretos. Tente novamente');
-        }
-
-        // Procura o vendedors
-        const vendedor = await tabelas.vendedor_perfil.findOne({
-            where: {
-                user: user.id
-            }
-        });
-
-        console.log('USUÁRIO LOGADO:', user.id, user.username, user.category);
-        if(vendedor)
-        {
-            console.log('VENDEDOR ENCONTRADO:', vendedor);
-            console.log('LOJA ID:', vendedor ? vendedor.lojaId : null);
-        }
-
-        // Cria a sessão
-        req.session.user = {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            category: user.category,
-            lojaId: vendedor ? vendedor.lojaId : null
-        };
-
-        // se for valida a categoria, redirecionar para /home
-        // TODOS os usuários devem ser redirecionados para /home independente de categoria
-        if (E_UMA_CATEGORIA_VALIDA(user.category)) {
-            return res.redirect('/home');
-        }
-
-        // Caso exista uma categoria inválida
-        return res.status(403).send('Categoria de usuário inválida');
+    // Procura o usuário pelo username
+    const user = await tabelas.usuario.findOne({
+        where: { username }
     });
+
+
+    // Usuário não encontrado
+    if (!user) {
+        return res.send('Usuário ou senha incorretos. Tente novamente');
+    }
+
+    // Verifica a senha
+    const isValid = await comparePass(senha, user.passhash);
+
+    if (!isValid) {
+        return res.send('Usuário ou senha incorretos. Tente novamente');
+    }
+
+    // Procura o vendedors
+    const vendedor = await tabelas.vendedor_perfil.findOne({
+    where: {
+        user: user.id
+    }
+    });
+
+    console.log('USUÁRIO LOGADO:', user.id, user.username, user.category);
+    console.log('VENDEDOR ENCONTRADO:', vendedor);
+    console.log('LOJA ID:', vendedor ? vendedor.lojaId : null);
+
+    // Cria a sessão
+    req.session.user = {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    category: user.category,
+    lojaId: vendedor ? vendedor.lojaId : null
+};
+
+    // Decide para onde enviar de acordo com o banco
+    if (user.category === 'user') {
+        return res.redirect('/home');
+    }
+
+    if (user.category === 'vendedor') {
+        return res.redirect('/vendedor');
+    }
+
+    // Caso exista uma categoria inválida
+    return res.status(403).send('Categoria de usuário inválida');
+});
 
     // Cadastro
 
