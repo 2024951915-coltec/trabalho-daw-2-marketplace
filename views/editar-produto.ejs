@@ -60,12 +60,42 @@
                     <input
                     type="text"
                     id="Estoque"
-                    name="name"
+                    name="stock"
                     value="<%= produto.stock %>"
                     required
                     >
                 </div>
 
+                <div class="campo-produto">
+
+                <label for="categoriaId">
+                    Categoria
+                </label>
+
+                <select
+                    name="categoriaId"
+                    id="categoriaId"
+                    required
+                >
+
+                    <% categorias.forEach(categoria => { %>
+
+                        <option
+                            value="<%= categoria.id %>"
+                            <%= produto.category == categoria.id ? 'selected' : '' %>
+                        >
+                            <%= categoria.name %>
+                        </option>
+
+                    <% }) %>
+
+                </select>
+
+            </div>
+
+             <button type="submit">
+                Salvar alterações
+            </button>
 
             </form>
 

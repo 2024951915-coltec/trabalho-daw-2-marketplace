@@ -224,6 +224,73 @@ function pages()
     }
 });
 
+    app.get('/vendedor/produto/:id/editar', async (req, res) => {
+
+    try{
+        const produto = await tabelas.produto.findOne({
+            where: {
+                id: req.params.id,
+                lojaId: req.session.user.lojaId
+            }
+        });
+
+         if (!produto){
+                return res.status(404).send(
+                    'Produto não encontrado ou não habilitado para edicao'
+                );
+            }
+
+        const categorias = await tabelas.categoria.findAll();
+
+            res.render('editar-produto', {
+                produto,
+                categorias
+            });
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).send(
+                'Erro ao carregar o produto.'
+            )
+        }
+    });
+
+    app.post('/vendedor/produto/:id/editar', async (req, res) => {
+        try {
+            const { name, description, stock, categoriaId, preco } = req.body;
+
+            const produto = await tabelas.produto.findOne({
+                where: {
+                    id: req.params.id,
+                    lojaId: req.session.user.lojaId
+                }
+            });
+
+            if (!produto) {
+                return res.status(404).send(
+                    'Produto não encontrado ou não habilitado para edição.'
+                );
+            }
+
+            await produto.update({
+                name,
+                description,
+                stock,
+                categoriaId,
+                preco
+            });
+
+            res.redirect('/vendedor');
+
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).send(
+                'Erro ao editar o produto.'
+            );
+        }
+    });
+
     app.get('/:user', requireAuth, (req, res)=>{
         const u = req.params.user;
         res.redirect('/' + u + '/view-profile');
