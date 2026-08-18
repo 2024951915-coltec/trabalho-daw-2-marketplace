@@ -15,7 +15,7 @@ function pages()
 
     // CARREGAMENTO DE PÁGINAS 
 
-    app.get('/', requireAuth, (req, res) => {
+    app.get('/', (req, res) => {
         res.redirect('/home');
     });
 
@@ -34,6 +34,13 @@ function pages()
             produtos: produtos
         });
     });
+
+    app.get('/busca', async (req, res)=>{
+        const query = req.query;
+        const user = req.session.user;
+
+        res.render('busca.ejs', {USER: user, QUERY: query})
+    })
 
     app.get('/vendedor', async (req, res) => {
         try {
@@ -279,12 +286,6 @@ function pages()
             );
         }
     });
-
-    app.get('/:user', requireAuth, (req, res)=>{
-        const u = req.params.user;
-        res.redirect('/' + u + '/view-profile');
-    })
-
 
 
     app.get('/:user/view-profile', requireAuth, (req, res) => {
