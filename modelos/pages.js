@@ -48,13 +48,9 @@ function pages()
         try {
             const lojaId = req.session.user.lojaId;
 
-        try {
-
-            const lojaId = req.session.user.lojaId;
-
             const produtos = await tabelas.produto.findAll({
                 where: {
-                    lojaId: req.session.user.lojaId
+                    lojaId: lojaId
                 },
                 include: [
                     {
@@ -75,14 +71,11 @@ function pages()
             });
 
         } catch (error) {
-
             console.error(error);
-
-            res.status(500).send(
-                'Erro ao carregar a página do vendedor.'
-            );
+            res.status(500).send('Erro ao carregar a página do vendedor.');
         }
     });
+
     
     //Páginas de usuário
 
@@ -196,32 +189,38 @@ function pages()
     });
 
     app.post('/vendedor/produto', requireAuth, async (req, res) => {
-    try {
-        const { name, description, stock, categoriaId, preco } = req.body;
-
+        try {
+            const { name, description, stock, categoriaId, preco } = req.body;
             const lojaId = req.session.user.lojaId;
 
-            //console.log('LOJA ID:', lojaId);
-            //console.log('CATEGORIA ID:', categoriaId);
+            // console.log('LOJA ID:', lojaId);
+            // console.log('CATEGORIA ID:', categoriaId);
 
             const loja = await tabelas.loja.findByPk(lojaId);
             const categoria = await tabelas.categoria.findByPk(categoriaId);
 
-            //console.log('LOJA ENCONTRADA:', loja);
-            //console.log('CATEGORIA ENCONTRADA:', categoria);
+            // console.log('LOJA ENCONTRADA:', loja);
+            // console.log('CATEGORIA ENCONTRADA:', categoria);
 
-        await tabelas.produto.create({
-            name,
-            preco,
-            description,
-            stock,
-            lojaId,
-            categoriaId
-        });
+            await tabelas.produto.create({
+                name,
+                preco,
+                description,
+                stock,
+                lojaId,
+                categoriaId
+            });
 
-        res.redirect('/vendedor');
-
+            // Redireciona apenas uma vez após criar o produto com sucesso
             res.redirect('/vendedor');
+
+        } catch (error) {
+            // Bloco CATCH que estava faltando para capturar erros
+            console.error("Erro ao criar produto:", error);
+            res.status(500).send('Erro ao salvar o produto.');
+        }
+    }); // <-- Fechamento correto da rota app.post
+
 
     app.get('/vendedor/produto/:id/editar', async (req, res) => {
 
