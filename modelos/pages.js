@@ -29,15 +29,6 @@ function pages()
             ]
         });
 
-        const produtos = await tabelas.produto.findAll({
-            include: [
-                {
-                    model: tabelas.loja,
-                    attributes: ['id', 'name']
-                }
-            ]
-        });
-
         res.render('home.ejs', {
             USER: req.session.user,
             produtos: produtos
