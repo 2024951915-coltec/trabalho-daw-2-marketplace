@@ -92,7 +92,7 @@ const tabelas = {
     ),
 
     vendedor_perfil:
-database.define('vendedor',
+    database.define('vendedor',
     {
         id: {
             type: DataTypes.INTEGER,
@@ -116,8 +116,7 @@ database.define('vendedor',
             type: DataTypes.INTEGER,
             allowNull: false,
         }
-    }
-),
+    }),
 
     loja:
     database.define('loja',
@@ -160,7 +159,7 @@ database.define('vendedor',
     ),
 
     produto:
-database.define('produto',
+    database.define('produto',
     {
         id: {
             type: DataTypes.INTEGER,
@@ -171,6 +170,11 @@ database.define('produto',
 
         name: {
             type: DataTypes.TEXT,
+            allowNull: false,
+        },
+
+        preco: {
+            type: DataTypes.REAL,
             allowNull: false,
         },
 

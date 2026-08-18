@@ -4,6 +4,11 @@
 import {app, requireAuth, comparePass, hashPass} from './app.js';
 import {database, tabelas} from './db.js';
 
+//set com categorias válidas
+const CATEGORIAS = new Set(['admin', 'vendedor', 'user']);
+
+const E_UMA_CATEGORIA_VALIDA = (cat)=>{return CATEGORIAS.has(cat)};
+
 //Função para carregar as páginas
 function pages()
 {
@@ -24,9 +29,18 @@ function pages()
             ]
         });
 
+        const produtos = await tabelas.produto.findAll({
+            include: [
+                {
+                    model: tabelas.loja,
+                    attributes: ['id', 'name']
+                }
+            ]
+        });
+
         res.render('home.ejs', {
             USER: req.session.user,
-            produtos
+            produtos: produtos
         });
     });
 
@@ -34,10 +48,20 @@ function pages()
         try {
             const lojaId = req.session.user.lojaId;
 
+        try {
+
+            const lojaId = req.session.user.lojaId;
+
             const produtos = await tabelas.produto.findAll({
                 where: {
-                    lojaId: lojaId
-                }
+                    lojaId: req.session.user.lojaId
+                },
+                include: [
+                    {
+                        model: tabelas.loja,
+                        required: false
+                    }
+                ]
             });
 
             const categorias = await tabelas.categoria.findAll({
@@ -171,9 +195,9 @@ function pages()
         }
     });
 
-    app.post('/vendedor/produto', async (req, res) => {
-        try {
-            const { name, description, stock, categoriaId } = req.body;
+    app.post('/vendedor/produto', requireAuth, async (req, res) => {
+    try {
+        const { name, description, stock, categoriaId, preco } = req.body;
 
             const lojaId = req.session.user.lojaId;
 
@@ -186,21 +210,90 @@ function pages()
             //console.log('LOJA ENCONTRADA:', loja);
             //console.log('CATEGORIA ENCONTRADA:', categoria);
 
-            await tabelas.produto.create({
+        await tabelas.produto.create({
+            name,
+            preco,
+            description,
+            stock,
+            lojaId,
+            categoriaId
+        });
+
+        res.redirect('/vendedor');
+
+            res.redirect('/vendedor');
+
+    app.get('/vendedor/produto/:id/editar', async (req, res) => {
+
+    try{
+        const produto = await tabelas.produto.findOne({
+            where: {
+                id: req.params.id,
+                lojaId: req.session.user.lojaId
+            }
+        });
+
+         if (!produto){
+                return res.status(404).send(
+                    'Produto não encontrado ou não habilitado para edicao'
+                );
+            }
+
+        const categorias = await tabelas.categoria.findAll();
+
+            res.render('editar-produto', {
+                produto,
+                categorias
+            });
+        } catch (error) {
+            console.error(error);
+
+            res.status(500).send(
+                'Erro ao carregar o produto.'
+            )
+        }
+    });
+
+    app.post('/vendedor/produto/:id/editar', async (req, res) => {
+        try {
+            const { name, description, stock, categoriaId, preco } = req.body;
+
+            const produto = await tabelas.produto.findOne({
+                where: {
+                    id: req.params.id,
+                    lojaId: req.session.user.lojaId
+                }
+            });
+
+            if (!produto) {
+                return res.status(404).send(
+                    'Produto não encontrado ou não habilitado para edição.'
+                );
+            }
+
+            await produto.update({
                 name,
                 description,
                 stock,
-                lojaId,
-                categoriaId
+                categoriaId,
+                preco
             });
 
             res.redirect('/vendedor');
 
         } catch (error) {
             console.error(error);
-            res.status(500).send('Erro ao adicionar produto.');
+
+            res.status(500).send(
+                'Erro ao editar o produto.'
+            );
         }
     });
+
+    app.get('/:user', requireAuth, (req, res)=>{
+        const u = req.params.user;
+        res.redirect('/' + u + '/view-profile');
+    })
 
 
 

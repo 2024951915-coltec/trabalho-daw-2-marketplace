@@ -80,93 +80,111 @@
         <p>Gerencie sua loja e seus produtos.</p>
         <!--A página principal -->
         <article class="container-md row mt-3">
-            <div class="col-md-5">
-                <!-- Campo de Pesquisa com as classes adicionadas -->
-                <form action="/pesquisa" method="GET" role="search" class="input-group mb-3">
-                    <input 
-                        type="search" 
-                        id="search-input"
-                        class="form-control"
-                        name="q" 
-                        placeholder="Pesquisar produtos..." 
-                        aria-label="Buscar no site"
-                        required
-                    >
-                    <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
-                </form>
-                <!--Add opções de filtragem-->
-            </div>
+        <form action="/vendedor/produto" class="form-control" method="POST">
 
-            <h2>Adicionar produto</h2>
-
-        <form action="/vendedor/produto" method="POST">
-
-            <div>
-                <label for="name">Nome do produto</label>
+            <div class="mb-3">
+                <label class="form-label" for="name">Nome do produto</label>
                 <input
                     type="text"
                     id="name"
                     name="name"
                     required
+                    class="form-control"
                 >
             </div>
 
-            <div>
-                <label for="description">Descrição</label>
+            <div class="mb-3">
+                <label class="form-label" for="description">Descrição</label>
                 <textarea
                     id="description"
                     name="description"
+                    class="form-control"
                 ></textarea>
             </div>
 
-            <div>
+            <div class="mb-3">
+                <label for="preco">Preco</label>
+                <input
+                    type="number"
+                    id="preco"
+                    name="preco"
+                    min="0"
+                    class="form-control"
+                    step=".01"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
                 <label for="stock">Estoque</label>
                 <input
                     type="number"
                     id="stock"
                     name="stock"
                     min="0"
+                    class="form-control"
                     required
                 >
             </div>
 
-            <div>
-                <label for="categoriaId">Categoria</label>
-            <select name="categoriaId" id="categoriaId" required>
-                <option value="">Selecione uma categoria</option>
-                <% categorias.forEach(categoria => { %>
-                    <option value="<%= categoria.id %>">
-                        <%= categoria.name %>
-                    </option>
-                <% }) %>
-            </select>
+            <div class="mb-3">
+                <label class="form-label" for="categoriaId">Categoria</label>
+                <select class="form-select" name="categoriaId" id="categoriaId" required>
+                    <option selected>Selecione uma categoria</option>
+                    <% categorias.forEach(categoria => { %>
+                        <option value="<%= categoria.id %>">
+                            <%= categoria.name %>
+                        </option>
+                    <% }) %>
+                </select>
             </div>
 
-            <button type="submit">
+            <button class="btn btn-primary" type="submit">
                 Adicionar produto
             </button>
 
-        </form>
-        <!--
-            <aside class="destaque col-md-6 mt-3">        
-                <div class="row">
+            <aside class="destaque col-md-6 mt-3">   
+                
+                <h2>Produtos disponíveis</h2>
+                <% produtos.forEach((produto, idx) => { %>
+                <% if(idx % 2 == 0) { %>
+                <div class="row mb-md-3">
+                <% } %>
+                    
                     <div class="col-md-6 mb-3">
-                        
-                        <div class="card">
-                            <img src="algum.link/da/internet" class="card-img-top" alt="imagine uma imagem de um produto.png" height="120">
-                            <div class="card-body">
-                                <a class="card-title h3 link-underline link-underline-opacity-0" href="/link/do-produto">Meu produto</a>
+                        <!--Exemplo de cartão-->
+                        <div class="card card-body">
+                            <h3 class="card-title">
+                                <%= produto.name %>
+                            </h3>
+                            <p class="card-subtitle fw-semibold text-secondary">
+                                <%= produto.description %>
+                            </p>
+                            <p class="card-text">
+                                Estoque: <%= produto.stock %>
+                            </p>
+                            <p class="card-text">
+                                Loja:
+                                <strong>
+                                    <%= produto.loja.name %>
+                                </strong>
+                            </p>
 
-                                <p class="card-subtitle fw-semibold text-secondary">R$ 200.00</p>
-                                <p class="card-text">SEU PRODUTO </p>
-                                <p class="card-text">Avenida Avenildo, nº 69</p>
-                            </div>
+                             <a href="/vendedor/produto/<%= produto.id %>/editar"
+                                class="botao-editar">
+                                    Editar produto
+                            </a>
                         </div>
-                        
+                        <!--Exemplo de cartão-->
                     </div>
+                    
+                <% if(idx % 2 == 0) { %>
                 </div>
+                <% } %>
+                <% }) %>
             </aside>
-        -->
+
+        </form>
         </article>
     </main>
 
