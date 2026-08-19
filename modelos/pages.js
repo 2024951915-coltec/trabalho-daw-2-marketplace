@@ -2,7 +2,7 @@
 //(A concluir. Última edição: Pedro)
 
 import {app, requireAuth, comparePass, hashPass} from './app.js';
-import {database, tabelas} from './db.js';
+import {database, tabelas, Op} from './db.js';
 
 //set com categorias válidas
 const CATEGORIAS = new Set(['admin', 'vendedor', 'user']);
@@ -29,17 +29,79 @@ function pages()
             ]
         });
 
+        const categorias = await tabelas.categoria.findAll({
+            order: [['name', 'ASC']]
+        });
+
         res.render('home.ejs', {
             USER: req.session.user,
-            produtos: produtos
+            produtos: produtos,
+            CATEGORIAS: categorias
         });
     });
 
     app.get('/busca', async (req, res)=>{
-        const query = req.query;
-        const user = req.session.user;
+        const query = {
+            search: req.query.search,
+            preco_max: parseFloat(req.query.preco_max),
+            preco_min: parseFloat(req.query.preco_min),
+            categoria: parseFloat(req.query.categoriaId)
+        };
 
-        res.render('busca.ejs', {USER: user, QUERY: query})
+        const user = req.session.user;
+        
+        let busca = {
+            preco: {},
+            categoria: {}
+        }
+        if(query.preco_min > query.preco_max)
+        {
+            busca.preco = {[Op.gte]: 0}
+        }
+        else if(query.preco_max > 100)
+        {
+            busca.preco = {
+                [Op.gte]: query.preco_min
+            }
+        }
+        else
+        {
+            busca.preco = {
+                [Op.and]: {
+                    [Op.gte]: query.preco_min,
+                    [Op.lte]: query.preco_max
+                }
+            }
+        }
+
+        if(!isNaN(query.categoria))
+        {
+            busca.categoria = {
+                [Op.eq]: query.categoria
+            }
+        }
+
+        const produtos = await tabelas.produto.findAll({
+            where:{
+                name: {
+                    [Op.like]: '%' + query.search + '%'
+                },
+                preco: busca.preco,
+                categoriaId: busca.categoria
+            },
+            include: [
+                {
+                    model: tabelas.loja,
+                    required: false
+                }
+            ]
+        });
+
+        const categorias = await tabelas.categoria.findAll({
+            order: [['name', 'ASC']]
+        });
+
+        res.render('busca.ejs', {USER: user, QUERY: query, PRODUTOS: produtos, CATEGORIAS: categorias})
     })
 
     app.get('/vendedor', async (req, res) => {
