@@ -93,9 +93,9 @@
                                 id="search"
                                 class="form-control"
                                 name="search" 
+                                value="<%= QUERY.search %>"
                                 placeholder="Pesquisar produtos..." 
                                 aria-label="Buscar no site"
-                                required
                             >
                             <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
                         </div>
@@ -111,26 +111,93 @@
                     <div class="collapse mt-3" id="filter-collapse">
                         <div class="card card-body d-flex justify-content-around">
                             <div class="pe-3">
-                                <label for="preco" class="form-label">Preço</label>
-                                <input type="range" class="form-control" id="preco" name="preco">
+                                <label for="preco_min" class="form-label">Preço mínimo (<span id="min-price-text"></span>)</label>
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        qualquer
+                                    </div>
+                                    <div class="col-auto">
+                                        <input type="range" class="form-control" id="preco_min" name="preco_min" value="<%= QUERY.preco_min %>">
+                                    </div>
+                                    <div class="col-auto">
+                                        R$100.00
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="pe-3">
-                                <label for="estoque" class="form-label">Estoque</label>
-                                <input type="number" class="form-control" id="estoque" name="estoque">
+                                <label for="preco_max" class="form-label">Preço máximo (<span id="max-price-text"></span>)</label>
+
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        R$0.00
+                                    </div>
+                                    <div class="col-auto ms-3">
+                                        <input type="range" class="form-control" id="preco_max" name="preco_max" max="101" value="<%= QUERY.preco_max %>">
+                                    </div>
+                                    <div class="col-auto">
+                                        qualquer
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="pe-3">
-                                <label for="preco" class="form-label">Preço</label>
-                                <input type="range" class="form-control" id="preco" name="preco">
+                            <div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="categoriaId">Categoria </label>
+                                    <select class="form-select" value="<%= QUERY.categoriaId %>" name="categoriaId" id="categoriaId" required>
+                                        <option selected>Qualquer</option>
+                                        <% CATEGORIAS.forEach(categoria => { %>
+                                            <option value="<%= categoria.id %>">
+                                                <%= categoria.name %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </form>
-
-
                 <!--Add opções de filtragem-->
+
+                <div id="produtos" class="destaque container mt-3">
+
+                    <% PRODUTOS.forEach((produto, idx, arr) => { %>
+                    
+                        <% if(idx % 3 == 0) { %>
+                            <div class="row">
+                        <% } %>
+
+                        <div class="col-md-4">
+                            <div class="card">
+                                <a href="<link para a página do produto>" class="h3 card-header link-underline link-underline-opacity-0"> 
+                                    <%= produto.name %> 
+                                </a>
+
+                                <div class="card-body">
+                                    <p class="card-subtitle fw-semibold text-secondary">
+                                        <%= produto.description %>
+                                    </p>
+                                    <p class="card-text">
+                                        Estoque: <%= produto.stock %>
+                                    </p>
+                                    <p class="card-text">
+                                        Loja:
+                                        <strong>
+                                            <%= produto.loja.name %>
+                                        </strong>
+                                    </p>   
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if(idx % 3 == 2 || idx == arr.length - 1) { %>
+                            </div>
+                        <% } %>
+                    <% }) %>
+                </div>
             </div>
         </main>
+
+        <script src="/js/controle_barras_busca.js"></script>
     </body>
 </html>

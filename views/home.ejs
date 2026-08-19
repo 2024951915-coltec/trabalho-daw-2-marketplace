@@ -91,17 +91,76 @@
         <article class="container-md row mt-3">
             <div class="col-md-5">
                 <!-- Campo de Pesquisa com as classes adicionadas -->
-                <form action="/busca" method="GET" role="search" class="input-group mb-3">
-                    <input 
-                        type="search" 
-                        id="search"
-                        class="form-control"
-                        name="search" 
-                        placeholder="Pesquisar produtos..." 
-                        aria-label="Buscar no site"
-                        required
-                    >
-                    <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
+                <form action="/busca" method="GET" role="search" class="form-control">
+                    <div class="d-flex justify-content-between">
+                        <div class="input-group pe-3">
+                            <input 
+                                type="search" 
+                                id="search"
+                                class="form-control"
+                                name="search" 
+                                placeholder="Pesquisar produtos..." 
+                                aria-label="Buscar no site"
+                            >
+                            <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
+                        </div>
+
+                        <div>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#filter-collapse">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
+                                <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="collapse mt-3" id="filter-collapse">
+                        <div class="card card-body d-flex justify-content-around">
+                            <div class="pe-3">
+                                <label for="preco_min" class="form-label">Preço mínimo (<span id="min-price-text"></span>)</label>
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        qualquer
+                                    </div>
+                                    <div class="col-auto">
+                                        <input type="range" class="form-control" id="preco_min" name="preco_min" value="0">
+                                    </div>
+                                    <div class="col-auto">
+                                        R$100.00
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pe-3">
+                                <label for="preco_max" class="form-label">Preço máximo (<span id="max-price-text"></span>)</label>
+
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        R$0.00
+                                    </div>
+                                    <div class="col-auto ms-3">
+                                        <input type="range" class="form-control" id="preco_max" name="preco_max" max="101" value="101">
+                                    </div>
+                                    <div class="col-auto">
+                                        qualquer
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="categoriaId">Categoria </label>
+                                    <select class="form-select" name="categoriaId" id="categoriaId" required>
+                                        <option selected>Qualquer</option>
+                                        <% CATEGORIAS.forEach(categoria => { %>
+                                            <option value="<%= categoria.id %>">
+                                                <%= categoria.name %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
                 <!--Add opções de filtragem-->
             </div>
@@ -144,6 +203,8 @@
         </article>
     </main>
 
+    <script src="/js/controle_barras_busca.js"></script>
+</body>
 
     
 </html>
