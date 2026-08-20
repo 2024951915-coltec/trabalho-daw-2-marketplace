@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Configurações de usuário</title>
+        <title>Editar produto</title>
+
+        <link rel="stylesheet" href="/css/vendedor.css">
 
         <!-- Bootstrap -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -79,34 +82,101 @@
 
         </header>
 
-        <main id="maincontent" class="container-md mt-4">
+        <main class="adicionar-produto container-md">
 
-            <div class="d-flex justify-content-between align-items-center">
-                <h2>Loja do <%= USER.name %>:</h2>
-                <a class="btn btn-primary" href="/config">Voltar</a>
-            </div>
-            
-            <div class="container-md mt-4">
-                <h3>Configurações: </h3>
-                <div class="row mt-3">
-                    <div class="col-md-3 mb-3">
-                        <div class="card card-body">
-                            <a href="/config/vendedor/criar-produto" class="h3 card-title link-underline link-underline-opacity-0">
-                                Criar produto
-                            </a>
-                            <p class="card-text">Adicionar um produto à sua loja</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="card card-body">
-                            <a href="/config/vendedor/ver-produto" class="h3 card-title link-underline link-underline-opacity-0">
-                                Ver produtos
-                            </a>
-                            <p class="card-text">Ver a lista completa de produtos</p>
-                        </div>
-                    </div>
+            <h2>Editar Produto</h2>
+
+            <form
+            class="form-control"
+            action="/config/vendedor/ver-produto/<%= produto.id %>/editar"
+            method="POST"
+            >
+
+                <div class="campo-produto mb-3">
+
+                    <label for="name" class="form-label">
+                        Nome do produto
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="name"
+                        name="name"
+                        value="<%= produto.name %>"
+                        required
+                        >
+
                 </div>
-            </div>
+
+
+                <div class="campo-produto mb-3">
+                    <label for="description" class="form-label">
+                        Descrição do produto
+                    </label>
+
+                    <textarea
+                    id="description"
+                    class="form-control"
+                    name="description"
+                    ><%= produto.description %>
+                    </textarea>
+
+
+                </div>
+
+                <div class="campo-produto mb-3">
+                    <label for="stock" class="form-label">
+                        Estoque do produto
+                    </label>
+
+                    <input
+                    type="text"
+                    id="Estoque"
+                    class="form-control"
+                    name="stock"
+                    value="<%= produto.stock %>"
+                    required
+                    >
+                </div>
+
+                <div class="campo-produto   mb-3">
+
+                    <label for="categoriaId" class="form-label">
+                        Categoria
+                    </label>
+
+                    <select class="form-control "
+                        name="categoriaId"
+                        id="categoriaId"
+                        required
+                    >
+
+                        <% categorias.forEach(categoria => { %>
+
+                            <option
+                                value="<%= categoria.id %>"
+                                <%= produto.category == categoria.id ? 'selected' : '' %>
+                            >
+                                <%= categoria.name %>
+                            </option>
+
+                        <% }) %>
+
+                    </select>
+                </div>
+
+             <button type="submit" class="btn btn-primary">
+                Salvar alterações
+            </button>
+
+            </form>
+
+
         </main>
+
+
     </body>
+
+
 </html>

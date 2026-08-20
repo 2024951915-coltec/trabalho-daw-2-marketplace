@@ -6,8 +6,10 @@ import session from 'express-session';
 import {Server} from 'socket.io';
 import http from 'http';
 import bcrypt from 'bcryptjs';
+import multer from 'multer';
 
 const app = express();
+const upload = multer({dest: './public/data/uploads/'});
 const server = http.createServer(app);
 const io = new Server(server);
 const PORTA = 3000;
@@ -26,7 +28,7 @@ app.use(session({
 function init()
 {
     app.get('/access-denied', (req, res)=>{
-        res.status(401)
+        res.status(403)
         res.render('error/access_denied');
     })
     app.use((req,res,next)=>{
@@ -62,4 +64,4 @@ const requireAuth = {
 const comparePass = bcrypt.compare;
 const hashPass = bcrypt.hash;
 
-export {app, io, init, requireAuth, comparePass, hashPass};
+export {app, io, init, requireAuth, comparePass, hashPass, upload};
