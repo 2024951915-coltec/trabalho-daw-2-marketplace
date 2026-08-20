@@ -42,7 +42,7 @@ const requireAuth = {
         if(req.session.user !== undefined)
         {
             return next();
-        }
+        } 
         res.redirect('/login');
     },
     vendedor: (req, res, next) => {
