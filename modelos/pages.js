@@ -20,6 +20,8 @@ function pages()
     });
 
     app.get('/home', async (req, res) => {
+        const user = req.session.user;
+
         const produtos = await tabelas.produto.findAll({
             include: [
                 {
@@ -34,7 +36,7 @@ function pages()
         });
 
         res.render('home.ejs', {
-            USER: req.session.user,
+            USER: (user !== undefined) ? user : null,
             produtos: produtos,
             CATEGORIAS: categorias
         });
@@ -101,7 +103,7 @@ function pages()
             order: [['name', 'ASC']]
         });
 
-        res.render('busca.ejs', {USER: user, QUERY: query, PRODUTOS: produtos, CATEGORIAS: categorias})
+        res.render('busca.ejs', {USER: (user !== undefined) ? user : null, QUERY: query, PRODUTOS: produtos, CATEGORIAS: categorias})
     })
 
     app.get('/vendedor', async (req, res) => {
@@ -196,6 +198,11 @@ function pages()
 
         // Caso exista uma categoria inválida
         return res.status(403).send('Categoria de usuário inválida');
+    });
+
+    app.get('/logout', requireAuth, (req, res)=>{
+        req.session.user = undefined;
+        res.redirect('/login');
     });
 
     // Cadastro
