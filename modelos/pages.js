@@ -49,7 +49,7 @@ function pages()
             preco_min: parseFloat(req.query.preco_min),
             categoria: parseFloat(req.query.categoriaId)
         };
-
+        
         const user = req.session.user;
         
         let busca = {
@@ -106,7 +106,7 @@ function pages()
         res.render('busca.ejs', {USER: (user !== undefined) ? user : null, QUERY: query, PRODUTOS: produtos, CATEGORIAS: categorias})
     })
 
-    app.get('/vendedor', async (req, res) => {
+    app.get('/vendedor', requireAuth.vendedor, async (req, res) => {
         try {
             const lojaId = req.session.user.lojaId;
 
@@ -200,7 +200,7 @@ function pages()
         return res.status(403).send('Categoria de usuário inválida');
     });
 
-    app.get('/logout', requireAuth, (req, res)=>{
+    app.get('/logout', requireAuth.default, (req, res)=>{
         req.session.user = undefined;
         res.redirect('/login');
     });
@@ -255,7 +255,7 @@ function pages()
         }
     });
 
-    app.post('/vendedor/produto', requireAuth, async (req, res) => {
+    app.post('/vendedor/produto', requireAuth.vendedor, async (req, res) => {
         try {
             const { name, description, stock, categoriaId, preco } = req.body;
             const lojaId = req.session.user.lojaId;
@@ -289,7 +289,7 @@ function pages()
     }); // <-- Fechamento correto da rota app.post
 
 
-    app.get('/vendedor/produto/:id/editar', async (req, res) => {
+    app.get('/vendedor/produto/:id/editar', requireAuth.vendedor, async (req, res) => {
 
     try{
         const produto = await tabelas.produto.findOne({
@@ -320,7 +320,7 @@ function pages()
         }
     });
 
-    app.post('/vendedor/produto/:id/editar', async (req, res) => {
+    app.post('/vendedor/produto/:id/editar', requireAuth.vendedor, async (req, res) => {
         try {
             const { name, description, stock, categoriaId, preco } = req.body;
 
@@ -357,35 +357,35 @@ function pages()
     });
 
 
-    app.get('/:user/view-profile', requireAuth, (req, res) => {
+    app.get('/:user/view-profile', requireAuth.default, (req, res) => {
         const u = req.params.user;
         return res.render('profile_information.ejs');
     })
 
-    app.get('/create-addresses', requireAuth, (req, res) => {
+    app.get('/create-addresses', requireAuth.default, (req, res) => {
         return res.render('create_addresses.ejs');
     })
 
-    app.get('/config/change-password', requireAuth, (req, res) => {
+    app.get('/config/change-password', requireAuth.default, (req, res) => {
         const user = req.session.user;
         return res.render('password_change.ejs');
     })
 
-    app.get('/config/edit-profile', requireAuth, async (req, res) => 
+    app.get('/config/edit-profile', requireAuth.default, async (req, res) => 
     {
         return res.render('edit_profile.ejs', {USER: req.session.user});
     })
 
-    app.get('/config/view-addresses', requireAuth, (req, res) => {
+    app.get('/config/view-addresses', requireAuth.default, (req, res) => {
         return res.render('view_addresses.ejs');
     })
 
-    app.get('/config/edit-addresses', requireAuth, (req, res) => {
+    app.get('/config/edit-addresses', requireAuth.default, (req, res) => {
         return res.render('edit_addresses.ejs');
     })
 
     //página de configuração de conta
-    app.get('/config', requireAuth, (req, res)=>{
+    app.get('/config', requireAuth.default, (req, res)=>{
         const user = req.session.user;
 
         return res.render('config.ejs', {USER : user});
@@ -397,7 +397,7 @@ function pages()
 
     // Criar endereço
     // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
-    app.post('/create-addresses', async (req, res) => {
+    app.post('/create-addresses', requireAuth.default, async (req, res) => {
 
         const {local} = req.body;
 
@@ -439,7 +439,7 @@ function pages()
     // EDIÇÃO PEFIL
 
     // Alterar senha
-    app.post('/password-change', async (req, res) => {
+    app.post('/password-change', requireAuth.default, async (req, res) => {
         const { oldPassword, newPassword} = req.body;
 
         const username = req.session.user.username;
@@ -461,7 +461,7 @@ function pages()
     });
 
     // Alterar username, nome, cpf e número de telefone (Perfil)
-    app.post('/edit-profile', async (req, res) => {
+    app.post('/edit-profile', requireAuth.default, async (req, res) => {
         const {name, username, cpf, phone_number} = req.body;
 
         const user = await tabelas.usuario.findByPk(req.session.user.id);
@@ -481,7 +481,7 @@ function pages()
     // Editar endereço (Está errado)
 
     // Pegar a tabela intermediária e editar ela caso o endereço seja igual ao de outra pessoa
-    app.post('/:user/edit-addresses', async (req, res) => {
+    app.post('/:user/edit-addresses', requireAuth.default, async (req, res) => {
         const { local } = req.body;
 
         let isValid = true;
@@ -526,11 +526,6 @@ function pages()
             await tabelas.endereco.save();
 
             return res.send('Endereço atualizado.');
-    });
-
-    app.get('/leave', requireAuth, (req, res)=>{
-        req.session.user = undefined;
-        res.redirect('/login');
     });
 }
 
