@@ -1,7 +1,7 @@
 //Configurar as páginas não-estáticas (login, compras, etc)
 //(A concluir. Última edição: Pedro)
 
-import {app, requireAuth, comparePass, hashPass} from './app.js';
+import {app, requireAuth, comparePass, hashPass, upload} from './app.js';
 import {database, tabelas, Op} from './db.js';
 
 //set com categorias válidas
@@ -106,7 +106,7 @@ function pages()
         res.render('busca.ejs', {USER: (user !== undefined) ? user : null, QUERY: query, PRODUTOS: produtos, CATEGORIAS: categorias})
     })
 
-    app.get('/vendedor', requireAuth.vendedor, async (req, res) => {
+    app.get('/config/vendedor/criar-produto', requireAuth.vendedor, async (req, res) => {
         try {
             const lojaId = req.session.user.lojaId;
 
@@ -126,7 +126,7 @@ function pages()
                 order: [['name', 'ASC']]
             });
 
-            res.render('vendedor', {
+            res.render('criar_produto', {
                 produtos,
                 categorias,
                 USER: req.session.user
@@ -188,12 +188,8 @@ function pages()
         };
 
         // Decide para onde enviar de acordo com o banco
-        if (user.category === 'user') {
+        if (E_UMA_CATEGORIA_VALIDA(user.category)) {
             return res.redirect('/home');
-        }
-
-        if (user.category === 'vendedor') {
-            return res.redirect('/vendedor');
         }
 
         // Caso exista uma categoria inválida
@@ -255,7 +251,7 @@ function pages()
         }
     });
 
-    app.post('/vendedor/produto', requireAuth.vendedor, async (req, res) => {
+    app.post('/config/vendedor/criar-produto', requireAuth.vendedor, async (req, res) => {
         try {
             const { name, description, stock, categoriaId, preco } = req.body;
             const lojaId = req.session.user.lojaId;
@@ -279,7 +275,7 @@ function pages()
             });
 
             // Redireciona apenas uma vez após criar o produto com sucesso
-            res.redirect('/vendedor');
+            res.redirect('/config/vendedor/criar-produto');
 
         } catch (error) {
             // Bloco CATCH que estava faltando para capturar erros
@@ -288,29 +284,45 @@ function pages()
         }
     }); // <-- Fechamento correto da rota app.post
 
-
-    app.get('/vendedor/produto/:id/editar', requireAuth.vendedor, async (req, res) => {
-
-    try{
-        const produto = await tabelas.produto.findOne({
+    app.get('/config/vendedor/ver-produto', requireAuth.vendedor, async (req, res) => {
+        const produtos = await tabelas.produto.findAll({
             where: {
-                id: req.params.id,
                 lojaId: req.session.user.lojaId
-            }
+            },
+            include: [
+                {
+                    model: tabelas.loja,
+                    required: false
+                }
+            ]
         });
 
-         if (!produto){
-                return res.status(404).send(
-                    'Produto não encontrado ou não habilitado para edicao'
-                );
-            }
+        return res.render('vendedor_produtos', {USER: req.session.user, PRODUTOS: produtos})
+    })
 
-        const categorias = await tabelas.categoria.findAll();
+    app.get('/config/vendedor/ver-produto/:id/editar', requireAuth.vendedor, async (req, res) => {
 
-            res.render('editar-produto', {
-                produto,
-                categorias
+        try{
+            const produto = await tabelas.produto.findOne({
+                where: {
+                    id: req.params.id,
+                    lojaId: req.session.user.lojaId
+                }
             });
+
+            if (!produto){
+                    return res.status(404).send(
+                        'Produto não encontrado ou não habilitado para edicao'
+                    );
+                }
+
+            const categorias = await tabelas.categoria.findAll();
+
+                res.render('editar_produto', {
+                    USER: req.session.user,
+                    produto: produto,
+                    categorias: categorias
+                });
         } catch (error) {
             console.error(error);
 
@@ -320,7 +332,7 @@ function pages()
         }
     });
 
-    app.post('/vendedor/produto/:id/editar', requireAuth.vendedor, async (req, res) => {
+    app.post('/config/vendedor/ver-produto/:id/editar', requireAuth.vendedor, async (req, res) => {
         try {
             const { name, description, stock, categoriaId, preco } = req.body;
 
@@ -345,7 +357,7 @@ function pages()
                 preco
             });
 
-            res.redirect('/vendedor');
+            res.redirect('/config/vendedor/ver-produto');
 
         } catch (error) {
             console.error(error);
@@ -356,10 +368,25 @@ function pages()
         }
     });
 
+    app.get('/config/vendedor/ver-produto/:id/deletar', requireAuth.vendedor, async(req, res)=>{
+        tabelas.produto.destroy({
+            where:{
+                id: req.params.id,
+                lojaId: req.session.user.lojaId
+            }
+        })
+
+        res.redirect('/config/vendedor/ver-produto');
+    });
+
 
     app.get('/:user/view-profile', requireAuth.default, (req, res) => {
         const u = req.params.user;
         return res.render('profile_information.ejs');
+    })
+
+    app.get('/config/vendedor', requireAuth.vendedor, (req, res)=>{
+        res.render('vendedor', {USER: req.session.user});
     })
 
     app.get('/create-addresses', requireAuth.default, (req, res) => {

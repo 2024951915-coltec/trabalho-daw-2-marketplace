@@ -81,7 +81,10 @@
 
         <main id="maincontent">
             <article class="container-md mt-3">
-                <h1>Sua conta</h1>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1>Sua conta</h1>
+                    <a class="btn btn-primary" href="/home">Voltar</a>
+                </div>
                 <h5 class="text-secondary ms-3"><%= USER.name %> (<strong>@<%= USER.username %></strong>)</h5>
 
                 <div class="container-md mt-4">
@@ -125,6 +128,16 @@
                                 <p class="card-text">Configurar dados da conta</p>
                             </div>
                         </div>
+                        <% if(USER.category == 'vendedor') { %>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-body">
+                                <a href="/config/vendedor" class="h3 card-title link-underline link-underline-opacity-0">
+                                    Ver loja e <br>produtos
+                                </a>
+                                <p class="card-text">Configurar e ver produtos da sua loja</p>
+                            </div>
+                        </div>
+                        <% } %>
 
                         <div class="col-md-3 mb-3">
                             <div class="card text-white bg-danger">

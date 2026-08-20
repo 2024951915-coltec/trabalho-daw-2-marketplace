@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>home</title>
+
+     <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!--Bootstrap JS Script-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
+    crossorigin="anonymous"></script>
+
+    <link class="style-local" rel="stylesheet" href="/css/vendedor.css">
+    
+</head>
+
+<body>
+        
+    
+
+    <!-- Header Principal com as classes adicionadas -->
+    <header class="mb-3">
+        <!-- Barra de Acessibilidade Superior com as classes adicionadas -->
+        <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
+            <a href="#main-content" accesskey="1">Ir para o conteúdo</a>
+            <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
+        </div>
+        
+        <nav class="site-header">
+            <!-- Logotipo -->
+            <div class="logo">
+                <a href="/" aria-label="Página inicial GalinhasGordas">
+                    <img src="/imagens/logo.png" alt="GalinhasGordas Home" width="120"> <!--Removeu o i-->
+                </a>
+            </div>
+
+            <!-- MENU COMPUTADOR/TV -->
+            <div class="d-none d-sm-flex user-actions">
+                
+                <!-- Área de Login -->
+                <% if(USER) { %>
+                <a href="/config" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
+                    Minha Conta (<strong>@<%= USER.username %></strong>)
+                </a>
+                <% } else { %>
+                <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
+                    Entrar ou cadastrar
+                </a>
+                <% } %>
+
+                <!-- Carrinho de Compras -->
+                <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
+                    Carrinho (<span class="cart-badge">0</span>)
+                </a>
+
+            </div>
+
+            <!-- MENU TELEFONE/PDA -->
+            <div class="d-block d-sm-none">
+                <!--TODO: adicionar menu para mobile-->
+                <a class="btn btn-outline-primary" data-bs-toggle="offcanvas" href="#sm-offcanvas" role="button" aria-controls="sm-offcanvas">
+                    &#9776;
+                </a>
+
+                <div class="offcanvas offcanvas-start" id="sm-offcanvas">
+                    <div class="offcanvas-header">
+                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Menu</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+
+                    <div class="offcanvas-body">
+                        <!-- Área de Login -->
+                        <% if(USER) { %>
+                        <a href="/config" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
+                            Minha Conta (<strong>@<%= USER.username %></strong>)
+                        </a>
+                        <% } else { %>
+                        <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
+                            Entrar ou cadastrar
+                        </a>
+                        <% } %>
+
+                        <!-- Carrinho de Compras -->
+                        <a href="/carrinho" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
+                            Carrinho (<span class="cart-badge">0</span>)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+    </header>
+
+    <main id="maincontent" class="container-md">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>Criar produtos</h2>
+            <a class="btn btn-primary" href="/config/vendedor">Voltar</a>
+        </div>
+        <!--A página principal -->
+        <article class="container-md row mt-3">
+        <form action="#" class="form-control" method="POST">
+
+            <div class="mb-3">
+                <label class="form-label" for="name">Nome do produto</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    required
+                    class="form-control"
+                >
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="description">Descrição</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    class="form-control"
+                ></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="preco">Preco</label>
+                <input
+                    type="number"
+                    id="preco"
+                    name="preco"
+                    min="0"
+                    class="form-control"
+                    step=".01"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="stock">Estoque</label>
+                <input
+                    type="number"
+                    id="stock"
+                    name="stock"
+                    min="0"
+                    class="form-control"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="categoriaId">Categoria</label>
+                <select class="form-select" name="categoriaId" id="categoriaId" required>
+                    <option selected>Selecione uma categoria</option>
+                    <% categorias.forEach(categoria => { %>
+                        <option value="<%= categoria.id %>">
+                            <%= categoria.name %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+                Adicionar produto
+            </button>
+
+            <aside class="destaque col-md-6 mt-3 ps-3">   
+                
+                <h2>Produtos disponíveis</h2>
+                <% produtos.forEach((produto, idx, arr) => { %>
+                    <% if(idx % 3 == 0) { %>
+                        <div class="row">
+                    <% } %>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <a href="<link para a página do produto>" class="h3 card-header link-underline link-underline-opacity-0"> 
+                                <%= produto.name %> 
+                            </a>
+
+                            <div class="card-body">
+                                <p class="card-subtitle fw-semibold text-secondary">
+                                    <%= produto.description %>
+                                </p>
+                                <p class="card-text">
+                                    Preço: R$ <%= produto.preco.toFixed(2) %>
+                                </p>
+                                <p class="card-text">
+                                    Loja:
+                                    <strong>
+                                        <%= produto.loja.name %>
+                                    </strong>
+                                </p>   
+                            </div>
+                        </div>
+                    </div>
+
+                    <% if(idx % 3 == 2 || idx == arr.length - 1) { %>
+                        </div>
+                    <% } %>
+                <% }) %>
+            </aside>
+
+        </form>
+        </article>
+    </main>
+
+
+    
+</html>
