@@ -43,9 +43,15 @@
             <div class="d-none d-sm-flex user-actions">
                 
                 <!-- Área de Login -->
-                <a href="/config" class="action-link" aria-label="Entrar na minha conta">
+                <% if(USER) { %>
+                <a href="/config" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
                     Minha Conta (<strong>@<%= USER.username %></strong>)
                 </a>
+                <% } else { %>
+                <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
+                    Entrar ou cadastrar
+                </a>
+                <% } %>
 
                 <!-- Carrinho de Compras -->
                 <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
@@ -57,7 +63,7 @@
             <!-- MENU TELEFONE/PDA -->
             <div class="d-block d-sm-none">
                 <!--TODO: adicionar menu para mobile-->
-                <a class="btn btn-outline-secondary" data-bs-toggle="offcanvas" href="#sm-offcanvas" role="button" aria-controls="sm-offcanvas">
+                <a class="btn btn-outline-primary" data-bs-toggle="offcanvas" href="#sm-offcanvas" role="button" aria-controls="sm-offcanvas">
                     &#9776;
                 </a>
 
@@ -69,9 +75,15 @@
 
                     <div class="offcanvas-body">
                         <!-- Área de Login -->
+                        <% if(USER) { %>
                         <a href="/config" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
                             Minha Conta (<strong>@<%= USER.username %></strong>)
                         </a>
+                        <% } else { %>
+                        <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
+                            Entrar ou cadastrar
+                        </a>
+                        <% } %>
 
                         <!-- Carrinho de Compras -->
                         <a href="/carrinho" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
@@ -85,7 +97,9 @@
     </header>
 
     <main id="maincontent" class="container-md">
-        <h1>Bem vindo, <strong><%= USER.name %></strong>!</h1>
+        
+        <h1>Bem vindo<% if(USER) { %>, <strong><%= USER.name %></strong><% } %>!</h1>
+        
         <p>O que deseja comprar hoje?</p>
         <!--A página principal -->
         <article class="container-md row mt-3">
@@ -168,37 +182,39 @@
             <aside class="destaque col-md-6 mt-3">   
                 
                 <h2>Produtos disponíveis</h2>
-                <% produtos.forEach((produto, idx) => { %>
-                <% if(idx % 2 == 0) { %>
-                <div class="row mb-md-3">
-                <% } %>
+                <% produtos.forEach((produto, idx, arr) => { %>
                     
-                    <div class="col-md-6 mb-3">
-                        <!--Exemplo de cartão-->
-                        <div class="card card-body">
-                            <h3 class="card-title">
-                                <%= produto.name %>
-                            </h3>
+                <% if(idx % 3 == 0) { %>
+                    <div class="row">
+                <% } %>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <a href="<link para a página do produto>" class="h3 card-header link-underline link-underline-opacity-0"> 
+                            <%= produto.name %> 
+                        </a>
+
+                        <div class="card-body">
                             <p class="card-subtitle fw-semibold text-secondary">
                                 <%= produto.description %>
                             </p>
                             <p class="card-text">
-                                Estoque: <%= produto.stock %>
+                                Preço: R$ <%= produto.preco.toFixed(2) %>
                             </p>
                             <p class="card-text">
                                 Loja:
                                 <strong>
                                     <%= produto.loja.name %>
                                 </strong>
-                            </p>                        
+                            </p>   
                         </div>
-                        <!--Exemplo de cartão-->
                     </div>
-                    
-                <% if(idx % 2 == 0) { %>
                 </div>
+
+                <% if(idx % 3 == 2 || idx == arr.length - 1) { %>
+                    </div>
                 <% } %>
-                <% }) %>
+            <% }) %>
             </aside>
         </article>
     </main>

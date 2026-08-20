@@ -23,24 +23,41 @@ app.use(session({
 }));
 
 //Inicializa o servidor (Substitui o app.listen())
-function init() 
+function init()
 {
+    app.get('/access-denied', (req, res)=>{
+        res.status(401)
+        res.render('error/access_denied');
+    })
     app.use((req,res,next)=>{
         res.status(404);
-        res.render('404'); //Criar EJS da página 404
+        res.render('error/404');
     })
 
     server.listen(PORTA, ()=>{console.log('Aberto na porta', PORTA, '\nLink:', 'http://localhost:' + PORTA + '/')})
 }
 
-function requireAuth(req, res, next)
-{
-    if(req.session.user !== undefined)
-    {
-        next();
+const requireAuth = {
+    default: (req, res, next) => {
+        if(req.session.user !== undefined)
+        {
+            return next();
+        } 
+        res.redirect('/login');
+    },
+    vendedor: (req, res, next) => {
+        if(req.session.user !== undefined)
+        {
+            if(req.session.user.category == 'vendedor')
+            {
+                return next();
+            }
+            return res.redirect('/access-denied');
+        }
+
+        res.redirect('/login');
     }
-    else res.redirect('/login');
-}
+};
 
 const comparePass = bcrypt.compare;
 const hashPass = bcrypt.hash;
