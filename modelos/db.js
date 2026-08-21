@@ -201,33 +201,57 @@ const tabelas = {
     }
 ),
 
-    item_carrinho:
-    database.define('item_carrinho',
+    carrinho:
+    database.define('carrinho',
         {
-            id: {
+            id_carrinho: {
                 type: DataTypes.INTEGER,
-                primaryKey: true,
                 allowNull: false,
                 autoIncrement: true,
             },
 
-            qtn: {
-                type: DataTypes.INTEGER,
+            id_usuario: {
+                type: DataType.INTEGER,
                 allowNull: false,
+            },
+
+            valorTotalCompra: {
+                type: DataType.INTEGER,
+                allowNull: true,
             }
         }
     ),
 
-    carrinho:
-    database.define('carrinho',
+    item_carrinho:
+    database.define('item_carrinho',
         {
-            id: {
+
+            id_carrinho:{
                 type: DataTypes.INTEGER,
-                primaryKey: true,
                 allowNull: false,
-                autoIncrement: true,
             },
-        }
+
+            id_usuario: {
+                type: DataTypes.INTEGER,
+                allowNull: false
+            },
+
+            // ID do produto que está dentro do carrinho
+            id_produto: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            quantidade: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            valorItem: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            },
+        }   
     ),
 
     item_pedido:
