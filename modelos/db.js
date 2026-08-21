@@ -173,6 +173,11 @@ const tabelas = {
             allowNull: false,
         },
 
+        photo_id: {
+            type: DataTypes.TEXT,
+            allowNull: false
+        },
+
         preco: {
             type: DataTypes.REAL,
             allowNull: false,

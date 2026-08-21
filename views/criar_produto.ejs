@@ -103,7 +103,11 @@
         </div>
         <!--A página principal -->
         <article class="container-md row mt-3">
-        <form action="#" class="form-control" method="POST">
+        <form action="#" class="form-control" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label class="form-label" for="foto">Imagem do produto</label>
+                <input required type="file" class="form-control" accept="image/*" id="foto" name="foto">
+            </div>
 
             <div class="mb-3">
                 <label class="form-label" for="name">Nome do produto</label>
@@ -176,9 +180,12 @@
 
                     <div class="col-md-4">
                         <div class="card">
-                            <a href="<link para a página do produto>" class="h3 card-header link-underline link-underline-opacity-0"> 
-                                <%= produto.name %> 
-                            </a>
+                            <img src="/data/uploads/<%= produto.photo_id %>" alt="Capa do produto <%= produto.name %>" height="80">
+                            <div class="card-header">
+                                <a href="/product/<%= produto.id %>/view" class="h3 link-underline link-underline-opacity-0"> 
+                                    <%= produto.name %> 
+                                </a>
+                            </div>
 
                             <div class="card-body">
                                 <p class="card-subtitle fw-semibold text-secondary">

@@ -251,22 +251,26 @@ function pages()
         }
     });
 
-    app.post('/config/vendedor/criar-produto', requireAuth.vendedor, async (req, res) => {
+    app.post('/config/vendedor/criar-produto', upload.single('foto') , async (req, res) => {
         try {
             const { name, description, stock, categoriaId, preco } = req.body;
             const lojaId = req.session.user.lojaId;
+
+            console.log(req.file);
 
             // console.log('LOJA ID:', lojaId);
             // console.log('CATEGORIA ID:', categoriaId);
 
             const loja = await tabelas.loja.findByPk(lojaId);
             const categoria = await tabelas.categoria.findByPk(categoriaId);
+            const photo_id = req.file.filename;
 
             // console.log('LOJA ENCONTRADA:', loja);
             // console.log('CATEGORIA ENCONTRADA:', categoria);
 
             await tabelas.produto.create({
                 name,
+                photo_id,
                 preco,
                 description,
                 stock,
@@ -554,6 +558,27 @@ function pages()
 
             return res.send('Endereço atualizado.');
     });
+
+    app.get('/product/:id/view', async (req, res)=>{
+        const user = req.session.user;
+        const produto_id = parseInt(req.params.id, 16)
+        const produto = await tabelas.produto.findOne({
+            where: {
+                id: produto_id
+            },
+            include: [
+                {
+                    model: tabelas.loja,
+                    required: false
+                }
+            ]
+        });
+
+        res.render('produto.ejs', {
+            USER: (user !== undefined) ? user : null,
+            PRODUTO: produto
+        });
+    })
 }
 
 

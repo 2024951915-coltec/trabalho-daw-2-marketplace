@@ -7,3 +7,7 @@ package-lock.json
 #Os diretórios abaixo vão ser ignorados pq são usados para guardar 
 #dados em binário irrelevantes para o funcionamento do app
 bin/
+
+#Os diretórios abaixo vão ser ignorados por conter arquivos upados por usuários via forms
+#ex.: fotos, áudios, etc.
+public/data/**
