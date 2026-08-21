@@ -110,7 +110,7 @@
 
                         <div class="container mt-5">
                             <p>Quantidade em estoque: <%= PRODUTO.stock %>uni.</p>
-                            <% if(USER) { %>
+                            <% if(USER && PRODUTO.stock > 0) { %>
                             <form action="/products/<%= PRODUTO.id %>/add-to-cart" method="POST" class="form-control card card-body">
                                 <div class="row justify-content-between align-items-center">
                                     <div class="col-md-auto mb-3 mb-md-0">
@@ -122,7 +122,9 @@
                                     </div>
                                 </div>
                             </form>
-                            <% } else { %>
+                            <% } else if ( USER ) { %>
+                                <p class="text-secondary">Produto não disponível :/</p>
+                            <% } else {%
                             <a href="/login" class="btn btn-outline-primary">
                                 Entre na sua conta para 
                                 adicionar ao carrinho
