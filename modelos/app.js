@@ -9,7 +9,6 @@ import bcrypt from 'bcryptjs';
 import multer from 'multer';
 
 const app = express();
-const upload = multer({dest: './public/data/uploads/'});
 const server = http.createServer(app);
 const io = new Server(server);
 const PORTA = 3000;
@@ -18,11 +17,30 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}))
 
+//variáveis de sessão
 app.use(session({
     secret: 'patosaladosnadadores',
     resave: false,
     saveUninitialized: false
 }));
+
+//multer (middleware para tratar arquivos de imagem upados)
+//diferente de dados comuns, imagens são arquivos complexos 
+//que não podem ser guardados no banco de dados
+const storage = multer.diskStorage({
+    //definir diretório onde os arquivos serão guardados (/public/data/uploads/)
+    destination: (req, file, callback) => {
+        callback(null, 'public/data/uploads/')
+    },
+    //definir nome do arquivo (hash aleatório + .png/.jpeg./.gif...)
+    filename: (req, file, callback) => {
+        const arquivo_original = file.originalname.split('.');
+        const extensao = arquivo_original[arquivo_original.length - 1]; //pegar a extensão no final do arquivo
+        callback(null, file.fieldname + '-produto-' + Date.now() + '-' + Math.floor(Math.random() * 0xffffffff).toString(16) + '.' + extensao);
+    }
+});
+
+const upload = multer({storage: storage});
 
 //Inicializa o servidor (Substitui o app.listen())
 function init()

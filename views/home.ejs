@@ -190,9 +190,12 @@
 
                 <div class="col-md-4">
                     <div class="card">
-                        <a href="<link para a página do produto>" class="h3 card-header link-underline link-underline-opacity-0"> 
-                            <%= produto.name %> 
-                        </a>
+                        <img src="/data/uploads/<%= produto.photo_id %>" alt="Capa do produto <%= produto.name %>" height="80">
+                        <div class="card-header">
+                            <a href="/product/<%= produto.id.toString(16).padStart(16, '0') %>/view" class="h3 link-underline link-underline-opacity-0"> 
+                                <%= produto.name %> 
+                            </a>
+                        </div>
 
                         <div class="card-body">
                             <p class="card-subtitle fw-semibold text-secondary">
