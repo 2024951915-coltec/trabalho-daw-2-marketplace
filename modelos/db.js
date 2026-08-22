@@ -206,23 +206,6 @@ const tabelas = {
     }
 ),
 
-    item_carrinho:
-    database.define('item_carrinho',
-        {
-            id: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                allowNull: false,
-                autoIncrement: true,
-            },
-
-            qtn: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            }
-        }
-    ),
-
     carrinho:
     database.define('carrinho',
         {
@@ -232,24 +215,51 @@ const tabelas = {
                 allowNull: false,
                 autoIncrement: true,
             },
+
+            id_usuario: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            valorTotalCompra: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            }
         }
     ),
 
-    item_pedido:
-    database.define('item_pedido',
+    item_carrinho:
+    database.define('item_carrinho',
         {
-            id: {
+
+            id_itemCarrinho: {
                 type: DataTypes.INTEGER,
                 primaryKey: true,
                 allowNull: false,
                 autoIncrement: true,
             },
 
-            qtn: {
+            id_carrinho:{
                 type: DataTypes.INTEGER,
                 allowNull: false,
-            }
-        }
+            },
+
+            // ID do produto que está dentro do carrinho
+            id_produto: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            quantidade: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            valorItem: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            },
+        }   
     ),
 
     pedido:
@@ -263,6 +273,26 @@ const tabelas = {
             },
         }
     ),
+
+    item_pedido:
+database.define('item_pedido', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true
+    },
+
+    product: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+
+    quantidade: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    }
+}),
 
     avaliacao:
     database.define('avaliacao',
@@ -318,8 +348,9 @@ tabelas.avaliacao.belongsTo(tabelas.usuario, {foreignKey: 'poster'});
 
 //Endereco-usuario (n-n)
 tabelas.endereco.belongsToMany(tabelas.usuario, {
-    through: tabelas.usuario_endereco // Usa usuario_endereco como tabela intermediária
+    through: tabelas.usuario_endereco
 });
+
 tabelas.usuario.belongsToMany(tabelas.endereco, {
     through: tabelas.usuario_endereco 
 });
@@ -331,6 +362,7 @@ tabelas.vendedor_perfil.belongsTo(tabelas.usuario, {foreignKey: 'user'});
 tabelas.loja.hasMany(tabelas.vendedor_perfil, {
     foreignKey: 'lojaId'
 });
+
 tabelas.vendedor_perfil.belongsTo(tabelas.loja, {
     foreignKey: 'lojaId'
 });
@@ -339,6 +371,7 @@ tabelas.vendedor_perfil.belongsTo(tabelas.loja, {
 tabelas.loja.hasMany(tabelas.produto, {
     foreignKey: 'lojaId'
 });
+
 tabelas.produto.belongsTo(tabelas.loja, {
     foreignKey: 'lojaId'
 });
@@ -353,8 +386,13 @@ tabelas.produto.belongsTo(tabelas.categoria, {
 });
 
 //Produto-item de carrinho (1-n)
-tabelas.produto.hasMany(tabelas.item_carrinho, {foreignKey: 'product'});
-tabelas.item_carrinho.belongsTo(tabelas.produto, {foreignKey: 'product'});
+tabelas.produto.hasMany(tabelas.item_carrinho, {
+    foreignKey: 'id_produto'
+});
+
+tabelas.item_carrinho.belongsTo(tabelas.produto, {
+    foreignKey: 'id_produto'
+});
 
 //Produto-item de pedido (1-n)
 tabelas.produto.hasMany(tabelas.item_pedido, {foreignKey: 'product'});
@@ -362,11 +400,25 @@ tabelas.item_pedido.belongsTo(tabelas.produto, {foreignKey: 'product'});
 
 //Produto-histórico (1-n)
 tabelas.produto.hasMany(tabelas.historico_produto, {foreignKey: 'product'});
-tabelas.historico_produto.belongsTo(tabelas.produto, {foreignKey: 'product'})
+tabelas.historico_produto.belongsTo(tabelas.produto, {foreignKey: 'product'});
 
-//Usuário-carrinho-item (n-m)
-tabelas.usuario.belongsToMany(tabelas.item_carrinho, {through: tabelas.carrinho});
-tabelas.item_carrinho.belongsToMany(tabelas.usuario, {through: tabelas.carrinho});
+//Usuário-carrinho (1-1)
+tabelas.usuario.hasOne(tabelas.carrinho, {
+    foreignKey: 'id_usuario'
+});
+
+tabelas.carrinho.belongsTo(tabelas.usuario, {
+    foreignKey: 'id_usuario'
+});
+
+//Carrinho-item de carrinho (1-n)
+tabelas.carrinho.hasMany(tabelas.item_carrinho, {
+    foreignKey: 'id_carrinho'
+});
+
+tabelas.item_carrinho.belongsTo(tabelas.carrinho, {
+    foreignKey: 'id_carrinho'
+});
 
 //Usuário-pedido-item (n-m)
 tabelas.usuario.belongsToMany(tabelas.item_pedido, {through: tabelas.pedido});

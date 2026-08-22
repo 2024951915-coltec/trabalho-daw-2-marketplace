@@ -226,7 +226,7 @@ function pages()
                 passhash: senha,
                 category: category
             });
-
+            
             // Se for vendedor, cria automaticamente a loja
             // e o perfil de vendedor
             if (category === 'vendedor') {
@@ -559,7 +559,127 @@ function pages()
             return res.send('Endereço atualizado.');
     });
 
-    app.get('/product/:id/view', async (req, res)=>{
+    app.get('/:user/shopping-cart', requireAuth.default, async(req, res) => {
+        const user = await tabelas.usuario.findByPk(req.session.user.id);
+
+        // Encontra carrinho do usuario
+        const carrinho = await tabelas.carrinho.findOne({
+            where: {
+                id_usuario: user.id
+            }
+        })
+
+        if(!carrinho){
+            await tabelas.carrinho.create({
+                id_usuario: user.id,
+                valorTotalCompra: 0,
+            })
+
+        }
+        // Lista para guardar as compras do carrinho
+        let itens = [];
+
+        if(carrinho){
+            itens = await tabelas.item_carrinho.findAll({
+                where: {
+                    id_carrinho: carrinho.id
+                },
+                // útil para mostrar o produto na página com as informações corretamente
+                include: tabelas.produto // Faz cada item trazer o produto relacionado
+            })
+        }
+        
+        console.log("CARRINHO ANTES DO RENDER:", carrinho);
+console.log("ITENS ANTES DO RENDER:", itens);
+console.log("VALOR TOTAL:", carrinho ? carrinho.valorTotalCompra : "SEM CARRINHO");
+
+        // Carrega o carrinho do usuário ao entrar na página 
+        res.render('shopping-cart.ejs', {
+            USER: user,
+            CARRINHO: carrinho,
+            ITENS: itens,
+        });
+    })
+
+    app.post('/:user/shopping-cart/:idCarrinho', async(req, res) => {
+
+        // Quantidade vem do botão de aumentar ou dimuinuir a quantidade
+        const {itemCarrinhoId, quantidade} = req.body;
+        const {idCarrinho} = req.params;
+
+        // Pega o id pelo formulário ao usuário clicar em alterar quantidade ou remover o item
+        const itemCarrinho = await tabelas.item_carrinho.findByPk(itemCarrinhoId);
+
+        // Verifica se a quantidade é maior que o estoque disponível
+        if(itemCarrinho){
+            itemCarrinho.quantidade = quantidade; // Quantidade atualizada
+            itemCarrinho.save(); // Salva a nova quantidade
+        }
+        
+        const carrinho = await tabelas.carrinho.findByPk(idCarrinho);
+
+        // Relaciona id_produto de item_carrinho com o id do produto da tabela produtos
+        // itens é um registro de item_carrinho e estou dentro das propriedades dele
+        const itens = await tabelas.item_carrinho.findAll({
+            where: {
+                id_carrinho: carrinho.id
+            },
+            include: tabela.produto 
+        })
+
+        let total = 0;
+
+        // Calcular valor do item
+        for(const item of itens){
+
+            let valorItem = item.produto.preco * item.quantidade;
+
+            total += valorItem;
+
+        }
+
+        carrinho.valorTotalCompra = total;
+        await carrinho.save();
+
+        console.log("TOTAL CALCULADO NO POST:", total);
+console.log("TOTAL DO CARRINHO APÓS SAVE:", carrinho.valorTotalCompra);
+
+
+        // Remover item do carrinho 
+        let removerItem = false;
+
+        // Se clicar no botão de remover, ele vira true
+        if(!removerItem){
+            // Já peguei o item em itemCarrinho
+            // Já tenho o objeto itens e o valor total da compra
+
+            // Subtrair o valor do item do valor total
+            let total = carrinho.valorTotalCompra;
+
+            for(const item of itens){
+
+                // Usa itemCarrinho porque estou pegando apenas um item específico e não todos como na soma
+                let valorItem = itemCarrinho.produto.preco * itemCarrinho.quantidade; // Valor total do item
+
+                total -= valorItem;
+
+            }
+
+            carrinho.valorTotalCompra = total;
+            await carrinho.save();
+
+            // Por fim, remover o item das tabelas item_carrinho e carrinho
+
+            const itemTabelaCarrinho = tabelas.carrinho.findByPk(itemCarrinhoId);
+
+            await itemTabelaCarrinho.destroy();
+            await itemCarrinho.destroy();
+        
+        }
+        // Desmarcar e marcar itens
+    })
+
+    app.get('/product/:id/view', requireAuth.default, async (req, res)=>{
         const user = req.session.user;
         const produto_id = parseInt(req.params.id, 16)
         const produto = await tabelas.produto.findOne({
@@ -579,6 +699,75 @@ function pages()
             PRODUTO: produto
         });
     })
+
+     app.post('/products/:produtoId/shopping-cart', async(req, res) => {
+
+        const {produtoId} = req.params; // Params pega o ID pela URL
+        const {quantidade} = req.body;
+
+        // Verifica carrinho e vê qual o carrinho do usuário
+        const carrinho = await tabelas.carrinho.findOne({
+            where:{
+                id_usuario: req.session.user.id,
+            }
+        });
+
+        // Se o usuário não possui carrinho, cria um
+        if(!carrinho){
+            await tabelas.carrinho.create({
+                id_usuario: req.session.user.id,
+                valorTotalCompra: null,
+            })
+        }
+
+        console.log("VALOR TOTAL APÓS O CARRINHO SER VERIFICADO: ", carrinho.valorTotalCompra);
+
+         // Verifica qual é o produto para pegar seu preço e o estoque
+        const produto = await tabelas.produto.findOne({
+            where: {
+                id: produtoId,
+        }
+    });
+
+        if(produto.stock == 0){
+            res.send('Produto fora de estoque.');
+        }
+
+        // Verifica se o produto já existe dentro do carrinho 
+        const buscaItem = await tabelas.item_carrinho.findOne({
+            where: {
+                id_produto: produto.id,
+                id_carrinho: carrinho.id,
+            }
+        }); 
+
+        // Se o item não existir dentro do carrinho, cria ele
+
+        if(!buscaItem){ 
+           await tabelas.item_carrinho.create({
+                id_carrinho: carrinho.id,
+                id_produto: produtoId, // id do produto antes de adicionar ao carrinho
+                quantidade: quantidade,
+                valorItem: produto.preco, // Não trás o valor dele para ser carregado na hora de somar
+            })
+        }
+
+        else {
+            buscaItem.quantidade += 1;
+
+            await buscaItem.save();
+        }
+
+        res.redirect(`/${req.session.user.username}/shopping-cart`);
+
+        // OPÇÃO COMPRAR AGORA (VOU MEXER NISSO QUANDO FIZER CHECK-OUT)
+    })
+
+        app.get('/leave', requireAuth.default, (req, res)=>{
+        req.session.user = undefined;
+        res.redirect('/login');
+    })
+
 }
 
 

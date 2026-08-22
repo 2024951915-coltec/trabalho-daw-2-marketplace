@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Carrinho</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwxz9D9Z8Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+
+    <!-- CSS local -->
+    <link rel="stylesheet"
+        href="/trabalho-daw-2-marketplace/public/css/shopping_cart.css">
+</head>
+
+<body>
+
+    <p>
+    TESTE TOTAL: <%= CARRINHO ? CARRINHO.valorTotalCompra : 'CARRINHO NÃO EXISTE' %>
+</p>
+
+    <!-- Cabeçalho -->
+    <header class="mb-3">
+
+        <!-- Barra de acessibilidade -->
+        <div class="accessibility-bar"
+            role="navigation"
+            aria-label="Acessibilidade">
+
+            <a href="#main-content" accesskey="1">
+                Ir para o conteúdo
+            </a>
+
+            <button type="button"
+                onclick="toggleContraste()"
+                aria-label="Ativar alto contraste">
+
+                Alto Contraste
+
+            </button>
+
+        </div>
+
+
+        <!-- Menu principal -->
+        <nav class="site-header">
+
+            <!-- Logo -->
+            <div class="logo">
+
+                <a href="/"
+                    aria-label="Página inicial GalinhasGordas">
+
+                    <img src="/trabalho-daw-2-marketplace/public/imagens/logo.png"
+                        alt="GalinhasGordas"
+                        width="120">
+
+                </a>
+
+            </div>
+
+
+            <!-- Menu desktop -->
+            <div class="d-none d-sm-flex user-actions">
+
+                <a href="/config"
+                    class="action-link"
+                    aria-label="Minha conta">
+
+                    Minha Conta
+                    (<strong>@<%= USER.username %></strong>)
+
+                </a>
+
+                <a href="/home"
+                    class="action-link"
+                    aria-label="Voltar para o início">
+
+                    Início
+
+                </a>
+
+            </div>
+
+
+            <!-- Menu mobile -->
+            <div class="d-block d-sm-none">
+
+                <a class="btn btn-outline-secondary"
+                    data-bs-toggle="offcanvas"
+                    href="#sm-offcanvas"
+                    role="button"
+                    aria-controls="sm-offcanvas">
+
+                    &#9776;
+
+                </a>
+
+
+                <div class="offcanvas offcanvas-start"
+                    id="sm-offcanvas">
+
+                    <div class="offcanvas-header">
+
+                        <h5 class="offcanvas-title">
+                            Menu
+                        </h5>
+
+                        <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="offcanvas"
+                            aria-label="Fechar">
+                        </button>
+
+                    </div>
+
+
+                    <div class="offcanvas-body">
+
+                        <a href="/config"
+                            class="btn btn-outline-primary w-100 mb-2">
+
+                            Minha Conta
+
+                        </a>
+
+                        <a href="/home"
+                            class="btn btn-outline-primary w-100">
+
+                            Início
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <!-- Conteúdo principal -->
+    <main id="main-content" class="container-md">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h1>Meu carrinho</h1>
+
+                <p class="text-secondary mb-0">
+                    Confira os produtos adicionados ao seu carrinho.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Área do carrinho -->
+        <section class="row">
+
+            <!-- Produtos -->
+            <div class="col-md-8">
+
+                <h2 class="h4 mb-3">
+                    Produtos no carrinho
+                </h2>
+
+
+                <!-- Verifica se existem itens -->
+                <% if (!ITENS || ITENS.length === 0) { %>
+
+                    <div class="alert alert-info">
+                        Seu carrinho está vazio.
+                    </div>
+
+                <% } else { %>
+
+
+                    <!-- Percorre todos os itens do carrinho -->
+                    <% ITENS.forEach(item => { %>
+
+                        <div class="card mb-3">
+
+                            <div class="card-body">
+
+                                <div class="row align-items-center">
+
+
+                                    <!-- Imagem do produto -->
+                                    <div class="col-md-3">
+
+                                        <img
+                                            src="/trabalho-daw-2-marketplace/public/imagens/<%= item.produto.photo_id %>"
+                                            alt="<%= item.produto.name %>"
+                                            class="img-fluid">
+
+                                    </div>
+
+
+                                    <!-- Informações do produto -->
+                                    <div class="col-md-4">
+
+                                        <h3 class="h5">
+                                            <%= item.produto.name %>
+                                        </h3>
+
+                                        <p class="text-secondary">
+                                            <%= item.produto.description %>
+                                        </p>
+
+                                        <strong>
+                                            R$
+                                            <%= Number(item.produto.preco)
+                                                .toFixed(2)
+                                                .replace('.', ',') %>
+                                        </strong>
+
+                                    </div>
+
+
+                                    <!-- Quantidade -->
+                                    <div class="col-md-3">
+
+                                        <form
+                                            action="/<%= USER.username %>/shopping-cart/<%= CARRINHO.id %>"
+                                            method="POST">
+
+                                            <input
+                                                type="hidden"
+                                                name="itemCarrinhoId"
+                                                value="<%= item.id_itemCarrinho %>">
+
+
+                                            <label
+                                                for="quantidade-<%= item.id_itemCarrinho %>"
+                                                class="form-label">
+
+                                                Quantidade
+
+                                            </label>
+
+
+                                            <input
+                                                id="quantidade-<%= item.id_itemCarrinho %>"
+                                                type="number"
+                                                name="quantidade"
+                                                value="<%= item.quantidade %>"
+                                                min="1"
+                                                class="form-control">
+
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary btn-sm mt-2">
+
+                                                Atualizar
+
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+
+                                    <!-- Subtotal -->
+                                    <div class="col-md-2">
+
+                                        <span class="text-secondary">
+                                            Subtotal
+                                        </span>
+
+                                        <strong class="d-block">
+
+                                            R$
+                                            <%= Number(item.produto.preco * item.quantidade)
+                                                .toFixed(2)
+                                                .replace('.', ',') %>
+
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+
+                <% } %>
+
+            </div>
+
+
+            <!-- Resumo da compra -->
+            <aside class="col-md-4">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <h2 class="h4 card-title">
+                            Resumo da compra
+                        </h2>
+
+                        <hr>
+
+
+                        <div class="d-flex justify-content-between mb-3">
+
+                            <span>
+                                Total
+                            </span>
+
+
+                            <strong>
+
+                                R$
+
+                                <%= CARRINHO
+                                    ? Number(CARRINHO.valorTotalCompra || 0)
+                                        .toFixed(2)
+                                        .replace('.', ',')
+                                    : '0,00' %>
+
+                            </strong>
+
+                        </div>
+
+
+                        <form
+                            action="/<%= USER.username %>/checkout"
+                            method="GET">
+
+                            <button
+                                type="submit"
+                                class="btn btn-success w-100">
+
+                                Finalizar compra
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </main>
+
+</body>
+
+</html>

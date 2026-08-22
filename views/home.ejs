@@ -10,220 +10,445 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
         rel="stylesheet">
 
-    <!--Bootstrap JS Script-->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
-    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
-    crossorigin="anonymous"></script>
+    <!-- Bootstrap JS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
 
     <link class="style-local" rel="stylesheet" href="/css/home.css">
-    
 </head>
 
 <body>
-        
-    
 
-    <!-- Header Principal com as classes adicionadas -->
+    <!-- Header Principal -->
     <header class="mb-3">
-        <!-- Barra de Acessibilidade Superior com as classes adicionadas -->
+
+        <!-- Barra de Acessibilidade Superior -->
         <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
-            <a href="#main-content" accesskey="1">Ir para o conteúdo</a>
-            <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
+            <a href="#maincontent" accesskey="1">Ir para o conteúdo</a>
+            <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">
+                Alto Contraste
+            </button>
         </div>
-        
+
         <nav class="site-header">
+
             <!-- Logotipo -->
             <div class="logo">
                 <a href="/" aria-label="Página inicial GalinhasGordas">
-                    <img src="/imagens/logo.png" alt="GalinhasGordas Home" width="120"> <!--Removeu o i-->
+                    <img src="/imagens/logo.png" alt="GalinhasGordas Home" width="120">
                 </a>
             </div>
 
             <!-- MENU COMPUTADOR/TV -->
             <div class="d-none d-sm-flex user-actions">
-                
+
                 <!-- Área de Login -->
-                <% if(USER) { %>
-                <a href="/config" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
-                    Minha Conta (<strong>@<%= USER.username %></strong>)
-                </a>
+                <% if (USER) { %>
+
+                    <a href="/config"
+                       class="btn btn-outline-primary"
+                       aria-label="Entrar na minha conta">
+
+                        Minha Conta (<strong>@<%= USER.username %></strong>)
+
+                    </a>
+
+                    <!-- Carrinho -->
+                    <a href="/<%= USER.username %>/shopping-cart"
+                       class="action-link"
+                       aria-label="Ver carrinho de compras">
+
+                        Carrinho (<span class="cart-badge">0</span>)
+
+                    </a>
+
                 <% } else { %>
-                <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
-                    Entrar ou cadastrar
-                </a>
+
+                    <a href="/login"
+                       class="btn btn-outline-primary"
+                       aria-label="Entrar na minha conta">
+
+                        Entrar ou cadastrar
+
+                    </a>
+
+                    <!-- Se não estiver logado, manda para o login -->
+                    <a href="/login"
+                       class="action-link"
+                       aria-label="Faça login para acessar o carrinho">
+
+                        Carrinho
+
+                    </a>
+
                 <% } %>
 
-                <!-- Carrinho de Compras -->
-                <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
-                    Carrinho (<span class="cart-badge">0</span>)
-                </a>
-
             </div>
+
 
             <!-- MENU TELEFONE/PDA -->
             <div class="d-block d-sm-none">
-                <!--TODO: adicionar menu para mobile-->
-                <a class="btn btn-outline-primary" data-bs-toggle="offcanvas" href="#sm-offcanvas" role="button" aria-controls="sm-offcanvas">
+
+                <a class="btn btn-outline-primary"
+                   data-bs-toggle="offcanvas"
+                   href="#sm-offcanvas"
+                   role="button"
+                   aria-controls="sm-offcanvas">
+
                     &#9776;
+
                 </a>
 
                 <div class="offcanvas offcanvas-start" id="sm-offcanvas">
+
                     <div class="offcanvas-header">
-                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">Menu</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">
+                            Menu
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="offcanvas"
+                                aria-label="Close">
+                        </button>
+
                     </div>
 
                     <div class="offcanvas-body">
+
                         <!-- Área de Login -->
-                        <% if(USER) { %>
-                        <a href="/config" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
-                            Minha Conta (<strong>@<%= USER.username %></strong>)
-                        </a>
+                        <% if (USER) { %>
+
+                            <a href="/config"
+                               class="btn btn-outline-primary"
+                               aria-label="Entrar na minha conta">
+
+                                Minha Conta (<strong>@<%= USER.username %></strong>)
+
+                            </a>
+
+                            <!-- Carrinho -->
+                            <a href="/<%= USER.username %>/shopping-cart"
+                               class="btn btn-outline-primary"
+                               aria-label="Ver carrinho de compras">
+
+                                Carrinho (<span class="cart-badge">0</span>)
+
+                            </a>
+
                         <% } else { %>
-                        <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
-                            Entrar ou cadastrar
-                        </a>
+
+                            <a href="/login"
+                               class="btn btn-outline-primary"
+                               aria-label="Entrar na minha conta">
+
+                                Entrar ou cadastrar
+
+                            </a>
+
+                            <!-- Se não estiver logado -->
+                            <a href="/login"
+                               class="btn btn-outline-primary"
+                               aria-label="Faça login para acessar o carrinho">
+
+                                Carrinho
+
+                            </a>
+
                         <% } %>
 
-                        <!-- Carrinho de Compras -->
-                        <a href="/carrinho" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
-                            Carrinho (<span class="cart-badge">0</span>)
-                        </a>
                     </div>
                 </div>
             </div>
+
         </nav>
 
     </header>
 
+
     <main id="maincontent" class="container-md">
-        
-        <h1>Bem vindo<% if(USER) { %>, <strong><%= USER.name %></strong><% } %>!</h1>
-        
+
+        <h1>
+            Bem vindo
+            <% if (USER) { %>
+                , <strong><%= USER.name %></strong>
+            <% } %>!
+        </h1>
+
         <p>O que deseja comprar hoje?</p>
-        <!--A página principal -->
+
+
+        <!-- Página principal -->
         <article class="container-md row mt-3">
+
             <div class="col-md-5">
-                <!-- Campo de Pesquisa com as classes adicionadas -->
-                <form action="/busca" method="GET" role="search" class="form-control">
+
+                <!-- Campo de Pesquisa -->
+                <form action="/busca"
+                      method="GET"
+                      role="search"
+                      class="form-control">
+
                     <div class="d-flex justify-content-between">
+
                         <div class="input-group pe-3">
-                            <input 
-                                type="search" 
+
+                            <input
+                                type="search"
                                 id="search"
                                 class="form-control"
-                                name="search" 
-                                placeholder="Pesquisar produtos..." 
+                                name="search"
+                                placeholder="Pesquisar produtos..."
                                 aria-label="Buscar no site"
                             >
-                            <button type="submit" class="input-group-text btn btn-primary">Buscar</button>
+
+                            <button type="submit"
+                                    class="input-group-text btn btn-primary">
+
+                                Buscar
+
+                            </button>
+
                         </div>
 
+
                         <div>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#filter-collapse">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filter" viewBox="0 0 16 16">
-                                <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/>
+
+                            <button type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#filter-collapse">
+
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     width="16"
+                                     height="16"
+                                     fill="currentColor"
+                                     class="bi bi-filter"
+                                     viewBox="0 0 16 16">
+
+                                    <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5"/>
+
                                 </svg>
+
                             </button>
+
                         </div>
+
                     </div>
+
+
+                    <!-- Filtros -->
                     <div class="collapse mt-3" id="filter-collapse">
+
                         <div class="card card-body d-flex justify-content-around">
+
+                            <!-- Preço mínimo -->
                             <div class="pe-3">
-                                <label for="preco_min" class="form-label">Preço mínimo (<span id="min-price-text"></span>)</label>
+
+                                <label for="preco_min" class="form-label">
+                                    Preço mínimo
+                                    (<span id="min-price-text"></span>)
+                                </label>
+
                                 <div class="row g-3 align-items-center">
+
                                     <div class="col-auto">
                                         qualquer
                                     </div>
+
                                     <div class="col-auto">
-                                        <input type="range" class="form-control" id="preco_min" name="preco_min" value="0">
+
+                                        <input
+                                            type="range"
+                                            class="form-control"
+                                            id="preco_min"
+                                            name="preco_min"
+                                            value="0"
+                                        >
+
                                     </div>
+
                                     <div class="col-auto">
                                         R$100.00
                                     </div>
+
                                 </div>
+
                             </div>
 
+
+                            <!-- Preço máximo -->
                             <div class="pe-3">
-                                <label for="preco_max" class="form-label">Preço máximo (<span id="max-price-text"></span>)</label>
+
+                                <label for="preco_max" class="form-label">
+
+                                    Preço máximo
+                                    (<span id="max-price-text"></span>)
+
+                                </label>
 
                                 <div class="row g-3 align-items-center">
+
                                     <div class="col-auto">
                                         R$0.00
                                     </div>
+
                                     <div class="col-auto ms-3">
-                                        <input type="range" class="form-control" id="preco_max" name="preco_max" max="101" value="101">
+
+                                        <input
+                                            type="range"
+                                            class="form-control"
+                                            id="preco_max"
+                                            name="preco_max"
+                                            max="101"
+                                            value="101"
+                                        >
+
                                     </div>
+
                                     <div class="col-auto">
                                         qualquer
                                     </div>
+
                                 </div>
+
                             </div>
 
+
+                            <!-- Categoria -->
                             <div>
+
                                 <div class="mb-3">
-                                    <label class="form-label" for="categoriaId">Categoria </label>
-                                    <select class="form-select" name="categoriaId" id="categoriaId" required>
-                                        <option selected>Qualquer</option>
+
+                                    <label class="form-label"
+                                           for="categoriaId">
+
+                                        Categoria
+
+                                    </label>
+
+                                    <select
+                                        class="form-select"
+                                        name="categoriaId"
+                                        id="categoriaId"
+                                        required>
+
+                                        <option selected>
+                                            Qualquer
+                                        </option>
+
                                         <% CATEGORIAS.forEach(categoria => { %>
+
                                             <option value="<%= categoria.id %>">
+
                                                 <%= categoria.name %>
+
                                             </option>
+
                                         <% }) %>
+
                                     </select>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </form>
-                <!--Add opções de filtragem-->
+
             </div>
 
-            <aside class="destaque col-md-6 mt-3">   
-                
+
+            <!-- Produtos disponíveis -->
+            <aside class="destaque col-md-6 mt-3">
+
                 <h2>Produtos disponíveis</h2>
+
                 <% produtos.forEach((produto, idx, arr) => { %>
-                    
-                <% if(idx % 3 == 0) { %>
-                    <div class="row">
-                <% } %>
 
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="/data/uploads/<%= produto.photo_id %>" alt="Capa do produto <%= produto.name %>" height="80">
-                        <div class="card-header">
-                            <a href="/product/<%= produto.id.toString(16).padStart(16, '0') %>/view" class="h3 link-underline link-underline-opacity-0"> 
-                                <%= produto.name %> 
-                            </a>
+                    <% if (idx % 3 == 0) { %>
+
+                        <div class="row">
+
+                    <% } %>
+
+
+                    <div class="col-md-4">
+
+                        <div class="card">
+
+                            <img
+                                src="/data/uploads/<%= produto.photo_id %>"
+                                alt="Capa do produto <%= produto.name %>"
+                                height="80"
+                            >
+
+                            <div class="card-header">
+
+                                <a
+                                    href="/product/<%= produto.id.toString(16).padStart(16, '0') %>/view"
+                                    class="h3 link-underline link-underline-opacity-0">
+
+                                    <%= produto.name %>
+
+                                </a>
+
+                            </div>
+
+
+                            <div class="card-body">
+
+                                <p class="card-subtitle fw-semibold text-secondary">
+
+                                    <%= produto.description %>
+
+                                </p>
+
+                                <p class="card-text">
+
+                                    Preço: R$ <%= produto.preco.toFixed(2) %>
+
+                                </p>
+
+                                <p class="card-text">
+
+                                    Loja:
+
+                                    <strong>
+                                        <%= produto.loja.name %>
+                                    </strong>
+
+                                </p>
+
+                            </div>
+
                         </div>
 
-                        <div class="card-body">
-                            <p class="card-subtitle fw-semibold text-secondary">
-                                <%= produto.description %>
-                            </p>
-                            <p class="card-text">
-                                Preço: R$ <%= produto.preco.toFixed(2) %>
-                            </p>
-                            <p class="card-text">
-                                Loja:
-                                <strong>
-                                    <%= produto.loja.name %>
-                                </strong>
-                            </p>   
-                        </div>
                     </div>
-                </div>
 
-                <% if(idx % 3 == 2 || idx == arr.length - 1) { %>
-                    </div>
-                <% } %>
-            <% }) %>
+
+                    <% if (idx % 3 == 2 || idx == arr.length - 1) { %>
+
+                        </div>
+
+                    <% } %>
+
+                <% }) %>
+
             </aside>
+
         </article>
+
     </main>
 
+
     <script src="/js/controle_barras_busca.js"></script>
+
 </body>
 
-    
 </html>
