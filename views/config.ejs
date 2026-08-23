@@ -43,7 +43,7 @@
                     </a>
 
                     <!-- Carrinho de Compras -->
-                    <a href="/carrinho" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
+                    <a href="/<%= USER.username %>/shopping-cart" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
                         Carrinho (<span class="cart-badge">0</span>)
                     </a>
 
@@ -69,7 +69,7 @@
                             </a>
 
                             <!-- Carrinho de Compras -->
-                            <a href="/carrinho" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
+                            <a href="/<%= USER.username %>/shopping-cart" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
                                 Carrinho (<span class="cart-badge">0</span>)
                             </a>
                         </div>
@@ -122,10 +122,10 @@
                     <div class="row mt-3">
                         <div class="col-md-3 mb-3">
                             <div class="card card-body">
-                                <a href="/" class="h3 card-title link-underline link-underline-opacity-0">
-                                    Informações da conta
+                                <a href="<%= USER.username %>/cartoes" class="h3 card-title link-underline link-underline-opacity-0">
+                                    Cartões
                                 </a>
-                                <p class="card-text">Configurar dados da conta</p>
+                                <p class="card-text">Gerenciar seus Cartões</p>
                             </div>
                         </div>
                         <% if(USER.category == 'vendedor') { %>
@@ -138,6 +138,8 @@
                             </div>
                         </div>
                         <% } %>
+
+    
 
                         <div class="col-md-3 mb-3">
                             <div class="card text-white bg-danger">
