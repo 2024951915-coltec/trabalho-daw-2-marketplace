@@ -22,6 +22,10 @@ function pages()
     app.get('/home', async (req, res) => {
         const user = req.session.user;
 
+        if (user && user.category === 'admin') {
+        return res.redirect('/admin');
+        }
+        
         const produtos = await tabelas.produto.findAll({
             include: [
                 {
@@ -39,6 +43,12 @@ function pages()
             USER: (user !== undefined) ? user : null,
             produtos: produtos,
             CATEGORIAS: categorias
+        });
+    });
+
+    app.get('/admin', requireAuth.admin, async (req, res) => {
+        res.render('admin.ejs', {
+            USER: req.session.user
         });
     });
 
@@ -187,7 +197,12 @@ function pages()
             lojaId: vendedor ? vendedor.lojaId : null
         };
 
-        // Decide para onde enviar de acordo com o banco
+        // Se for admin, manda para o painel administrativo
+        if (user.category === 'admin') {
+            return res.redirect('/admin');
+        }
+
+        // Demais categorias válidas vão para a home
         if (E_UMA_CATEGORIA_VALIDA(user.category)) {
             return res.redirect('/home');
         }

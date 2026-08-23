@@ -17,6 +17,10 @@ echo 'Criando diretório public/data/uploads/'
 mkdir -p public/data/uploads/
 echo ''
 
+#instalar leitor de .env
+npm install dotenv
+
 #por fim, instalar todos os pacotes NPM
 echo 'Instalando pacotes NPM:'
 npm install express ejs @sequelize/core @sequelize/sqlite3 bcryptjs express-session socket.io multer
+
