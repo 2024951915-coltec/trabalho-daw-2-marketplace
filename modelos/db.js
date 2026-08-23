@@ -499,7 +499,6 @@ database.sync()
         )
     );
 
-
     const quantidadeCategorias = await tabelas.categoria.count();
 
     if (quantidadeCategorias === 0) {
@@ -531,5 +530,20 @@ database.sync()
 
     console.error('\t> ' + error + '\n');
 })
+
+        const adminExistente = await tabelas.usuario.findOne({
+        where: {
+            category: 'admin'
+        }
+    });
+
+    if (!adminExistente) {
+        await tabelas.usuario.create({
+            username: process.env.ADMIN_USERNAME,
+            name: 'Administrador',
+            passhash: process.env.ADMIN_PASSWORD,
+            category: 'admin'
+        });
+    }
 
 export {database, tabelas, Op};

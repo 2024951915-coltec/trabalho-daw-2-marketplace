@@ -3,6 +3,7 @@
 
 import {app, requireAuth, comparePass, hashPass, upload} from './app.js';
 import {database, tabelas, Op} from './db.js';
+import bcrypt from 'bcryptjs';
 
 //set com categorias válidas
 const CATEGORIAS = new Set(['admin', 'vendedor', 'user']);
@@ -21,6 +22,10 @@ function pages()
 
     app.get('/home', async (req, res) => {
         const user = req.session.user;
+
+        if (user && user.category === 'admin') {
+        return res.redirect('/admin');
+        }
 
         const produtos = await tabelas.produto.findAll({
             include: [
@@ -41,6 +46,418 @@ function pages()
             CATEGORIAS: categorias
         });
     });
+
+    app.get('/admin', requireAuth.admin, async (req, res) => {
+        res.render('admin.ejs', {
+            USER: req.session.user
+        });
+    });
+
+    app.get('/admin/usuarios', requireAuth.admin, async (req, res) => {
+
+        const usuarios = await tabelas.usuario.findAll({
+            order: [['id', 'ASC']]
+        });
+
+        res.render('admin-usuarios.ejs', {
+            USER: req.session.user,
+            USUARIOS: usuarios
+        });
+    });
+
+
+    app.get('/admin/usuarios/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const usuario = await tabelas.usuario.findByPk(
+                req.params.id
+            );
+
+            if (!usuario) {
+                return res.status(404).send(
+                    'Usuário não encontrado.'
+                );
+            }
+
+            res.render('admin-editar-usuario.ejs', {
+                USER: req.session.user,
+                USUARIO_EDITAR: usuario
+            });
+        }
+    );
+
+    app.post('/admin/usuarios/:id/editar',requireAuth.admin,async (req, res) => {
+
+            const { id } = req.params;
+
+            const {
+                name,
+                username,
+                category,
+                senha
+            } = req.body;
+
+            const usuario = await tabelas.usuario.findByPk(id);
+
+            if (!usuario) {
+                return res.status(404).send(
+                    'Usuário não encontrado.'
+                );
+            }
+
+            usuario.name = name;
+            usuario.username = username;
+            usuario.category = category;
+
+            // Só altera a senha se o campo foi preenchido
+            if (senha && senha.trim() !== '') {
+
+                const salt = await bcrypt.genSalt(10);
+
+                usuario.passhash = await bcrypt.hash(
+                    senha,
+                    salt
+                );
+            }
+
+            await usuario.save();
+
+            return res.redirect('/admin/usuarios');
+        }
+    );
+
+    app.post('/admin/usuarios/:id/excluir', requireAuth.admin, async (req, res) => {
+
+            const id = req.params.id;
+
+            // Impede o administrador de excluir a própria conta
+            if (Number(id) === req.session.user.id) {
+                return res.status(403).send(
+                    'Você não pode excluir sua própria conta.'
+                );
+            }
+
+            const usuario = await tabelas.usuario.findByPk(id);
+
+            if (!usuario) {
+                return res.status(404).send(
+                    'Usuário não encontrado.'
+                );
+            }
+
+            await usuario.destroy();
+
+            return res.redirect('/admin/usuarios');
+        }
+    );
+
+    app.get('/admin/categorias', requireAuth.admin, async (req, res) => {
+
+        const categorias = await tabelas.categoria.findAll({
+            order: [['name', 'ASC']]
+        });
+
+        res.render('admin-categorias.ejs', {
+            USER: req.session.user,
+            CATEGORIAS: categorias
+        });
+
+    });
+
+    app.post('/admin/categorias/:id/excluir', requireAuth.admin, async (req, res) => {
+
+            const categoria = await tabelas.categoria.findByPk(
+                req.params.id
+            );
+
+            if (!categoria) {
+                return res.status(404).send(
+                    'Categoria não encontrada.'
+                );
+            }
+
+            const quantidadeProdutos = await tabelas.produto.count({
+                where: {
+                    categoriaId: categoria.id
+                }
+            });
+
+            if (quantidadeProdutos > 0) {
+                return res.status(400).send(
+                    'Não é possível excluir uma categoria que possui produtos.'
+                );
+            }
+
+            await categoria.destroy();
+
+            return res.redirect('/admin/categorias');
+        }
+    );
+
+    app.get('/admin/categorias/criar', requireAuth.admin, (req, res) => {
+
+            res.render('admin-criar-categoria.ejs', {
+                USER: req.session.user
+            });
+
+        }
+    );
+
+    app.post('/admin/categorias/criar', requireAuth.admin, async (req, res) => {
+
+            const { name } = req.body;
+
+            await tabelas.categoria.create({
+                name: name
+            });
+
+            return res.redirect('/admin/categorias');
+        }
+    );
+
+    app.get('/admin/categorias/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const categoria = await tabelas.categoria.findByPk(
+                req.params.id
+            );
+
+            if (!categoria) {
+                return res.status(404).send(
+                    'Categoria não encontrada.'
+                );
+            }
+
+            res.render('admin-editar-categoria.ejs', {
+                USER: req.session.user,
+                CATEGORIA_EDITAR: categoria
+            });
+
+        }
+    );
+
+    app.post('/admin/categorias/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const categoria = await tabelas.categoria.findByPk(
+                req.params.id
+            );
+
+            if (!categoria) {
+                return res.status(404).send(
+                    'Categoria não encontrada.'
+                );
+            }
+
+            categoria.name = req.body.name;
+
+            await categoria.save();
+
+            return res.redirect('/admin/categorias');
+        }
+    );
+
+    app.get('/admin/produtos', requireAuth.admin, async (req, res) => {
+
+        const produtos = await tabelas.produto.findAll({
+            include: [
+                {
+                    model: tabelas.loja,
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: tabelas.categoria,
+                    attributes: ['id', 'name']
+                }
+            ],
+            order: [['id', 'ASC']]
+        });
+
+        res.render('admin-produtos.ejs', {
+            USER: req.session.user,
+            PRODUTOS: produtos
+        });
+
+    });
+
+    app.post('/admin/produtos/:id/excluir', requireAuth.admin, async (req, res) => {
+
+            const produto = await tabelas.produto.findByPk(
+                req.params.id
+            );
+
+            if (!produto) {
+                return res.status(404).send(
+                    'Produto não encontrado.'
+                );
+            }
+
+            await produto.destroy();
+
+            return res.redirect('/admin/produtos');
+        }
+    );
+
+    app.get('/admin/produtos/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const produto = await tabelas.produto.findByPk(
+                req.params.id
+            );
+
+            if (!produto) {
+                return res.status(404).send(
+                    'Produto não encontrado.'
+                );
+            }
+
+            const categorias = await tabelas.categoria.findAll({
+                order: [['name', 'ASC']]
+            });
+
+            const lojas = await tabelas.loja.findAll({
+                order: [['name', 'ASC']]
+            });
+
+            res.render('admin-editar-produto.ejs', {
+                USER: req.session.user,
+                PRODUTO_EDITAR: produto,
+                CATEGORIAS: categorias,
+                LOJAS: lojas
+            });
+
+        }
+    );
+
+    app.post('/admin/produtos/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const produto = await tabelas.produto.findByPk(
+                req.params.id
+            );
+
+            if (!produto) {
+                return res
+                    .status(404)
+                    .send('Produto não encontrado.');
+            }
+
+            const {
+                name,
+                description,
+                preco,
+                stock,
+                categoriaId,
+                lojaId
+            } = req.body;
+
+
+            produto.name = name;
+
+            produto.description = description;
+
+            produto.preco = preco;
+
+            produto.stock = stock;
+
+            produto.categoriaId = categoriaId;
+
+            produto.lojaId = lojaId;
+
+
+            await produto.save();
+
+
+            return res.redirect('/admin/produtos');
+        }
+    );
+
+    app.get('/admin/vendedores', requireAuth.admin, async (req, res) => {
+
+        const vendedores = await tabelas.vendedor_perfil.findAll({
+            include: [
+                {
+                    model: tabelas.usuario,
+                    attributes: ['id', 'name', 'username', 'category']
+                },
+                {
+                    model: tabelas.loja,
+                    attributes: ['id', 'name']
+                }
+            ],
+            order: [['id', 'ASC']]
+        });
+
+        res.render('admin-vendedores.ejs', {
+            USER: req.session.user,
+            VENDEDORES: vendedores
+        });
+
+    });
+
+    app.get('/admin/vendedores/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const vendedor = await tabelas.vendedor_perfil.findByPk(
+                req.params.id
+            );
+
+            if (!vendedor) {
+                return res
+                    .status(404)
+                    .send('Vendedor não encontrado.');
+            }
+
+
+            const lojas = await tabelas.loja.findAll({
+                order: [['name', 'ASC']]
+            });
+
+
+            const usuario = await tabelas.usuario.findByPk(
+                vendedor.user
+            );
+
+
+            res.render('admin-editar-vendedor.ejs', {
+
+                USER: req.session.user,
+
+                VENDEDOR_EDITAR: vendedor,
+
+                USUARIO_VENDEDOR: usuario,
+
+                LOJAS: lojas
+
+            });
+
+        }
+    );
+
+    app.post('/admin/vendedores/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const vendedor = await tabelas.vendedor_perfil.findByPk(
+                req.params.id
+            );
+
+            if (!vendedor) {
+                return res
+                    .status(404)
+                    .send('Vendedor não encontrado.');
+            }
+
+
+            const {
+                description,
+                lojaId
+            } = req.body;
+
+
+            vendedor.description = description;
+
+            vendedor.lojaId = lojaId;
+
+
+            await vendedor.save();
+
+
+            return res.redirect('/admin/vendedores');
+        }
+    );
 
     app.get('/busca', async (req, res)=>{
         const query = {

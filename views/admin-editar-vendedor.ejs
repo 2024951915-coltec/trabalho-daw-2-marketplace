@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Editar Vendedor</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+
+<body>
+
+    <header class="mb-3">
+
+        <!-- Barra de acessibilidade -->
+        <div
+            class="accessibility-bar"
+            role="navigation"
+            aria-label="Acessibilidade"
+        >
+
+            <a href="#main-content" accesskey="1">
+                Ir para o conteúdo
+            </a>
+
+            <button
+                type="button"
+                onclick="toggleContraste()"
+                aria-label="Ativar alto contraste"
+            >
+                Alto Contraste
+            </button>
+
+        </div>
+
+
+        <!-- Header principal -->
+        <nav class="site-header">
+
+            <!-- Logo -->
+            <div class="logo">
+
+                <a
+                    href="/"
+                    aria-label="Página inicial GalinhasGordas"
+                >
+
+                    <img
+                        src="/imagens/logo.png"
+                        alt="GalinhasGordas Home"
+                        width="120"
+                    >
+
+                </a>
+
+            </div>
+
+
+            <!-- Menu desktop -->
+            <div class="d-none d-sm-flex user-actions">
+
+                <a
+                    href="/config"
+                    class="action-link"
+                    aria-label="Minha conta"
+                >
+
+                    Minha Conta
+                    (<strong>@<%= USER.username %></strong>)
+
+                </a>
+
+
+                <a
+                    href="/admin"
+                    class="action-link"
+                >
+
+                    Painel Administrativo
+
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <main
+        id="main-content"
+        class="container-md mt-4 admin-main"
+    >
+
+        <!-- Cabeçalho da página -->
+        <div
+            class="d-flex justify-content-between align-items-center admin-header"
+        >
+
+            <h2>Editar Vendedor</h2>
+
+            <a
+                class="btn"
+                href="/admin/vendedores"
+            >
+                Voltar
+            </a>
+
+        </div>
+
+
+        <div class="container-md mt-4">
+
+            <h3 class="admin-section-title">
+                Dados do vendedor
+            </h3>
+
+            <p class="admin-section-description">
+                Altere as informações do vendedor selecionado.
+            </p>
+
+
+            <form
+                action="/admin/vendedores/<%= VENDEDOR_EDITAR.id %>/editar"
+                method="POST"
+            >
+
+                <!-- Usuário -->
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Usuário
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="<%= USUARIO_VENDEDOR.name %> (@<%= USUARIO_VENDEDOR.username %>)"
+                        disabled
+                    >
+
+                </div>
+
+
+                <!-- Descrição -->
+                <div class="mb-3">
+
+                    <label
+                        for="description"
+                        class="form-label"
+                    >
+                        Descrição
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        id="description"
+                        name="description"
+                        rows="4"
+                        required
+                    ><%= VENDEDOR_EDITAR.description %></textarea>
+
+                </div>
+
+
+                <!-- Loja -->
+                <div class="mb-3">
+
+                    <label
+                        for="lojaId"
+                        class="form-label"
+                    >
+                        Loja
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="lojaId"
+                        name="lojaId"
+                        required
+                    >
+
+                        <% LOJAS.forEach(loja => { %>
+
+                            <option
+                                value="<%= loja.id %>"
+                                <%= Number(VENDEDOR_EDITAR.lojaId) === Number(loja.id) ? 'selected' : '' %>
+                            >
+
+                                <%= loja.name %>
+
+                            </option>
+
+                        <% }) %>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Botões -->
+                <div class="d-flex gap-2">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Salvar alterações
+                    </button>
+
+                    <a
+                        href="/admin/vendedores"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancelar
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>
