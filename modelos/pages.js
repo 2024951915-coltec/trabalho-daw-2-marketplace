@@ -22,10 +22,6 @@ function pages()
     app.get('/home', async (req, res) => {
         const user = req.session.user;
 
-        if (user && user.category === 'admin') {
-        return res.redirect('/admin');
-        }
-        
         const produtos = await tabelas.produto.findAll({
             include: [
                 {
@@ -43,12 +39,6 @@ function pages()
             USER: (user !== undefined) ? user : null,
             produtos: produtos,
             CATEGORIAS: categorias
-        });
-    });
-
-    app.get('/admin', requireAuth.admin, async (req, res) => {
-        res.render('admin.ejs', {
-            USER: req.session.user
         });
     });
 
@@ -197,12 +187,7 @@ function pages()
             lojaId: vendedor ? vendedor.lojaId : null
         };
 
-        // Se for admin, manda para o painel administrativo
-        if (user.category === 'admin') {
-            return res.redirect('/admin');
-        }
-
-        // Demais categorias válidas vão para a home
+        // Decide para onde enviar de acordo com o banco
         if (E_UMA_CATEGORIA_VALIDA(user.category)) {
             return res.redirect('/home');
         }
@@ -852,6 +837,15 @@ console.log(
     app.post('/:user/cartoes', async(req, res) => {
         const {numero, cvv, vencimento, nomeTitular} = req.body;
 
+        // NaN = Not a Number
+        if(String(cvv).length != 3 || isNaN(cvv)){
+            return res.send('O cvv deve conter 3 digitos.');
+        }
+
+        if(String(cvv).length != 16 || isNaN(cvv)){
+            return res.send('O número do cartão deve conter 16 digitos');
+        }
+
         // Encontra todas as relações desse usuário
         const usuarioCartao = await tabelas.usuario.findByPk(req.session.user.id,
             {
@@ -869,9 +863,7 @@ console.log(
 
         }
 
-        console.log('')
-
-        await tabelas.cartoes.create({
+       const cartoes = await tabelas.cartoes.create({
                 numero: numero,
                 CVV: cvv,
                 vencimento: vencimento,
@@ -879,7 +871,7 @@ console.log(
             }
         )
 
-        console.log('PELO MENOS CRIOU O CARTAO???: ', tabelas.cartoes.numero);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.numero);
 
         res.redirect(`/${req.session.user.username}/cartoes`);
         
@@ -985,9 +977,6 @@ console.log(
 
             let valorCompra = carrinho.valorTotalCompra;
         }
-
-
-
     })
 
         app.get('/leave', requireAuth.default, (req, res)=>{
