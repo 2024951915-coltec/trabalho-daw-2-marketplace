@@ -842,7 +842,7 @@ console.log(
             return res.send('O cvv deve conter 3 digitos.');
         }
 
-        if(String(cvv).length != 16 || isNaN(cvv)){
+        if(String(numero).length != 16 || isNaN(numero)){
             return res.send('O número do cartão deve conter 16 digitos');
         }
 
