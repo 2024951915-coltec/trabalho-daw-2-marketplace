@@ -572,7 +572,7 @@ function pages()
         if(!carrinho){
             await tabelas.carrinho.create({
                 id_usuario: user.id,
-                valorTotalCompra: 0,
+                valorTotalCompra: 5,
             })
 
         }
@@ -588,10 +588,6 @@ function pages()
                 include: tabelas.produto // Faz cada item trazer o produto relacionado
             })
         }
-        
-        console.log("CARRINHO ANTES DO RENDER:", carrinho);
-console.log("ITENS ANTES DO RENDER:", itens);
-console.log("VALOR TOTAL:", carrinho ? carrinho.valorTotalCompra : "SEM CARRINHO");
 
         // Carrega o carrinho do usuário ao entrar na página 
         res.render('shopping-cart.ejs', {
@@ -603,33 +599,81 @@ console.log("VALOR TOTAL:", carrinho ? carrinho.valorTotalCompra : "SEM CARRINHO
 
     app.post('/:user/shopping-cart/:idCarrinho', async(req, res) => {
 
+        console.log('ENTREI NO POST DO CARRINHO');
+
         // Quantidade vem do botão de aumentar ou dimuinuir a quantidade
-        const {itemCarrinhoId, quantidade} = req.body;
+        const {itemCarrinhoId, quantidade, acao} = req.body;
         const {idCarrinho} = req.params;
 
-        // Pega o id pelo formulário ao usuário clicar em alterar quantidade ou remover o item
-        const itemCarrinho = await tabelas.item_carrinho.findByPk(itemCarrinhoId);
+        console.log('ITEM: ', itemCarrinhoId);
+        console.log('CARRINHO: ', idCarrinho);
 
-        // Verifica se a quantidade é maior que o estoque disponível
-        if(itemCarrinho){
+        // ALTERAR QUANTIDADE DO ITEM
+
+        // Me da o item_carrinho e através da associação que eu criei, traz também o produto relacionado
+        const itemCarrinho = await tabelas.item_carrinho.findByPk(itemCarrinhoId,
+            {
+                include: tabelas.produto
+            }
+        );
+
+        if(acao === "atualizar"){
             itemCarrinho.quantidade = quantidade; // Quantidade atualizada
-            itemCarrinho.save(); // Salva a nova quantidade
+            await itemCarrinho.save(); // Salva a nova quantidade
+
+            res.redirect(`/${req.session.user.username}/shopping-cart`);
         }
-        
-        const carrinho = await tabelas.carrinho.findByPk(idCarrinho);
+
+        // REMOVER ITEM DO CARRINHO 
+
+        let total = 0;
+        const carrinho = await tabelas.carrinho.findByPk(idCarrinho); // Ta pegando o valor anterior pq ele é verificado antes de chegar a atualizar
 
         // Relaciona id_produto de item_carrinho com o id do produto da tabela produtos
         // itens é um registro de item_carrinho e estou dentro das propriedades dele
-        const itens = await tabelas.item_carrinho.findAll({
+         const itens = await tabelas.item_carrinho.findAll({
             where: {
                 id_carrinho: carrinho.id
             },
-            include: tabela.produto 
+            include: tabelas.produto 
         })
 
-        let total = 0;
+        console.log('VALOR TOTAL COMPRA: ', carrinho.valorTotalCompra);
+        if(acao === "remover"){
 
-        // Calcular valor do item
+            console.log('ENTREI NA FUNÇAO DE REMOVER')
+            // Já peguei o item em itemCarrinho
+            // Já tenho o objeto itens e o valor total da compra
+
+            // Subtrair o valor do item do valor total
+            let total = carrinho.valorTotalCompra;
+
+            console.log('VERIFICAR TOTAL ANTES DE ENTRAR NO FOR: ', total);
+            console.log('TOTAL ANTES DE MUDAR: ', total);
+                // Usa itemCarrinho porque estou pegando apenas um item específico e não todos como na soma
+                let valorItem = itemCarrinho.produto.preco * itemCarrinho.quantidade; // Valor total do item
+
+                console.log('VALOR DO ITEM QUANDO CHEGA AQUI: ', valorItem);
+                total -= valorItem;
+
+                console.log('CHEGUEI AQUI, VERIFICAR TOTAL DAQUI: ', total) // ta subtraindo
+            
+
+            // Não atualiza por que chega nulo
+            carrinho.valorTotalCompra = total;
+
+            // Está atualizando a coluna na tabela, mas não está sendo exibido visualmente sem antes apertar em atualizar
+            console.log('VALOR COMPRA TOTAL APÓS A REMOÇÃO: ', carrinho.valorTotalCompra); 
+            await carrinho.save();
+
+            // Por fim, remover o item das tabelas item_carrinho e carrinho
+
+            await itemCarrinho.destroy();
+            res.redirect(`/${req.session.user.username}/shopping-cart`);
+        }
+
+        // CALCULAR VALOR DO ITEM
+
         for(const item of itens){
 
             let valorItem = item.produto.preco * item.quantidade;
@@ -640,43 +684,12 @@ console.log("VALOR TOTAL:", carrinho ? carrinho.valorTotalCompra : "SEM CARRINHO
 
         carrinho.valorTotalCompra = total;
         await carrinho.save();
-
-        console.log("TOTAL CALCULADO NO POST:", total);
-console.log("TOTAL DO CARRINHO APÓS SAVE:", carrinho.valorTotalCompra);
-
-
-        // Remover item do carrinho 
-        let removerItem = false;
-
-        // Se clicar no botão de remover, ele vira true
-        if(!removerItem){
-            // Já peguei o item em itemCarrinho
-            // Já tenho o objeto itens e o valor total da compra
-
-            // Subtrair o valor do item do valor total
-            let total = carrinho.valorTotalCompra;
-
-            for(const item of itens){
-
-                // Usa itemCarrinho porque estou pegando apenas um item específico e não todos como na soma
-                let valorItem = itemCarrinho.produto.preco * itemCarrinho.quantidade; // Valor total do item
-
-                total -= valorItem;
-
-            }
-
-            carrinho.valorTotalCompra = total;
-            await carrinho.save();
-
-            // Por fim, remover o item das tabelas item_carrinho e carrinho
-
-            const itemTabelaCarrinho = tabelas.carrinho.findByPk(itemCarrinhoId);
-
-            await itemTabelaCarrinho.destroy();
-            await itemCarrinho.destroy();
+        console.log('CALCULA VALOR DO ITEM OU NADA HAVER: ', carrinho.valorTotalCompra);
         
+        // COMPRAR AGORA
+        if(acao === 'comprar'){
+            res.redirect(`/${req.session.user.username}/checkout`);
         }
-        // Desmarcar e marcar itens
     })
 
     app.get('/product/:id/view', requireAuth.default, async (req, res)=>{
@@ -703,7 +716,7 @@ console.log("TOTAL DO CARRINHO APÓS SAVE:", carrinho.valorTotalCompra);
      app.post('/products/:produtoId/shopping-cart', async(req, res) => {
 
         const {produtoId} = req.params; // Params pega o ID pela URL
-        const {quantidade} = req.body;
+        const {quantidade, acao} = req.body;
 
         // Verifica carrinho e vê qual o carrinho do usuário
         const carrinho = await tabelas.carrinho.findOne({
@@ -734,7 +747,7 @@ console.log("TOTAL DO CARRINHO APÓS SAVE:", carrinho.valorTotalCompra);
         }
 
         // Verifica se o produto já existe dentro do carrinho 
-        const buscaItem = await tabelas.item_carrinho.findOne({
+        let buscaItem = await tabelas.item_carrinho.findOne({
             where: {
                 id_produto: produto.id,
                 id_carrinho: carrinho.id,
@@ -744,7 +757,7 @@ console.log("TOTAL DO CARRINHO APÓS SAVE:", carrinho.valorTotalCompra);
         // Se o item não existir dentro do carrinho, cria ele
 
         if(!buscaItem){ 
-           await tabelas.item_carrinho.create({
+            buscaItem =  await tabelas.item_carrinho.create({
                 id_carrinho: carrinho.id,
                 id_produto: produtoId, // id do produto antes de adicionar ao carrinho
                 quantidade: quantidade,
@@ -757,10 +770,180 @@ console.log("TOTAL DO CARRINHO APÓS SAVE:", carrinho.valorTotalCompra);
 
             await buscaItem.save();
         }
+    
+        const valorItem = buscaItem.valorItem * buscaItem.quantidade;
+        carrinho.valorTotalCompra += valorItem; // Atualizar o valor do carrinho sem clicar em atualizar
 
         res.redirect(`/${req.session.user.username}/shopping-cart`);
 
         // OPÇÃO COMPRAR AGORA (VOU MEXER NISSO QUANDO FIZER CHECK-OUT)
+
+        if(acao === 'comprar'){
+            const produto = await tabelas.produto.findByPk(produtoId);
+
+            if(produto.stock == 0){
+                res.send('Produto fora de estoque.');
+            }
+        
+            res.redirect('')
+        }
+    })
+
+    // CHECK-OUT
+
+    // CHECK-OUT DA PÁGINA DO PRODUTO
+
+    // CARREGA A PÁGINA DE CARTÕES E OS CARTÕES DO USUÁRIO
+    app.get('/:user/cartoes/', requireAuth.default, async(req, res) => {
+
+        const usuarioCartao = await tabelas.usuario.findByPk(
+            req.session.user.id,
+            {
+                include: tabelas.cartoes,
+            }
+        )
+
+        res.render('cartoes.ejs', {
+            USER: req.session.user,
+            CARTOES: usuarioCartao.cartoes, // Guarda o array de cartões
+     });
+    }),
+    
+    // VERIFICA OS CARTÕES DO USUÁRIO E CRIA OUTROS CASO PRECISE
+    app.post('/:user/cartoes', async(req, res) => {
+        const {numero, cvv, vencimento, nomeTitular} = req.body;
+
+        // Encontra todas as relações desse usuário
+        const usuarioCartao = await tabelas.usuario.findByPk(req.session.user.id,
+            {
+                include: tabelas.cartoes,
+            }
+        ); 
+
+        // Verificar para ver se o cartão está na conta
+        // For para passar por dentro do array de cartões, pois usuário tem N cartões
+        for(const cartao of usuarioCartao.cartoes){
+
+            if(cartao.numero == numero){
+                res.send('Cartão já cadastrado na conta.')
+            }
+
+        }
+
+        await tabelas.cartoes.create({
+                numero: numero,
+                CVV: cvv,
+                vencimento: vencimento,
+                nomeTitular: nomeTitular,
+            })
+
+        res.redirect(`/${req.session.user.username}/cartoes`);
+        
+    })
+
+    // CHECK-OUT VINDO DO CARRINHO
+    app.get('/:user/checkout/', requireAuth.default, async(req, res) => {
+
+        // Saber de qual carrinho veio a compra 
+        const carrinho = await tabelas.carrinho.findOne({
+            where: {
+                id_usuario: req.session.user.id,
+            },
+            include: {
+                model: tabelas.item_carrinho,
+            }
+        }
+        )
+
+        // "Procura o usuário cujo ID é req.session.user.id e traz os endereços dele através da tabela intermediária
+        const user = await tabelas.usuario.findByPk(
+            req.session.user.id, {
+                include: tabelas.endereco,
+            }
+        )
+
+        // Procura cartoes do usuario
+        const usuarioCartoes = await tabelas.usuario.findByPk(
+            req.session.user.id, {
+                include: tabelas.cartoes,
+            }
+        )
+
+        const cartoes = usuarioCartoes.cartoes; // Recebe os cartões do usuário vindos da tabela intermediária
+
+        res.render('checkout.ejs', {
+            USER: req.session.user,
+            CARRINHO: carrinho,
+            ENDERECOS: user.enderecos,
+            CARTOES: cartoes,
+            TIPO_COMPRA: 'carrinho',
+        })
+    })
+
+    // CHECKK-OUT VINDO DA PÁGINA DE PRODUTO
+    app.get('/:user/checkout/:produtoId', async(req, res) => {
+        const {produtoId} = req.params; // Saber qual produto o usuário está comprando
+
+        // Carregar endereços
+        const user = await tabelas.usuario.findByPk(
+            req.session.user.id, {
+                include: tabelas.endereco,
+            }
+        )
+
+        // Carregar cartões
+        const usuarioCartoes = await tabelas.usuario.findByPk(
+            req.session.user.id, {
+                include: tabelas.cartoes,
+            }
+        )
+
+        const cartoes = usuarioCartoes.cartoes;
+
+        // Pegar o produto e o preço dele
+        const produto = await tabelas.produto.findByPk(produtoId);
+
+        res.render('/checkout.ejs', {
+            USER: req.session.user,
+            PRODUTO: produto,
+            ENDERECOS: user.enderecos,
+            CARTOES: cartoes,
+            TIPO_COMPRA: 'comprarAgora'
+        })
+    })
+
+    app.post('/:user/checkout', async(req, res) => {
+        // tipoCompra é a variável para guardar de onde o usuário veio
+        const {tipoCompra, produtoId, enderecoId, quantidade} = req.body;
+
+        // Comprar apenas o produto
+        if(tipoCompra === 'comprarAgora'){
+            const produto = await tabelas.produto.findByPk(produtoId);
+
+            const quantidade = parseInt(req.body.quantidade); // parseInt transforma String em Int
+
+            if(quantidade > produto.stock){
+                return res.send('Quantidade indisponível.');
+            }
+
+            const valorProduto = produto.preco * quantidade;
+
+        }
+
+        // Compra vindo do carrinho
+        if(tipoCompra === 'carrinho'){
+            
+            const carrinho = await tabelas.carrinho.findOne({
+                where: {
+                    id_usuario: req.session.user.id,
+                }
+            })
+
+            let valorCompra = carrinho.valorTotalCompra;
+        }
+
+
+
     })
 
         app.get('/leave', requireAuth.default, (req, res)=>{
@@ -769,7 +952,6 @@ console.log("TOTAL DO CARRINHO APÓS SAVE:", carrinho.valorTotalCompra);
     })
 
 }
-
 
 //Não é necessário incluir o app.listen(), ele já está incluso em outro arquivo :D
 

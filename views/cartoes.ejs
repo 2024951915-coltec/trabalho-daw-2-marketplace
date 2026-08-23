@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Meus cartões</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+
+    <link class="style-local" rel="stylesheet" href="/css/home.css">
+</head>
+
+<body>
+
+    <header class="mb-4">
+
+        <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
+            <a href="#maincontent" accesskey="1">
+                Ir para o conteúdo
+            </a>
+
+            <button type="button"
+                onclick="toggleContraste()"
+                aria-label="Ativar alto contraste">
+
+                Alto Contraste
+
+            </button>
+        </div>
+
+        <nav class="site-header">
+
+            <div class="logo">
+
+                <a href="/" aria-label="Página inicial GalinhasGordas">
+
+                    <img src="/imagens/logo.png"
+                        alt="GalinhasGordas Home"
+                        width="120">
+
+                </a>
+
+            </div>
+
+            <div class="d-none d-sm-flex user-actions">
+
+                <a href="/config"
+                    class="btn btn-outline-primary">
+
+                    Minha Conta
+
+                </a>
+
+                <a href="/<%= USER.username %>/shopping-cart"
+                    class="action-link">
+
+                    Carrinho
+
+                </a>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+
+    <main id="maincontent" class="container-md">
+
+        <h1 class="mb-4">
+            Meus cartões
+        </h1>
+
+
+        <div class="row">
+
+
+            <div class="col-md-5">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h2 class="h4 mb-0">
+                            Cadastrar cartão
+                        </h2>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <form action="/<%= USER.username %>/cartoes"
+                            method="POST">
+
+
+                            <div class="mb-3">
+
+                                <label for="numero"
+                                    class="form-label">
+
+                                    Número do cartão
+
+                                </label>
+
+                                <input type="text"
+                                    class="form-control"
+                                    id="numero"
+                                    name="numero"
+                                    placeholder="1234567890123456"
+                                    maxlength="16"
+                                    required>
+
+                            </div>
+
+
+                            <div class="row">
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label for="cvv"
+                                        class="form-label">
+
+                                        CVV
+
+                                    </label>
+
+                                    <input type="text"
+                                        class="form-control"
+                                        id="cvv"
+                                        name="cvv"
+                                        placeholder="123"
+                                        maxlength="4"
+                                        required>
+
+                                </div>
+
+
+                                <div class="col-md-6 mb-3">
+
+                                    <label for="vencimento"
+                                        class="form-label">
+
+                                        Vencimento
+
+                                    </label>
+
+                                    <input type="text"
+                                        class="form-control"
+                                        id="vencimento"
+                                        name="vencimento"
+                                        placeholder="MM/AA"
+                                        required>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="mb-3">
+
+                                <label for="nomeTitular"
+                                    class="form-label">
+
+                                    Nome do titular
+
+                                </label>
+
+                                <input type="text"
+                                    class="form-control"
+                                    id="nomeTitular"
+                                    name="nomeTitular"
+                                    placeholder="Nome como aparece no cartão"
+                                    required>
+
+                            </div>
+
+
+                            <button type="submit"
+                                class="btn btn-primary">
+
+                                Adicionar cartão
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-7 mt-4 mt-md-0">
+
+                <div class="card">
+
+                    <div class="card-header">
+
+                        <h2 class="h4 mb-0">
+                            Cartões cadastrados
+                        </h2>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <% if (CARTOES && CARTOES.length > 0) { %>
+
+                            <% CARTOES.forEach(cartao => { %>
+
+                                <div class="card mb-3">
+
+                                    <div class="card-body">
+
+                                        <h3 class="h5">
+                                            Cartão
+                                        </h3>
+
+                                        <p class="mb-1">
+
+                                            <strong>Número:</strong>
+
+                                            <%= cartao.numero %>
+
+                                        </p>
+
+                                        <p class="mb-1">
+
+                                            <strong>Nome:</strong>
+
+                                            <%= cartao.nomeTitular %>
+
+                                        </p>
+
+                                        <p class="mb-0">
+
+                                            <strong>Vencimento:</strong>
+
+                                            <%= cartao.vencimento %>
+
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            <% }) %>
+
+                        <% } else { %>
+
+                            <p class="text-secondary">
+
+                                Você ainda não possui cartões cadastrados.
+
+                            </p>
+
+                        <% } %>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

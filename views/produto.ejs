@@ -116,10 +116,16 @@
                                     <div class="col-md-auto mb-3 mb-md-0">
                                         <label for="quantidade" class="form-label">Quantidade</label>
                                         <input type="number" class="form-control" id="quantidade" name="quantidade" min="1" value="1" required>
-                                    </div>
+                                    </div>   
                                     <div class="col-md-auto">
                                         <input type="submit" class="btn btn-primary" value="Adicionar ao carrinho">
-                                    </div>
+                                    </div>  
+                                </div>
+                            </form>
+                            <form action="/<%= USER.username %>/checkout">
+                                <!--Faz a coluna ajustar automaticamente com base no tamanho do conteúdo-->
+                                <div class="col-md-auto">
+                                    <input type="submit" class="btn btn-primary" value="Comprar agora">
                                 </div>
                             </form>
                             <% } else if ( USER ) { %>

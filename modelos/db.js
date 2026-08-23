@@ -337,7 +337,54 @@ database.define('item_pedido', {
                 allowNull: false,
             },
         }
-    )
+    ),
+
+    cartoes: 
+    database.define('cartoes', 
+        {
+            id: {
+                type: DataTypes.INTEGER,
+                primaryKey: true,
+                allowNull: false,
+                autoIncrement: true,
+            },
+
+            numero: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            CVV: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            vencimento: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+
+            nomeTitular: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            }
+        }
+    ),
+
+    // Tabela intermediária de cartão e usuário. N:N
+    usuario_cartao:
+        database.define('usuario_cartao', {
+            id_cartao: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            id_usuario: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            }
+        }
+        )
 };
 
 //relacionamentos:
@@ -354,6 +401,15 @@ tabelas.endereco.belongsToMany(tabelas.usuario, {
 tabelas.usuario.belongsToMany(tabelas.endereco, {
     through: tabelas.usuario_endereco 
 });
+
+//Cartao-usuario (n-n)
+tabelas.cartoes.belongsToMany(tabelas.usuario, {
+    through: tabelas.usuario_cartao
+})
+
+tabelas.usuario.belongsToMany(tabelas.cartoes, {
+    through: tabelas.usuario_cartao
+})
 
 //Usuário-perfil (1-1)
 tabelas.usuario.hasOne(tabelas.vendedor_perfil, {foreignKey: 'user'});

@@ -260,17 +260,40 @@
                                                 value="<%= item.quantidade %>"
                                                 min="1"
                                                 class="form-control">
-
-
+                                            
                                             <button
                                                 type="submit"
+                                                name="acao"
+                                                value="atualizar"
                                                 class="btn btn-primary btn-sm mt-2">
 
                                                 Atualizar
 
                                             </button>
-
                                         </form>
+
+                                    </div>
+
+                                    <!--REMOVER PRODUTO-->
+                                    <div>
+
+                                        <form action="/<%= USER.username %>/shopping-cart/<%= CARRINHO.id %>"
+                                            method="POST">
+
+                                            <input type="hidden" name="itemCarrinhoId" value="<%= item.id_itemCarrinho %>">
+                                       
+                                        <button
+                                        
+                                            type="submit"
+                                            name="acao"
+                                            value="remover"
+                                            class="btn-btn-danger btn-sm mt-2"
+                                            >
+                                                Remover 
+
+                                        </button>
+                                        </form>
+
 
                                     </div>
 
