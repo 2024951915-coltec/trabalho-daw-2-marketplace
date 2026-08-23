@@ -220,7 +220,7 @@ const tabelas = {
             },
 
             valorTotalCompra: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.FLOAT,
                 allowNull: true,
             }
         }
@@ -254,7 +254,7 @@ const tabelas = {
             },
 
             valorItem: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.FLOAT,
                 allowNull: true,
             },
         }   
@@ -352,7 +352,7 @@ database.define('item_pedido', {
                 allowNull: false,
             },
 
-            CVV: {
+            cvv: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
@@ -407,11 +407,15 @@ tabelas.usuario.belongsToMany(tabelas.endereco, {
 
 //Cartao-usuario (n-n)
 tabelas.cartoes.belongsToMany(tabelas.usuario, {
-    through: tabelas.usuario_cartao
+    through: tabelas.usuario_cartao,
+    foreignKey: 'id_cartao',
+    otherKey: 'id_usuario',
 })
 
 tabelas.usuario.belongsToMany(tabelas.cartoes, {
-    through: tabelas.usuario_cartao
+    through: tabelas.usuario_cartao,
+    foreignKey: 'id_usuario',
+    otherKey: 'id_cartao',
 })
 
 //Usuário-perfil (1-1)

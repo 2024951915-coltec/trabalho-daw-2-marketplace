@@ -837,6 +837,9 @@ console.log(
     app.post('/:user/cartoes', async(req, res) => {
         const {numero, cvv, vencimento, nomeTitular} = req.body;
 
+        console.log('REQ.BODY: ', req.body);
+        console.log('TESTE CVV: ', cvv);
+
         // NaN = Not a Number
         if(String(cvv).length != 3 || isNaN(cvv)){
             return res.send('O cvv deve conter 3 digitos.');
@@ -865,16 +868,29 @@ console.log(
 
        const cartoes = await tabelas.cartoes.create({
                 numero: numero,
-                CVV: cvv,
+                cvv: cvv,
                 vencimento: vencimento,
                 nomeTitular: nomeTitular,
             }
         )
 
         console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.numero);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.cvv);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.vencimento);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.nomeTitular);
+
+
+        const salvaUsuarioCartao = await tabelas.usuario_cartao.create({
+            id_cartao: cartoes.id,
+            id_usuario: req.session.user.id,
+        }
+    )
+        console.log('CRIOU NA TABELA INTERMEDIÁRIA? : ', salvaUsuarioCartao.id_usuario);
+                console.log('CRIOU NA TABELA INTERMEDIÁRIA? : ', salvaUsuarioCartao.id_cartao);
 
         res.redirect(`/${req.session.user.username}/cartoes`);
         
+
     })
 
     // CHECK-OUT VINDO DO CARRINHO
