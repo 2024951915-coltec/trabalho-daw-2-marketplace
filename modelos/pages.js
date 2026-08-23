@@ -1091,6 +1091,7 @@ console.log(
 
             console.log('VERIFICAR TOTAL ANTES DE ENTRAR NO FOR: ', total);
             console.log('TOTAL ANTES DE MUDAR: ', total);
+
                 // Usa itemCarrinho porque estou pegando apenas um item específico e não todos como na soma
                 let valorItem = itemCarrinho.produto.preco * itemCarrinho.quantidade; // Valor total do item
 
@@ -1235,6 +1236,7 @@ console.log(
     // CHECK-OUT DA PÁGINA DO PRODUTO
 
     // CARREGA A PÁGINA DE CARTÕES E OS CARTÕES DO USUÁRIO
+    // CARREGA A PÁGINA DE CARTÕES E OS CARTÕES DO USUÁRIO
     app.get('/:user/cartoes/', requireAuth.default, async(req, res) => {
 
         const usuarioCartao = await tabelas.usuario.findByPk(
@@ -1252,14 +1254,17 @@ console.log(
     
     // VERIFICA OS CARTÕES DO USUÁRIO E CRIA OUTROS CASO PRECISE
     app.post('/:user/cartoes', async(req, res) => {
-        const {numero, cvv, vencimento, nomeTitular} = req.body;
+        const {numero, cvv, vencimento, nomeTitular, idCartaoRemovido} = req.body;
+
+        // console.log('REQ.BODY: ', req.body);
+        // console.log('TESTE CVV: ', cvv);
 
         // NaN = Not a Number
-        if(String(cvv).length != 3 || isNaN(cvv)){
+        if(String(cvv).length < 3 || isNaN(cvv)){
             return res.send('O cvv deve conter 3 digitos.');
         }
 
-        if(String(numero).length != 16 || isNaN(numero)){
+        if(String(numero).length < 16 || isNaN(numero)){
             return res.send('O número do cartão deve conter 16 digitos');
         }
 
@@ -1275,23 +1280,50 @@ console.log(
         for(const cartao of usuarioCartao.cartoes){
 
             if(cartao.numero == numero){
-                res.send('Cartão já cadastrado na conta.')
+               return res.send('Cartão já cadastrado na conta.');
             }
 
         }
 
        const cartoes = await tabelas.cartoes.create({
                 numero: numero,
-                CVV: cvv,
+                cvv: cvv,
                 vencimento: vencimento,
                 nomeTitular: nomeTitular,
             }
         )
 
         console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.numero);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.cvv);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.vencimento);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.nomeTitular);
 
-        res.redirect(`/${req.session.user.username}/cartoes`);
-        
+
+        const salvaUsuarioCartao = await tabelas.usuario_cartao.create({
+            id_cartao: cartoes.id,
+            id_usuario: req.session.user.id,
+        }
+    )
+
+    // REMOVER CARTAO
+    const removeCartao = await tabelas.cartoes.findOne({
+        where: {
+            id: idCartaoRemovido,
+        }
+    })
+
+    if(removeCartao){
+
+        await tabelas.usuario_cartao.destroy({
+            where: {
+                id_cartao: removeCartao,
+                id_usuario: req.session.user.id,
+            }
+        })
+    }
+
+    res.redirect(`/${req.session.user.username}/cartoes`);
+    
     })
 
     // CHECK-OUT VINDO DO CARRINHO
@@ -1381,6 +1413,7 @@ console.log(
 
             const valorProduto = produto.preco * quantidade;
 
+            // QUANDO O USUÁRIO CONFIRMAR A COMPRA, TEM QUE SUBTRAIR O VALOR DOS ITENS AO VALOR TOTAL DO CARRINHO
         }
 
         // Compra vindo do carrinho
@@ -1394,6 +1427,8 @@ console.log(
 
             let valorCompra = carrinho.valorTotalCompra;
         }
+
+         return res.redirect(`/${req.session.user.username}/order-completed`);
     })
 
         app.get('/leave', requireAuth.default, (req, res)=>{
@@ -1401,6 +1436,11 @@ console.log(
         res.redirect('/login');
     })
 
+    app.get('/:user/order-completed', requireAuth.default, async(req, res) => {
+        res.render('order-completed.ejs', {
+            USER: req.session.user,
+     } );
+    })
 }
 
 //Não é necessário incluir o app.listen(), ele já está incluso em outro arquivo :D
