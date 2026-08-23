@@ -7,6 +7,7 @@ import {Server} from 'socket.io';
 import http from 'http';
 import bcrypt from 'bcryptjs';
 import multer from 'multer';
+import 'dotenv/config';
 
 const app = express();
 const server = http.createServer(app);
@@ -69,6 +70,19 @@ const requireAuth = {
         if(req.session.user !== undefined)
         {
             if(req.session.user.category == 'vendedor')
+            {
+                return next();
+            }
+            return res.redirect('/access-denied');
+        }
+
+        res.redirect('/login');
+    },
+    admin: (req, res, next) => {
+
+        if(req.session.user !== undefined)
+        {
+            if(req.session.user.category == 'admin')
             {
                 return next();
             }

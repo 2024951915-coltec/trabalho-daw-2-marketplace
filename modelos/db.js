@@ -77,19 +77,17 @@ const tabelas = {
         }
     ),
 
-    usuario_endereco: database.define('usuario_endereco',
-        {
-            id_usuario: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
+    usuario_endereco: database.define('usuario_endereco', {
+    usuarioId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
 
-            id_endereco: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            }
-        }
-    ),
+    enderecoId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    }
+}),
 
     vendedor_perfil:
     database.define('vendedor',
@@ -395,12 +393,17 @@ tabelas.avaliacao.belongsTo(tabelas.usuario, {foreignKey: 'poster'});
 
 //Endereco-usuario (n-n)
 tabelas.endereco.belongsToMany(tabelas.usuario, {
-    through: tabelas.usuario_endereco
+    through: tabelas.usuario_endereco,
+    foreignKey: 'enderecoId',
+    otherKey: 'usuarioId',
 });
 
 tabelas.usuario.belongsToMany(tabelas.endereco, {
-    through: tabelas.usuario_endereco 
+    through: tabelas.usuario_endereco,
+    foreignKey: 'usuarioId',
+    otherKey: 'enderecoId',
 });
+
 
 //Cartao-usuario (n-n)
 tabelas.cartoes.belongsToMany(tabelas.usuario, {
@@ -484,7 +487,17 @@ tabelas.item_pedido.belongsToMany(tabelas.usuario, {through: tabelas.pedido});
 database.sync()
 .then(async () => {
 
-    console.log('Banco de dados sincronizado com sucesso!');
+   console.log(
+        await database.query(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'usuario_enderecos'"
+        )
+    );
+
+    console.log(
+        await database.query(
+            "PRAGMA index_list(usuario_enderecos)"
+        )
+    );
 
     const quantidadeCategorias = await tabelas.categoria.count();
 
@@ -517,5 +530,20 @@ database.sync()
 
     console.error('\t> ' + error + '\n');
 })
+
+        const adminExistente = await tabelas.usuario.findOne({
+        where: {
+            category: 'admin'
+        }
+    });
+
+    if (!adminExistente) {
+        await tabelas.usuario.create({
+            username: process.env.ADMIN_USERNAME,
+            name: 'Administrador',
+            passhash: process.env.ADMIN_PASSWORD,
+            category: 'admin'
+        });
+    }
 
 export {database, tabelas, Op};

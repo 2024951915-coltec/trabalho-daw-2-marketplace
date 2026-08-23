@@ -3,6 +3,7 @@
 
 import {app, requireAuth, comparePass, hashPass, upload} from './app.js';
 import {database, tabelas, Op} from './db.js';
+import bcrypt from 'bcryptjs';
 
 //set com categorias válidas
 const CATEGORIAS = new Set(['admin', 'vendedor', 'user']);
@@ -21,6 +22,10 @@ function pages()
 
     app.get('/home', async (req, res) => {
         const user = req.session.user;
+
+        if (user && user.category === 'admin') {
+        return res.redirect('/admin');
+        }
 
         const produtos = await tabelas.produto.findAll({
             include: [
@@ -41,6 +46,418 @@ function pages()
             CATEGORIAS: categorias
         });
     });
+
+    app.get('/admin', requireAuth.admin, async (req, res) => {
+        res.render('admin.ejs', {
+            USER: req.session.user
+        });
+    });
+
+    app.get('/admin/usuarios', requireAuth.admin, async (req, res) => {
+
+        const usuarios = await tabelas.usuario.findAll({
+            order: [['id', 'ASC']]
+        });
+
+        res.render('admin-usuarios.ejs', {
+            USER: req.session.user,
+            USUARIOS: usuarios
+        });
+    });
+
+
+    app.get('/admin/usuarios/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const usuario = await tabelas.usuario.findByPk(
+                req.params.id
+            );
+
+            if (!usuario) {
+                return res.status(404).send(
+                    'Usuário não encontrado.'
+                );
+            }
+
+            res.render('admin-editar-usuario.ejs', {
+                USER: req.session.user,
+                USUARIO_EDITAR: usuario
+            });
+        }
+    );
+
+    app.post('/admin/usuarios/:id/editar',requireAuth.admin,async (req, res) => {
+
+            const { id } = req.params;
+
+            const {
+                name,
+                username,
+                category,
+                senha
+            } = req.body;
+
+            const usuario = await tabelas.usuario.findByPk(id);
+
+            if (!usuario) {
+                return res.status(404).send(
+                    'Usuário não encontrado.'
+                );
+            }
+
+            usuario.name = name;
+            usuario.username = username;
+            usuario.category = category;
+
+            // Só altera a senha se o campo foi preenchido
+            if (senha && senha.trim() !== '') {
+
+                const salt = await bcrypt.genSalt(10);
+
+                usuario.passhash = await bcrypt.hash(
+                    senha,
+                    salt
+                );
+            }
+
+            await usuario.save();
+
+            return res.redirect('/admin/usuarios');
+        }
+    );
+
+    app.post('/admin/usuarios/:id/excluir', requireAuth.admin, async (req, res) => {
+
+            const id = req.params.id;
+
+            // Impede o administrador de excluir a própria conta
+            if (Number(id) === req.session.user.id) {
+                return res.status(403).send(
+                    'Você não pode excluir sua própria conta.'
+                );
+            }
+
+            const usuario = await tabelas.usuario.findByPk(id);
+
+            if (!usuario) {
+                return res.status(404).send(
+                    'Usuário não encontrado.'
+                );
+            }
+
+            await usuario.destroy();
+
+            return res.redirect('/admin/usuarios');
+        }
+    );
+
+    app.get('/admin/categorias', requireAuth.admin, async (req, res) => {
+
+        const categorias = await tabelas.categoria.findAll({
+            order: [['name', 'ASC']]
+        });
+
+        res.render('admin-categorias.ejs', {
+            USER: req.session.user,
+            CATEGORIAS: categorias
+        });
+
+    });
+
+    app.post('/admin/categorias/:id/excluir', requireAuth.admin, async (req, res) => {
+
+            const categoria = await tabelas.categoria.findByPk(
+                req.params.id
+            );
+
+            if (!categoria) {
+                return res.status(404).send(
+                    'Categoria não encontrada.'
+                );
+            }
+
+            const quantidadeProdutos = await tabelas.produto.count({
+                where: {
+                    categoriaId: categoria.id
+                }
+            });
+
+            if (quantidadeProdutos > 0) {
+                return res.status(400).send(
+                    'Não é possível excluir uma categoria que possui produtos.'
+                );
+            }
+
+            await categoria.destroy();
+
+            return res.redirect('/admin/categorias');
+        }
+    );
+
+    app.get('/admin/categorias/criar', requireAuth.admin, (req, res) => {
+
+            res.render('admin-criar-categoria.ejs', {
+                USER: req.session.user
+            });
+
+        }
+    );
+
+    app.post('/admin/categorias/criar', requireAuth.admin, async (req, res) => {
+
+            const { name } = req.body;
+
+            await tabelas.categoria.create({
+                name: name
+            });
+
+            return res.redirect('/admin/categorias');
+        }
+    );
+
+    app.get('/admin/categorias/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const categoria = await tabelas.categoria.findByPk(
+                req.params.id
+            );
+
+            if (!categoria) {
+                return res.status(404).send(
+                    'Categoria não encontrada.'
+                );
+            }
+
+            res.render('admin-editar-categoria.ejs', {
+                USER: req.session.user,
+                CATEGORIA_EDITAR: categoria
+            });
+
+        }
+    );
+
+    app.post('/admin/categorias/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const categoria = await tabelas.categoria.findByPk(
+                req.params.id
+            );
+
+            if (!categoria) {
+                return res.status(404).send(
+                    'Categoria não encontrada.'
+                );
+            }
+
+            categoria.name = req.body.name;
+
+            await categoria.save();
+
+            return res.redirect('/admin/categorias');
+        }
+    );
+
+    app.get('/admin/produtos', requireAuth.admin, async (req, res) => {
+
+        const produtos = await tabelas.produto.findAll({
+            include: [
+                {
+                    model: tabelas.loja,
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: tabelas.categoria,
+                    attributes: ['id', 'name']
+                }
+            ],
+            order: [['id', 'ASC']]
+        });
+
+        res.render('admin-produtos.ejs', {
+            USER: req.session.user,
+            PRODUTOS: produtos
+        });
+
+    });
+
+    app.post('/admin/produtos/:id/excluir', requireAuth.admin, async (req, res) => {
+
+            const produto = await tabelas.produto.findByPk(
+                req.params.id
+            );
+
+            if (!produto) {
+                return res.status(404).send(
+                    'Produto não encontrado.'
+                );
+            }
+
+            await produto.destroy();
+
+            return res.redirect('/admin/produtos');
+        }
+    );
+
+    app.get('/admin/produtos/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const produto = await tabelas.produto.findByPk(
+                req.params.id
+            );
+
+            if (!produto) {
+                return res.status(404).send(
+                    'Produto não encontrado.'
+                );
+            }
+
+            const categorias = await tabelas.categoria.findAll({
+                order: [['name', 'ASC']]
+            });
+
+            const lojas = await tabelas.loja.findAll({
+                order: [['name', 'ASC']]
+            });
+
+            res.render('admin-editar-produto.ejs', {
+                USER: req.session.user,
+                PRODUTO_EDITAR: produto,
+                CATEGORIAS: categorias,
+                LOJAS: lojas
+            });
+
+        }
+    );
+
+    app.post('/admin/produtos/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const produto = await tabelas.produto.findByPk(
+                req.params.id
+            );
+
+            if (!produto) {
+                return res
+                    .status(404)
+                    .send('Produto não encontrado.');
+            }
+
+            const {
+                name,
+                description,
+                preco,
+                stock,
+                categoriaId,
+                lojaId
+            } = req.body;
+
+
+            produto.name = name;
+
+            produto.description = description;
+
+            produto.preco = preco;
+
+            produto.stock = stock;
+
+            produto.categoriaId = categoriaId;
+
+            produto.lojaId = lojaId;
+
+
+            await produto.save();
+
+
+            return res.redirect('/admin/produtos');
+        }
+    );
+
+    app.get('/admin/vendedores', requireAuth.admin, async (req, res) => {
+
+        const vendedores = await tabelas.vendedor_perfil.findAll({
+            include: [
+                {
+                    model: tabelas.usuario,
+                    attributes: ['id', 'name', 'username', 'category']
+                },
+                {
+                    model: tabelas.loja,
+                    attributes: ['id', 'name']
+                }
+            ],
+            order: [['id', 'ASC']]
+        });
+
+        res.render('admin-vendedores.ejs', {
+            USER: req.session.user,
+            VENDEDORES: vendedores
+        });
+
+    });
+
+    app.get('/admin/vendedores/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const vendedor = await tabelas.vendedor_perfil.findByPk(
+                req.params.id
+            );
+
+            if (!vendedor) {
+                return res
+                    .status(404)
+                    .send('Vendedor não encontrado.');
+            }
+
+
+            const lojas = await tabelas.loja.findAll({
+                order: [['name', 'ASC']]
+            });
+
+
+            const usuario = await tabelas.usuario.findByPk(
+                vendedor.user
+            );
+
+
+            res.render('admin-editar-vendedor.ejs', {
+
+                USER: req.session.user,
+
+                VENDEDOR_EDITAR: vendedor,
+
+                USUARIO_VENDEDOR: usuario,
+
+                LOJAS: lojas
+
+            });
+
+        }
+    );
+
+    app.post('/admin/vendedores/:id/editar', requireAuth.admin, async (req, res) => {
+
+            const vendedor = await tabelas.vendedor_perfil.findByPk(
+                req.params.id
+            );
+
+            if (!vendedor) {
+                return res
+                    .status(404)
+                    .send('Vendedor não encontrado.');
+            }
+
+
+            const {
+                description,
+                lojaId
+            } = req.body;
+
+
+            vendedor.description = description;
+
+            vendedor.lojaId = lojaId;
+
+
+            await vendedor.save();
+
+
+            return res.redirect('/admin/vendedores');
+        }
+    );
 
     app.get('/busca', async (req, res)=>{
         const query = {
@@ -393,8 +810,18 @@ function pages()
         res.render('vendedor', {USER: req.session.user});
     })
 
-    app.get('/create-addresses', requireAuth.default, (req, res) => {
-        return res.render('create_addresses.ejs');
+    app.get('/:user/create_addresses', requireAuth.default, async(req, res) => {
+
+        // Carregar os endereços do usuário
+        const user = await tabelas.usuario.findByPk(
+            req.session.user.id, {
+                include: tabelas.endereco,
+            }
+        )
+        return res.render('create_addresses.ejs', {
+            USER: req.session.user,
+            ENDERECOS: user.enderecos,
+     } );
     })
 
     app.get('/config/change-password', requireAuth.default, (req, res) => {
@@ -428,22 +855,23 @@ function pages()
 
     // Criar endereço
     // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
-    app.post('/create-addresses', requireAuth.default, async (req, res) => {
+    app.post('/:user/create_addresses', requireAuth.default, async (req, res) => {
 
+        console.log('ENTREI NA FUNÇÃO DE ENDERECO: ')
         const {local} = req.body;
 
         let isValid = true; 
 
         // Procura todas as associações do usuário e faz com que apenas o usuário atual seja verificado
         const relacoes = await tabelas.usuario_endereco.findAll({where: {
-            id_usuario : req.session.user.id
+            usuarioId: req.session.user.id
         }})
 
         // For para comparação
         for(const relacao of relacoes){
 
             // endereco é um objeto (id = x, local = referente ao x)
-            const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
+            const endereco = await tabelas.endereco.findByPk(relacao.enderecoId);
 
             if(endereco.local == local){
                 isValid = false;
@@ -459,12 +887,25 @@ function pages()
             local:local,
         })
 
+        console.log("usuarioId:", req.session.user.id);
+console.log("enderecoId:", endereco.id);
+
+console.log(
+    await tabelas.usuario_endereco.findOne({
+        where: {
+            usuarioId: req.session.user.id,
+            enderecoId: endereco.id
+        }
+    })
+);
+
         await tabelas.usuario_endereco.create({
-            id_usuario: req.session.user.id,
-            id_endereco: endereco.id,
+            usuarioId: req.session.user.id,
+            enderecoId: endereco.id,
         })
-            
-        // Essa lógica está errada pq ta verificando o bd todo e tem que limitar ao usuário
+
+        console.log('ENDERECO CADASTRADO: ', endereco.local);
+    res.redirect(`/${req.session.user.username}/create_addresses`);             
     });
 
     // EDIÇÃO PEFIL
@@ -521,14 +962,14 @@ function pages()
 
         const relacoes = await tabelas.usuario_endereco.findAll({
             where : {
-                id_usuario : req.session.user.id,
+                usuarioId : req.session.user.id,
             }
         })
 
         // For para comparação
             for(const relacao of relacoes){
 
-                const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
+                const endereco = await tabelas.endereco.findByPk(relacao.enderecoId);
 
                 // Verifica se existe dentro da conta
                 if(endereco.local == local){
@@ -813,6 +1254,15 @@ function pages()
     app.post('/:user/cartoes', async(req, res) => {
         const {numero, cvv, vencimento, nomeTitular} = req.body;
 
+        // NaN = Not a Number
+        if(String(cvv).length != 3 || isNaN(cvv)){
+            return res.send('O cvv deve conter 3 digitos.');
+        }
+
+        if(String(numero).length != 16 || isNaN(numero)){
+            return res.send('O número do cartão deve conter 16 digitos');
+        }
+
         // Encontra todas as relações desse usuário
         const usuarioCartao = await tabelas.usuario.findByPk(req.session.user.id,
             {
@@ -830,12 +1280,15 @@ function pages()
 
         }
 
-        await tabelas.cartoes.create({
+       const cartoes = await tabelas.cartoes.create({
                 numero: numero,
                 CVV: cvv,
                 vencimento: vencimento,
                 nomeTitular: nomeTitular,
-            })
+            }
+        )
+
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.numero);
 
         res.redirect(`/${req.session.user.username}/cartoes`);
         
@@ -941,9 +1394,6 @@ function pages()
 
             let valorCompra = carrinho.valorTotalCompra;
         }
-
-
-
     })
 
         app.get('/leave', requireAuth.default, (req, res)=>{

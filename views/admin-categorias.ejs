@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Configurações de usuário</title>
+        <title>ADMIN-CATEGORIAS</title>
 
         <!-- Bootstrap -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
@@ -14,8 +14,9 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
         crossorigin="anonymous"></script>
-
-        <link class="style-local" rel="stylesheet" href="/css/home.css">
+        <link rel="stylesheet" href="/css/home.css">
+        <link rel="stylesheet" href="/css/admin.css">
+        
     </head>
 
     <body>
@@ -79,80 +80,116 @@
 
         </header>
 
-        <main id="maincontent">
-            <article class="container-md mt-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h1>Sua conta</h1>
-                    <a class="btn btn-primary" href="/home">Voltar</a>
+            <main id="main-content" class="container-md mt-4 admin-main">
+
+                <div class="d-flex justify-content-between align-items-center admin-header">
+
+                    <h2>Gerenciamento de Categorias</h2>
+
+                    <a class="btn" href="/admin">
+                        Voltar
+                    </a>
+
                 </div>
-                <h5 class="text-secondary ms-3"><%= USER.name %> (<strong>@<%= USER.username %></strong>)</h5>
+
 
                 <div class="container-md mt-4">
-                    <h3>Configurações: </h3>
-                    <div class="row mt-3">
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-body">
-                                <a href="/" class="h3 card-title link-underline link-underline-opacity-0">
-                                    Informações da conta
-                                </a>
-                                <p class="card-text">Configurar dados da conta</p>
-                            </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <div>
+                            <h3 class="admin-section-title">
+                                Categorias cadastradas
+                            </h3>
+
+                            <p class="admin-section-description">
+                                Visualize e gerencie as categorias de produtos.
+                            </p>
                         </div>
 
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-body">
-                                <a href="/" class="h3 card-title link-underline link-underline-opacity-0">
-                                    Segurança e proteção
-                                </a>
-                                <p class="card-text">Trocar senha</p>
-                            </div>
-                        </div>
 
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-body">
-                                <a href="/<%= USER.username %>/create_addresses" class="h3 card-title link-underline link-underline-opacity-0">
-                                    Endereçamento e localização
-                                </a>
-                                <p class="card-text">Configurar endereços</p>
-                            </div>
-                        </div>
+                        <a
+                            href="/admin/categorias/criar"
+                            class="btn btn-primary">
+
+                            Nova categoria
+
+                        </a>
+
                     </div>
 
 
-                    <div class="row mt-3">
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-body">
-                                <a href="<%= USER.username %>/cartoes" class="h3 card-title link-underline link-underline-opacity-0">
-                                    Cartões
-                                </a>
-                                <p class="card-text">Gerenciar seus Cartões</p>
-                            </div>
-                        </div>
-                        <% if(USER.category == 'vendedor') { %>
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-body">
-                                <a href="/config/vendedor" class="h3 card-title link-underline link-underline-opacity-0">
-                                    Ver loja e <br>produtos
-                                </a>
-                                <p class="card-text">Configurar e ver produtos da sua loja</p>
-                            </div>
-                        </div>
-                        <% } %>
+                    <div class="table-responsive">
 
-    
+                        <table class="table table-hover align-middle">
 
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-white bg-danger">
-                                <h3 class="card-header fw-bolder">Área vermelha</h3>
-                                <div class="card-body">
-                                    <a href="/" class="btn btn-outline-light">Deletar conta</a>
-                                    <a href="/logout" class="btn btn-outline-light">Sair da conta</a>
-                                </div>
-                            </div>
-                        </div>
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                    <th>Ações</th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                <% CATEGORIAS.forEach(categoria => { %>
+
+                                    <tr>
+
+                                        <td>
+                                            <%= categoria.id %>
+                                        </td>
+
+
+                                        <td>
+                                            <%= categoria.name %>
+                                        </td>
+
+
+                                        <td>
+
+                                            <a
+                                                href="/admin/categorias/<%= categoria.id %>/editar"
+                                                class="btn btn-sm btn-outline-primary">
+
+                                                Editar
+
+                                            </a>
+
+
+                                            <form
+                                                action="/admin/categorias/<%= categoria.id %>/excluir"
+                                                method="POST"
+                                                class="d-inline">
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+
+                                                    Excluir
+
+                                                </button>
+
+                                            </form>
+
+                                        </td>
+
+                                    </tr>
+
+                                <% }) %>
+
+                            </tbody>
+
+                        </table>
+
                     </div>
+
                 </div>
-            </article>
-        </main>
+
+            </main>
     </body>
 </html>

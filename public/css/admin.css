@@ -1,0 +1,166 @@
+/* =========================================
+   PAINEL ADMINISTRATIVO
+   ========================================= */
+
+.admin-main {
+    min-height: calc(100vh - 150px);
+    padding-bottom: 50px;
+}
+
+/* TÍTULO DO PAINEL */
+
+.admin-header {
+    border-bottom: 3px solid #c9701f;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.admin-header h2 {
+    color: #2e1500;
+    font-weight: 700;
+    margin: 0;
+}
+
+.admin-header .btn {
+    background-color: #2e1500;
+    border-color: #2e1500;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 20px;
+    transition: background-color 0.2s ease,
+                transform 0.15s ease;
+}
+
+.admin-header .btn:hover {
+    background-color: #442100;
+    border-color: #442100;
+    transform: translateY(-1px);
+}
+
+
+/* TÍTULO DA SEÇÃO */
+
+.admin-section-title {
+    color: #2e1500;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.admin-section-description {
+    color: #666666;
+    margin-bottom: 25px;
+}
+
+
+/* CARDS */
+
+.admin-card {
+    height: 100%;
+    background-color: #fffdf8;
+    border: 1px solid #eadbc8;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(46, 21, 0, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+/* EFEITO AO PASSAR O MOUSE */
+
+.admin-card:hover {
+    transform: translateY(-5px);
+    border-color: #c9701f;
+    box-shadow: 0 7px 18px rgba(46, 21, 0, 0.16);
+}
+
+
+/* ÁREA INTERNA */
+
+.admin-card .card-body {
+    padding: 25px;
+}
+
+
+/* TÍTULO DO CARD */
+
+.admin-card .card-title {
+    color: #2e1500;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+
+/* DESCRIÇÃO */
+
+.admin-card .card-text {
+    color: #666666;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+
+/* ÍCONE / ÁREA DE DESTAQUE */
+
+.admin-card-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #fff0dc;
+    color: #c9701f;
+
+    border-radius: 10px;
+
+    margin-bottom: 18px;
+
+    font-size: 22px;
+    font-weight: bold;
+}
+
+
+/* LINK DO CARD */
+
+.admin-card-link {
+    display: block;
+    height: 100%;
+
+    color: inherit;
+    text-decoration: none;
+}
+
+.admin-card-link:hover {
+    color: inherit;
+}
+
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 767px) {
+
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px;
+    }
+
+    .admin-header .btn {
+        width: 100%;
+    }
+
+    .admin-card .card-body {
+        padding: 20px;
+    }
+
+    .admin-card .card-title {
+        font-size: 18px;
+    }
+}

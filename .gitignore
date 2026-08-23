@@ -11,3 +11,6 @@ bin/
 #Os diretórios abaixo vão ser ignorados por conter arquivos upados por usuários via forms
 #ex.: fotos, áudios, etc.
 public/data/**
+
+# .env não pode ser commitado pois contem todas as senhas do código.
+.env
