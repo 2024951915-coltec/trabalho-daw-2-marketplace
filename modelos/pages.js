@@ -1305,23 +1305,6 @@ console.log(
         }
     )
 
-    // REMOVER CARTAO
-    const removeCartao = await tabelas.cartoes.findOne({
-        where: {
-            id: idCartaoRemovido,
-        }
-    })
-
-    if(removeCartao){
-
-        await tabelas.usuario_cartao.destroy({
-            where: {
-                id_cartao: removeCartao,
-                id_usuario: req.session.user.id,
-            }
-        })
-    }
-
     res.redirect(`/${req.session.user.username}/cartoes`);
     
     })
