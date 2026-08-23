@@ -18,14 +18,10 @@
 
     <!-- CSS local -->
     <link rel="stylesheet"
-        href="/trabalho-daw-2-marketplace/public/css/shopping_cart.css">
+        href="/css/shopping_cart.css">
 </head>
 
 <body>
-
-    <p>
-    TESTE TOTAL: <%= CARRINHO ? CARRINHO.valorTotalCompra : 'CARRINHO NÃO EXISTE' %>
-</p>
 
     <!-- Cabeçalho -->
     <header class="mb-3">
@@ -59,7 +55,7 @@
                 <a href="/"
                     aria-label="Página inicial GalinhasGordas">
 
-                    <img src="/trabalho-daw-2-marketplace/public/imagens/logo.png"
+                     <img src="/imagens/logo.png"
                         alt="GalinhasGordas"
                         width="120">
 
@@ -203,7 +199,7 @@
                                     <div class="col-md-3">
 
                                         <img
-                                            src="/trabalho-daw-2-marketplace/public/imagens/<%= item.produto.photo_id %>"
+                                            src="/imagens/<%= item.produto.photo_id %>"
                                             alt="<%= item.produto.name %>"
                                             class="img-fluid">
 
