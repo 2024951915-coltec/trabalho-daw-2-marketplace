@@ -393,8 +393,18 @@ function pages()
         res.render('vendedor', {USER: req.session.user});
     })
 
-    app.get('/create-addresses', requireAuth.default, (req, res) => {
-        return res.render('create_addresses.ejs');
+    app.get('/:user/create_addresses', requireAuth.default, async(req, res) => {
+
+        // Carregar os endereços do usuário
+        const user = await tabelas.usuario.findByPk(
+            req.session.user.id, {
+                include: tabelas.endereco,
+            }
+        )
+        return res.render('create_addresses.ejs', {
+            USER: req.session.user,
+            ENDERECOS: user.enderecos,
+     } );
     })
 
     app.get('/config/change-password', requireAuth.default, (req, res) => {
@@ -428,22 +438,23 @@ function pages()
 
     // Criar endereço
     // Verificar se o endereço existe dentro dessa conta, pq senão pode verificar todo o BD e bugar
-    app.post('/create-addresses', requireAuth.default, async (req, res) => {
+    app.post('/:user/create_addresses', requireAuth.default, async (req, res) => {
 
+        console.log('ENTREI NA FUNÇÃO DE ENDERECO: ')
         const {local} = req.body;
 
         let isValid = true; 
 
         // Procura todas as associações do usuário e faz com que apenas o usuário atual seja verificado
         const relacoes = await tabelas.usuario_endereco.findAll({where: {
-            id_usuario : req.session.user.id
+            usuarioId: req.session.user.id
         }})
 
         // For para comparação
         for(const relacao of relacoes){
 
             // endereco é um objeto (id = x, local = referente ao x)
-            const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
+            const endereco = await tabelas.endereco.findByPk(relacao.enderecoId);
 
             if(endereco.local == local){
                 isValid = false;
@@ -459,12 +470,25 @@ function pages()
             local:local,
         })
 
+        console.log("usuarioId:", req.session.user.id);
+console.log("enderecoId:", endereco.id);
+
+console.log(
+    await tabelas.usuario_endereco.findOne({
+        where: {
+            usuarioId: req.session.user.id,
+            enderecoId: endereco.id
+        }
+    })
+);
+
         await tabelas.usuario_endereco.create({
-            id_usuario: req.session.user.id,
-            id_endereco: endereco.id,
+            usuarioId: req.session.user.id,
+            enderecoId: endereco.id,
         })
-            
-        // Essa lógica está errada pq ta verificando o bd todo e tem que limitar ao usuário
+
+        console.log('ENDERECO CADASTRADO: ', endereco.local);
+    res.redirect(`/${req.session.user.username}/create_addresses`);             
     });
 
     // EDIÇÃO PEFIL
@@ -521,14 +545,14 @@ function pages()
 
         const relacoes = await tabelas.usuario_endereco.findAll({
             where : {
-                id_usuario : req.session.user.id,
+                usuarioId : req.session.user.id,
             }
         })
 
         // For para comparação
             for(const relacao of relacoes){
 
-                const endereco = await tabelas.endereco.findByPk(relacao.id_endereco);
+                const endereco = await tabelas.endereco.findByPk(relacao.enderecoId);
 
                 // Verifica se existe dentro da conta
                 if(endereco.local == local){
@@ -830,12 +854,17 @@ function pages()
 
         }
 
+        console.log('')
+
         await tabelas.cartoes.create({
                 numero: numero,
                 CVV: cvv,
                 vencimento: vencimento,
                 nomeTitular: nomeTitular,
-            })
+            }
+        )
+
+        console.log('PELO MENOS CRIOU O CARTAO???: ', tabelas.cartoes.numero);
 
         res.redirect(`/${req.session.user.username}/cartoes`);
         
