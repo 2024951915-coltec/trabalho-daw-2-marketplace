@@ -160,7 +160,7 @@
     <main id="maincontent" class="container-md">
 
         <h1 class="mb-4">
-            💳 Checkout
+            Checkout
         </h1>
 
 
@@ -570,7 +570,7 @@
                             <strong>
 
                                 R$
-                                <%= CARRINHO.valorTotalCompra.toFixed(2) %>
+                                <%= (CARRINHO.valorTotalCompra) ? CARRINHO.valorTotalCompra.toFixed(2) : "0.00" %>
 
                             </strong>
 

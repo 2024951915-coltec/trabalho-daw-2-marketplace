@@ -391,6 +391,10 @@ database.define('item_pedido', {
 tabelas.usuario.hasMany(tabelas.avaliacao, {foreignKey: 'poster'});
 tabelas.avaliacao.belongsTo(tabelas.usuario, {foreignKey: 'poster'});
 
+//Produto-avaliacao (1-n)
+tabelas.produto.hasMany(tabelas.avaliacao, {foreignKey: 'product'});
+tabelas.avaliacao.belongsTo(tabelas.produto, {foreignKey: 'product'});
+
 //Endereco-usuario (n-n)
 tabelas.endereco.belongsToMany(tabelas.usuario, {
     through: tabelas.usuario_endereco,

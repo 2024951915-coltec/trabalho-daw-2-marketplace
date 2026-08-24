@@ -78,24 +78,7 @@
           class="container"
           style="max-width: 700px;">
 
-        <div class="card text-center shadow-sm">
-
-            <div class="card-body p-5">
-
-                <div class="mb-4">
-
-                    <span style="font-size: 70px;">
-                        ✓
-                    </span>
-
-                </div>
-
-
-                <h1 class="text-success mb-3">
-
-                    Pedido concluído!
-
-                </h1>
+            <div class="card card-body text-center mb-3">
 
 
                 <p class="lead">
@@ -111,40 +94,20 @@
 
                 </p>
 
-
-                <% if (PEDIDO) { %>
-
-                    <p class="mt-4">
-
-                        <strong>Número do pedido:</strong>
-                        #<%= PEDIDO.id %>
-
-                    </p>
-
-                <% } %>
-
-
-                <div class="d-flex justify-content-center gap-2 mt-4">
-
-                    <a href="/"
-                       class="btn btn-primary">
-
-                        Voltar para a página inicial
-
-                    </a>
-
-                    <a href="/<%= USER.username %>/orders"
-                       class="btn btn-outline-primary">
-
-                        Meus pedidos
-
-                    </a>
-
-                </div>
-
+                
             </div>
 
-        </div>
+            <div class="card card-body ">
+                <h2>Seu recibo: </h2>
+                <div class="container-md">
+                <% ITEMS.forEach((item)=>{ %>
+                <% let val = (item.produto.preco * item.quantidade); %>
+                <div class="card card-body">
+                    <h3 class="card-title"><%= item.produto.name %>: R$ <%= val.toFixed(2) %></h3>
+                </div>
+                <% }) %>
+                </div>
+            </div>
 
     </main>
 

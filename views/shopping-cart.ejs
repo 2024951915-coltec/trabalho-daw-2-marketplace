@@ -197,7 +197,7 @@
                                     <div class="col-md-3">
 
                                         <img
-                                            src="/trabalho-daw-2-marketplace/public/imagens/<%= item.produto.photo_id %>"
+                                            src="/data/uploads/<%= item.produto.photo_id %>"
                                             alt="<%= item.produto.name %>"
                                             class="img-fluid">
 
@@ -349,11 +349,8 @@
 
                                 R$
 
-                                <%= CARRINHO
-                                    ? Number(CARRINHO.valorTotalCompra || 0)
-                                        .toFixed(2)
-                                        .replace('.', ',')
-                                    : '0,00' %>
+                                <%= CARRINHO.valorTotalCompra
+                                        .toFixed(2) %>
 
                             </strong>
 
@@ -363,7 +360,7 @@
                         <form
                             action="/<%= USER.username %>/checkout"
                             method="GET">
-
+                            <% if(ITENS) { %>
                             <button
                                 type="submit"
                                 class="btn btn-success w-100">
@@ -371,7 +368,7 @@
                                 Finalizar compra
 
                             </button>
-
+                            <% } %>
                         </form>
 
                     </div>

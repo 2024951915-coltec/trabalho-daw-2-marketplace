@@ -113,7 +113,8 @@
                                     class="form-control"
                                     id="numero"
                                     name="numero"
-                                    placeholder="1234567890123456"
+                                    placeholder="1234567890123456"´
+                                    minlength="16"
                                     maxlength="16"
                                     required>
 
@@ -137,6 +138,7 @@
                                         id="cvv"
                                         name="cvv"
                                         placeholder="123"
+                                        minlength="3"
                                         maxlength="3"
                                         required>
 
@@ -251,22 +253,10 @@
                                         <!--FORM ACTION É PARA ONDE OS DADOS SERÃO ENVIADOS APÓS CLICAR NO BOTAO-->
                                         <!-- CLASS MT-3 SERVE PARA APLICAR MARGEM SUPERIOR A 12 PIXELS DE ALTURA, EMPURRANDO OS ELEMENTOS PARA BAIXO-->
                                          <!-- CADA UNIDADE DE MT É 0,75rem ou 4px BASE-->
-                                        <form action="/<%= USER.username %>/cartoes"
-                                            method="POST"
-                                            class="mt-3"
-                                            >
-
-                                            <input type="hidden"
-                                                    name="idCartaoRemovido"
-                                                    value="<%= cartao.id %>"
-                                            >
-
-                                            <button type="submit"
-                                                class="btn-btn-danger">
-
-                                                Remover Cartao
-                                            </button>
-                                        </form>
+                                        <a href="/cartoes/<%= cartao.id %>/remover"
+                                            class="btn btn-danger mt-3">
+                                            Remover Cartao
+                                        </a>
 
                                     </div>
 
