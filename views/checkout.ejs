@@ -160,7 +160,7 @@
     <main id="maincontent" class="container-md">
 
         <h1 class="mb-4">
-            💳 Checkout
+            Checkout
         </h1>
 
 
@@ -197,7 +197,7 @@
         </div>
 
 
-        <form action="/checkout"
+        <form action="/<%= USER.username %>/order-completed"
               method="POST"
               id="checkoutForm">
 
@@ -258,15 +258,7 @@
 
                                 <option value="<%= endereco.id %>">
 
-                                    <%= endereco.rua %>
-
-                                    <% if (endereco.numero) { %>
-                                        , <%= endereco.numero %>
-                                    <% } %>
-
-                                    <% if (endereco.bairro) { %>
-                                        - <%= endereco.bairro %>
-                                    <% } %>
+                                    <%= endereco.local %>
 
                                 </option>
 
@@ -578,7 +570,7 @@
                             <strong>
 
                                 R$
-                                <%= CARRINHO.valorTotalCompra.toFixed(2) %>
+                                <%= (CARRINHO.valorTotalCompra) ? CARRINHO.valorTotalCompra.toFixed(2) : "0.00" %>
 
                             </strong>
 

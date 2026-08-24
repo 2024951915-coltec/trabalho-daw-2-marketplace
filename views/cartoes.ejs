@@ -113,7 +113,8 @@
                                     class="form-control"
                                     id="numero"
                                     name="numero"
-                                    placeholder="1234567890123456"
+                                    placeholder="1234567890123456"´
+                                    minlength="16"
                                     maxlength="16"
                                     required>
 
@@ -137,7 +138,8 @@
                                         id="cvv"
                                         name="cvv"
                                         placeholder="123"
-                                        maxlength="4"
+                                        minlength="3"
+                                        maxlength="3"
                                         required>
 
                                 </div>
@@ -216,7 +218,6 @@
                         <% if (CARTOES && CARTOES.length > 0) { %>
 
                             <% CARTOES.forEach(cartao => { %>
-
                                 <div class="card mb-3">
 
                                     <div class="card-body">
@@ -248,6 +249,14 @@
                                             <%= cartao.vencimento %>
 
                                         </p>
+
+                                        <!--FORM ACTION É PARA ONDE OS DADOS SERÃO ENVIADOS APÓS CLICAR NO BOTAO-->
+                                        <!-- CLASS MT-3 SERVE PARA APLICAR MARGEM SUPERIOR A 12 PIXELS DE ALTURA, EMPURRANDO OS ELEMENTOS PARA BAIXO-->
+                                         <!-- CADA UNIDADE DE MT É 0,75rem ou 4px BASE-->
+                                        <a href="/cartoes/<%= cartao.id %>/remover"
+                                            class="btn btn-danger mt-3">
+                                            Remover Cartao
+                                        </a>
 
                                     </div>
 

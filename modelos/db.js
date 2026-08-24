@@ -352,7 +352,7 @@ database.define('item_pedido', {
                 allowNull: false,
             },
 
-            CVV: {
+            cvv: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
@@ -391,6 +391,10 @@ database.define('item_pedido', {
 tabelas.usuario.hasMany(tabelas.avaliacao, {foreignKey: 'poster'});
 tabelas.avaliacao.belongsTo(tabelas.usuario, {foreignKey: 'poster'});
 
+//Produto-avaliacao (1-n)
+tabelas.produto.hasMany(tabelas.avaliacao, {foreignKey: 'product'});
+tabelas.avaliacao.belongsTo(tabelas.produto, {foreignKey: 'product'});
+
 //Endereco-usuario (n-n)
 tabelas.endereco.belongsToMany(tabelas.usuario, {
     through: tabelas.usuario_endereco,
@@ -407,11 +411,15 @@ tabelas.usuario.belongsToMany(tabelas.endereco, {
 
 //Cartao-usuario (n-n)
 tabelas.cartoes.belongsToMany(tabelas.usuario, {
-    through: tabelas.usuario_cartao
+    through: tabelas.usuario_cartao,
+    foreignKey: 'id_cartao',
+    otherKey: 'id_usuario',
 })
 
 tabelas.usuario.belongsToMany(tabelas.cartoes, {
-    through: tabelas.usuario_cartao
+    through: tabelas.usuario_cartao,
+    foreignKey: 'id_usuario',
+    otherKey: 'id_cartao',
 })
 
 //Usuário-perfil (1-1)
@@ -521,17 +529,8 @@ database.sync()
         console.log('Categorias padrão criadas com sucesso!');
     }
 
-})
-.catch((error) => {
-
-    console.error(
-        'Não é possível prosseguir com o funcionamento do app devido a um erro de sincronização com o banco de dados:\n'
-    );
-
-    console.error('\t> ' + error + '\n');
-})
-
-        const adminExistente = await tabelas.usuario.findOne({
+    // Colocar dentro do then para esperar o banco carregar e estar pronto
+    const adminExistente = await tabelas.usuario.findOne({
         where: {
             category: 'admin'
         }
@@ -545,5 +544,16 @@ database.sync()
             category: 'admin'
         });
     }
+
+})
+.catch((error) => {
+
+    console.error(
+        'Não é possível prosseguir com o funcionamento do app devido a um erro de sincronização com o banco de dados:\n'
+    );
+
+    console.error('\t> ' + error + '\n');
+})
+
 
 export {database, tabelas, Op};

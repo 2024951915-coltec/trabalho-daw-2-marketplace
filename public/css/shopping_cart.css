@@ -1,0 +1,204 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f8f5f0;
+    color: #333333;
+}
+
+/* ---------- Barra de acessibilidade ---------- */
+.accessibility-bar {
+    background-color: #2e1500;
+    padding: 7px 5%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.accessibility-bar a,
+.accessibility-bar button {
+    color: #f0e6d8;
+    text-decoration: none;
+    font-size: 13px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.accessibility-bar a:hover,
+.accessibility-bar button:hover {
+    color: #ffcc66;
+}
+
+/* ---------- Header Principal ---------- */
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 5%;
+    background-color: #c9701f;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    gap: 30px;
+}
+
+.site-header .logo img {
+    max-height: 50px;
+    max-width: 50px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Ações do usuário */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.action-link {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.action-link:hover {
+    color: #2e1500;
+    transform: translateY(-1px);
+}
+
+.cart-badge {
+    background-color: #d9534f;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- Cabeçalho da página ---------- */
+main#main-content h1 {
+    color: #2e1500;
+    font-weight: 700;
+}
+
+main#main-content .text-secondary {
+    color: #6b5c4d !important;
+}
+
+/* -------- Produtos no carrinho -----*/
+#main-content h2.h4 {
+    color: #2e1500;
+    font-weight: 600;
+}
+
+.card {
+    border: 1px solid #eadfce;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(46, 21, 0, 0.06);
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.card:hover {
+    box-shadow: 0 6px 16px rgba(46, 21, 0, 0.1);
+}
+
+.card .card-body img.img-fluid {
+    border-radius: 8px;
+    object-fit: cover;
+    max-height: 110px;
+}
+
+.card h3.h5 {
+    color: #2e1500;
+    font-weight: 600;
+}
+
+.card strong {
+    color: #c9701f;
+    font-size: 1.05rem;
+}
+
+/* ----------Formulário de quantidade ---------- */
+.card form label.form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b5c4d;
+}
+
+.card form .form-control {
+    border: 2px solid #eadfce;
+    border-radius: 6px;
+}
+
+.card form .form-control:focus {
+    border-color: #c9701f;
+    box-shadow: 0 0 0 0.15rem rgba(201, 112, 31, 0.2);
+}
+
+.card .btn-primary {
+    background-color: #c9701f;
+    border-color: #c9701f;
+    font-weight: 500;
+}
+
+.card .btn-primary:hover {
+    background-color: #a85c17;
+    border-color: #a85c17;
+}
+
+/* ---------- Alerta de carrinho vazio -------- */
+.alert-info {
+    background-color: #fff4d6;
+    border: 1px solid #e8a13c;
+    color: #6b4a0e;
+    border-radius: 10px;
+}
+
+/* ---------- Resuno da compra ---------- */
+aside .card {
+    border: 2px solid #2e1500;
+    border-radius: 12px;
+    box-shadow: 6px 6px 0px rgba(46, 21, 0, 0.08);
+}
+
+aside .card-title {
+    color: #2e1500;
+    font-weight: 700;
+}
+
+aside hr {
+    border-top: 2px solid #eadfce;
+    opacity: 1;
+}
+
+aside .btn-success {
+    background-color: #2e1500;
+    border-color: #2e1500;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: background-color 0.2s ease;
+}
+
+aside .btn-success:hover {
+    background-color: #442100;
+    border-color: #442100;
+}
+
+
+@media (max-width: 767px) {
+    aside {
+        margin-top: 20px;
+    }
+}
