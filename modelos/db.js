@@ -352,7 +352,7 @@ database.define('item_pedido', {
                 allowNull: false,
             },
 
-            CVV: {
+            cvv: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
@@ -407,11 +407,15 @@ tabelas.usuario.belongsToMany(tabelas.endereco, {
 
 //Cartao-usuario (n-n)
 tabelas.cartoes.belongsToMany(tabelas.usuario, {
-    through: tabelas.usuario_cartao
+    through: tabelas.usuario_cartao,
+    foreignKey: 'id_cartao',
+    otherKey: 'id_usuario',
 })
 
 tabelas.usuario.belongsToMany(tabelas.cartoes, {
-    through: tabelas.usuario_cartao
+    through: tabelas.usuario_cartao,
+    foreignKey: 'id_usuario',
+    otherKey: 'id_cartao',
 })
 
 //Usuário-perfil (1-1)
@@ -521,17 +525,8 @@ database.sync()
         console.log('Categorias padrão criadas com sucesso!');
     }
 
-})
-.catch((error) => {
-
-    console.error(
-        'Não é possível prosseguir com o funcionamento do app devido a um erro de sincronização com o banco de dados:\n'
-    );
-
-    console.error('\t> ' + error + '\n');
-})
-
-        const adminExistente = await tabelas.usuario.findOne({
+    // Colocar dentro do then para esperar o banco carregar e estar pronto
+    const adminExistente = await tabelas.usuario.findOne({
         where: {
             category: 'admin'
         }
@@ -545,5 +540,16 @@ database.sync()
             category: 'admin'
         });
     }
+
+})
+.catch((error) => {
+
+    console.error(
+        'Não é possível prosseguir com o funcionamento do app devido a um erro de sincronização com o banco de dados:\n'
+    );
+
+    console.error('\t> ' + error + '\n');
+})
+
 
 export {database, tabelas, Op};

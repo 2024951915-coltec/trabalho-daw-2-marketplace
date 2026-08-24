@@ -137,7 +137,7 @@
                                         id="cvv"
                                         name="cvv"
                                         placeholder="123"
-                                        maxlength="4"
+                                        maxlength="3"
                                         required>
 
                                 </div>
@@ -216,7 +216,6 @@
                         <% if (CARTOES && CARTOES.length > 0) { %>
 
                             <% CARTOES.forEach(cartao => { %>
-
                                 <div class="card mb-3">
 
                                     <div class="card-body">
@@ -248,6 +247,8 @@
                                             <%= cartao.vencimento %>
 
                                         </p>
+
+                                        
 
                                     </div>
 

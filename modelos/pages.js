@@ -824,12 +824,14 @@ function pages()
      } );
     })
 
-    app.get('/config/change-password', requireAuth.default, (req, res) => {
+    app.get('/password_change', requireAuth.default, (req, res) => {
         const user = req.session.user;
-        return res.render('password_change.ejs');
+        return res.render('password_change.ejs',{
+            USER: user
+        });
     })
 
-    app.get('/config/edit-profile', requireAuth.default, async (req, res) => 
+    app.get('/edit_profile', requireAuth.default, async (req, res) => 
     {
         return res.render('edit_profile.ejs', {USER: req.session.user});
     })
@@ -848,6 +850,11 @@ function pages()
 
         return res.render('config.ejs', {USER : user});
     })
+
+   app.get('/profile_information', (req, res) => {
+        const user = req.session.user;  
+        return res.render('profile_information.ejs', {user : user});
+    });
 
     // CADASTRO E LOGIN
 
@@ -911,44 +918,112 @@ console.log(
     // EDIÇÃO PEFIL
 
     // Alterar senha
-    app.post('/password-change', requireAuth.default, async (req, res) => {
-        const { oldPassword, newPassword} = req.body;
+app.post('/password_change', requireAuth.default, async (req, res) => {
+    try {
+        const {
+            oldPassword,
+            newPassword,
+            confirmPassword
+        } = req.body;
 
-        const username = req.session.user.username;
-
-        const user = await tabelas.usuario.findOne({where: {username}});
-
-        if(user){
-            const isValid = await comparePass(oldPassword, user.passhash);
-
-            if(!isValid){
-                res.send('Senha incorreta. Digite novamente');
-            }
-
-            user.passhash = await hashPass(newPassword, 10);
-            await user.save(); // Salvar os dados atualizados
-
-            res.send('Senha atualizada.');
+        // Verifica se as novas senhas são iguais
+        if (newPassword !== confirmPassword) {
+            return res.status(400).send(
+                'As novas senhas não são iguais.'
+            );
         }
-    });
+
+        const user = await tabelas.usuario.findByPk(
+            req.session.user.id
+        );
+
+        if (!user) {
+            return res.status(404).send(
+                'Usuário não encontrado.'
+            );
+        }
+
+        // Verifica a senha atual
+        const isValid = await comparePass(
+            oldPassword,
+            user.passhash
+        );
+
+        if (!isValid) {
+            return res.status(400).send(
+                'Senha atual incorreta.'
+            );
+        }
+
+        // Cria o hash da nova senha
+        user.passhash = await hashPass(
+            newPassword,
+            10
+        );
+
+        // Salva no banco
+        await user.save();
+
+        return res.send('Senha atualizada com sucesso.');
+
+    } catch (error) {
+
+        console.error(
+            'ERRO AO ALTERAR SENHA:',
+            error
+        );
+
+        return res.status(500).send(
+            'Erro ao alterar a senha.'
+        );
+    }
+});
 
     // Alterar username, nome, cpf e número de telefone (Perfil)
-    app.post('/edit-profile', requireAuth.default, async (req, res) => {
-        const {name, username, cpf, phone_number} = req.body;
+    app.post('/edit_profile', requireAuth.default, async (req, res) => {
+    try {
+        const { name, username } = req.body;
+
+        console.log('DADOS RECEBIDOS:', req.body);
 
         const user = await tabelas.usuario.findByPk(req.session.user.id);
 
-        // Receber os dados atualizados
+        if (!user) {
+            return res.status(404).send('Usuário não encontrado.');
+        }
+
+        // Verifica se o novo username já pertence a OUTRO usuário
+        const usernameExistente = await tabelas.usuario.findOne({
+            where: {
+                username: username
+            }
+        });
+
+        if (usernameExistente && usernameExistente.id !== user.id) {
+            return res.status(400).send('Esse nome de usuário já está sendo usado.');
+        }
+
         user.name = name;
         user.username = username;
-        user.cpf = cpf;
-        user.phone_number = phone_number;
 
-        // Salvar os dados atualizados
         await user.save();
 
-        res.send('Dados atualizados.');
-    });
+        // Atualiza a sessão
+        req.session.user.name = user.name;
+        req.session.user.username = user.username;
+
+        console.log('USUÁRIO ATUALIZADO:', user.toJSON());
+
+        return res.redirect('/config');
+
+    } catch (error) {
+        console.error('ERRO AO ATUALIZAR PERFIL:', error);
+
+        return res.status(500).send(
+            'Erro ao atualizar os dados: ' + error.message
+        );
+    }
+});
 
     // Editar endereço (Está errado)
 
@@ -1091,6 +1166,7 @@ console.log(
 
             console.log('VERIFICAR TOTAL ANTES DE ENTRAR NO FOR: ', total);
             console.log('TOTAL ANTES DE MUDAR: ', total);
+
                 // Usa itemCarrinho porque estou pegando apenas um item específico e não todos como na soma
                 let valorItem = itemCarrinho.produto.preco * itemCarrinho.quantidade; // Valor total do item
 
@@ -1235,6 +1311,7 @@ console.log(
     // CHECK-OUT DA PÁGINA DO PRODUTO
 
     // CARREGA A PÁGINA DE CARTÕES E OS CARTÕES DO USUÁRIO
+    // CARREGA A PÁGINA DE CARTÕES E OS CARTÕES DO USUÁRIO
     app.get('/:user/cartoes/', requireAuth.default, async(req, res) => {
 
         const usuarioCartao = await tabelas.usuario.findByPk(
@@ -1252,14 +1329,17 @@ console.log(
     
     // VERIFICA OS CARTÕES DO USUÁRIO E CRIA OUTROS CASO PRECISE
     app.post('/:user/cartoes', async(req, res) => {
-        const {numero, cvv, vencimento, nomeTitular} = req.body;
+        const {numero, cvv, vencimento, nomeTitular, idCartaoRemovido} = req.body;
+
+        // console.log('REQ.BODY: ', req.body);
+        // console.log('TESTE CVV: ', cvv);
 
         // NaN = Not a Number
-        if(String(cvv).length != 3 || isNaN(cvv)){
+        if(String(cvv).length < 3 || isNaN(cvv)){
             return res.send('O cvv deve conter 3 digitos.');
         }
 
-        if(String(numero).length != 16 || isNaN(numero)){
+        if(String(numero).length < 16 || isNaN(numero)){
             return res.send('O número do cartão deve conter 16 digitos');
         }
 
@@ -1275,23 +1355,33 @@ console.log(
         for(const cartao of usuarioCartao.cartoes){
 
             if(cartao.numero == numero){
-                res.send('Cartão já cadastrado na conta.')
+               return res.send('Cartão já cadastrado na conta.');
             }
 
         }
 
        const cartoes = await tabelas.cartoes.create({
                 numero: numero,
-                CVV: cvv,
+                cvv: cvv,
                 vencimento: vencimento,
                 nomeTitular: nomeTitular,
             }
         )
 
         console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.numero);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.cvv);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.vencimento);
+        console.log('PELO MENOS CRIOU O CARTAO???: ', cartoes.nomeTitular);
 
-        res.redirect(`/${req.session.user.username}/cartoes`);
-        
+
+        const salvaUsuarioCartao = await tabelas.usuario_cartao.create({
+            id_cartao: cartoes.id,
+            id_usuario: req.session.user.id,
+        }
+    )
+
+    res.redirect(`/${req.session.user.username}/cartoes`);
+    
     })
 
     // CHECK-OUT VINDO DO CARRINHO
@@ -1381,6 +1471,7 @@ console.log(
 
             const valorProduto = produto.preco * quantidade;
 
+            // QUANDO O USUÁRIO CONFIRMAR A COMPRA, TEM QUE SUBTRAIR O VALOR DOS ITENS AO VALOR TOTAL DO CARRINHO
         }
 
         // Compra vindo do carrinho
@@ -1394,6 +1485,8 @@ console.log(
 
             let valorCompra = carrinho.valorTotalCompra;
         }
+
+         return res.redirect(`/${req.session.user.username}/order-completed`);
     })
 
         app.get('/leave', requireAuth.default, (req, res)=>{
@@ -1401,6 +1494,11 @@ console.log(
         res.redirect('/login');
     })
 
+    app.get('/:user/order-completed', requireAuth.default, async(req, res) => {
+        res.render('order-completed.ejs', {
+            USER: req.session.user,
+     } );
+    })
 }
 
 //Não é necessário incluir o app.listen(), ele já está incluso em outro arquivo :D
