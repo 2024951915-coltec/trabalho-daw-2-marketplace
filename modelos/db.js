@@ -177,7 +177,7 @@ const tabelas = {
         },
 
         preco: {
-            type: DataTypes.REAL,
+            type: DataTypes.FLOAT,
             allowNull: false,
         },
 
@@ -220,7 +220,7 @@ const tabelas = {
             },
 
             valorTotalCompra: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.FLOAT,
                 allowNull: true,
             }
         }
@@ -254,7 +254,7 @@ const tabelas = {
             },
 
             valorItem: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.FLOAT,
                 allowNull: true,
             },
         }   
@@ -269,6 +269,16 @@ const tabelas = {
                 allowNull: false,
                 autoIncrement: true,
             },
+
+            usuarioId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+
+            id_item_pedido: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            }
         }
     ),
 
