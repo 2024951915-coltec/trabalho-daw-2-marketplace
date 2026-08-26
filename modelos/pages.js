@@ -1403,11 +1403,9 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
 
         // NaN = Not a Number
         if(String(cvv).length < 3 || isNaN(cvv)){
-        if(String(cvv).length < 3 || isNaN(cvv)){
             return res.send('O cvv deve conter 3 digitos.');
         }
 
-        if(String(numero).length < 16 || isNaN(numero)){
         if(String(numero).length < 16 || isNaN(numero)){
             return res.send('O número do cartão deve conter 16 digitos');
         }

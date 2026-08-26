@@ -97,6 +97,7 @@
                 
             </div>
 
+            <% if (ITEMS.length > 0) { %>
             <div class="card card-body ">
                 <h2>Seu recibo: </h2>
                 <div class="container-md">
@@ -108,7 +109,11 @@
                 <% }) %>
                 </div>
             </div>
-
+            <% } else { %>
+            <div class="card card-body">
+                <h2>Nenhum produto a ser mostrado</h2>
+            </div>
+            <% } %>
     </main>
 
 </body>
