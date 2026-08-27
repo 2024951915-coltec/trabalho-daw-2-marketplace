@@ -99,7 +99,7 @@ body {
     transform: translateY(-2px);
 }
 
-button {
+.input button {
     width: 100%;
     padding: 12px;
     background-color: #d9534f;

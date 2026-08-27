@@ -19,11 +19,12 @@
 
     <body>
         <!-- Header Principal com as classes adicionadas -->
+        <!-- Header Principal com as classes adicionadas -->
         <header class="mb-3">
             <!-- Barra de Acessibilidade Superior com as classes adicionadas -->
             <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
                 <a href="#main-content" accesskey="1">Ir para o conteúdo</a>
-                <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
+                <button type="button" id="high-contrast" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
             </div>
             
             <nav class="site-header">
@@ -49,9 +50,15 @@
                     <% } %>
 
                     <!-- Carrinho de Compras -->
-                    <a href="/<%= USER.username %>/shopping-cart" class="action-link" aria-label="Ver carrinho de compras, 0 itens">
-                        Carrinho (<span class="cart-badge">0</span>)
-                    </a>
+                    <% if(USER) { %>
+                            <a href="/<%= USER.username %>/shopping-cart" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
+                                Carrinho (<span class="cart-badge">0</span>)
+                            </a>
+                            <% } else { %>
+                            <a href="/login" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
+                                Carrinho (<span class="cart-badge">0</span>)
+                            </a>
+                            <% } %>
 
                 </div>
 
@@ -74,16 +81,22 @@
                             <a href="/config" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
                                 Minha Conta (<strong>@<%= USER.username %></strong>)
                             </a>
-                            <% } else { %>
+                            
                             <a href="/login" class="btn btn-outline-primary" aria-label="Entrar na minha conta">
                                 Entrar ou cadastrar
                             </a>
                             <% } %>
 
                             <!-- Carrinho de Compras -->
+                            <% if(USER) { %>
                             <a href="/<%= USER.username %>/shopping-cart" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
                                 Carrinho (<span class="cart-badge">0</span>)
                             </a>
+                            <% } else { %>
+                            <a href="/login" class="btn btn-outline-primary" aria-label="Ver carrinho de compras, 0 itens">
+                                Carrinho (<span class="cart-badge">0</span>)
+                            </a>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -211,5 +224,7 @@
         </main>
 
         <script src="/js/controle_barras_busca.js"></script>
+        <link rel="stylesheet" href="/css/high-contrast.css">
+        <script src="/js/high-contrast-override.js"></script>
     </body>
 </html>

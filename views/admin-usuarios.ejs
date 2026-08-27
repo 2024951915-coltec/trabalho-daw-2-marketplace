@@ -24,7 +24,7 @@
             <!-- Barra de Acessibilidade Superior com as classes adicionadas -->
             <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
                 <a href="#main-content" accesskey="1">Ir para o conteúdo</a>
-                <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
+                <button type="button" id="high-contrast" onclick="toggleContraste()" aria-label="Ativar alto contraste">Alto Contraste</button>
             </div>
             
             <nav class="site-header">
@@ -209,5 +209,8 @@
             </div>
 
         </main>
+
+        <link rel="stylesheet" href="/css/high-contrast.css">
+        <script src="/js/high-contrast-override.js"></script>
     </body>
 </html>

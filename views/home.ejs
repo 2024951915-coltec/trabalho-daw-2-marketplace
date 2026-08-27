@@ -16,6 +16,8 @@
         crossorigin="anonymous"></script>
 
     <link class="style-local" rel="stylesheet" href="/css/home.css">
+
+    <link rel="stylesheet" href="/css/high-contrast.css">
 </head>
 
 <body>
@@ -26,7 +28,7 @@
         <!-- Barra de Acessibilidade Superior -->
         <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
             <a href="#maincontent" accesskey="1">Ir para o conteúdo</a>
-            <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">
+            <button type="button" id="high-contrast" aria-label="Ativar alto contraste">
                 Alto Contraste
             </button>
         </div>
@@ -378,7 +380,7 @@
                     <% } %>
 
 
-                    <div class="col-md-5">
+                    <div class="col-md-4">
 
                         <div class="card">
 
@@ -444,7 +446,7 @@
 
 
     <script src="/js/controle_barras_busca.js"></script>
-
+    <script src="/js/high-contrast-override.js"></script>
 </body>
 
 </html>
