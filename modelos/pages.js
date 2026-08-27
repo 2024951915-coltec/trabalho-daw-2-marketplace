@@ -1236,12 +1236,38 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
             ]
         })
 
+        let bought;
+
+        if(req.session.user === undefined)
+        {
+            bought = false;
+        }
+        else
+        {
+            const pedido = await tabelas.pedido.findOne({
+                where: {
+                    usuarioId: req.session.user.id
+                },
+                include: [{
+                    association: tabelas.pedido.associations.Usuario,
+                    as: 'item',
+                    required: true,
+                    where : {
+                        product: produto_id
+                    }
+                }]
+            })
+
+            bought = (pedido !== null);
+        }
+
         console.log(reviews[0]);
 
         res.render('produto.ejs', {
             USER: (user !== undefined) ? user : null,
             PRODUTO: produto,
             REVIEWS: reviews,
+            HAS_BOUGHT: bought
         });
     })
 
