@@ -1209,7 +1209,7 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
     );
 });
 
-    app.get('/product/:id/view', requireAuth.default, async (req, res)=>{
+    app.get('/product/:id/view', async (req, res)=>{
         const user = req.session.user;
         const produto_id = parseInt(req.params.id, 16)
         const produto = await tabelas.produto.findOne({
@@ -1651,67 +1651,71 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
         res.redirect('/login');
     })
 
-    app.get('/:user/order-completed', requireAuth.default, async(req, res) => {
-        const carrinho = await tabelas.carrinho.findOne({
-        where: {
-            id_usuario: req.session.user.id
-        }
-    });
-
-    if (!carrinho) {
-        return res.render('order-completed.ejs', {
-            USER: req.session.user,
-            ITEMS: []
+    app.get('/:user/orders', requireAuth.default, async(req, res) => {
+        const pedidos = await tabelas.pedido.findAll({
+            where: {
+                usuarioId: req.session.user.id
+            },
+            include: [{
+                association: tabelas.pedido.associations.Usuario,
+                as: 'item',
+                include: [{
+                    model: tabelas.produto
+                }]
+            }]
         });
-    }
+        console.log(pedidos[0].item)
+        if (!pedidos) {
+            return res.render('order-completed.ejs', {
+                USER: req.session.user,
+                ITEMS: []
+            });
+        }
 
-    const itens = await tabelas.item_carrinho.findAll({
-        where: {
-            id_carrinho: carrinho.id
-        },
-        include: tabelas.produto
-    });
-
-    res.render('order-completed.ejs', {
-        USER: req.session.user,
-        ITEMS: itens
-    });
+        res.render('pedido.ejs', {
+            USER: req.session.user,
+            ITEMS: pedidos
+        });
     })
 
     app.post('/:user/order-completed', requireAuth.default, async (req, res) => {
+        const user = req.session.user;
         const carrinho = await tabelas.carrinho.findOne({
             where: {
-                id_usuario: req.session.user.id
+                id_usuario: user.id
             }
-        })
+        });
+
         const itens = await tabelas.item_carrinho.findAll({
             where: {
                 id_carrinho: carrinho.id
             },
             include: tabelas.produto
-        })
+        });
 
         res.render('order-completed.ejs', {
-            USER: req.session.user,
+            USER: user,
             ITEMS: itens
         });
 
-        itens.forEach((item)=>{
+        itens.forEach(async (item)=>{
             item.produto.stock -= item.quantidade;
-            item.produto.save();
+            await item.produto.save();
+
+            const item_pedido = await tabelas.item_pedido.create({
+                product: item.produto.id,
+                quantidade: item.quantidade
+            })
+
+            await tabelas.pedido.create({
+                usuarioId: user.id,
+                itemPedidoId: item_pedido.id
+            });
+
+            await item.destroy();
         })
 
-        await tabelas.item_carrinho.destroy({
-            where: {
-                id_carrinho: carrinho.id
-            }
-        })
-
-        await tabelas.carrinho.destroy({
-            where: {
-                id_usuario: req.session.user.id
-            }
-        })
+        await carrinho.destroy();
     })
 }
 

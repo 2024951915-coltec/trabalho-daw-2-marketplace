@@ -378,7 +378,7 @@
                     <% } %>
 
 
-                    <div class="col-md-4">
+                    <div class="col-md-5">
 
                         <div class="card">
 
@@ -394,7 +394,10 @@
                                     href="/product/<%= produto.id.toString(16).padStart(16, '0') %>/view"
                                     class="h3 link-underline link-underline-opacity-0">
 
-                                    <%= produto.name %>
+                                    <%= (produto.name.length > 64)
+                                        ? produto.name.substring(0, 61) + '...'
+                                        : produto.name;
+                                    %>
 
                                 </a>
 
@@ -402,14 +405,7 @@
 
 
                             <div class="card-body">
-
-                                <p class="card-subtitle fw-semibold text-secondary">
-
-                                    <%= produto.description %>
-
-                                </p>
-
-                                <p class="card-text">
+                                <p class="card-subtitle text-secondary">
 
                                     Preço: R$ <%= produto.preco.toFixed(2) %>
 

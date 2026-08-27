@@ -268,39 +268,24 @@ const tabelas = {
                 primaryKey: true,
                 allowNull: false,
                 autoIncrement: true,
-            },
-
-            usuarioId: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-            },
-
-            id_item_pedido: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
             }
         }
     ),
 
     item_pedido:
-database.define('item_pedido', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true
-    },
+    database.define('item_pedido', {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            allowNull: false,
+            autoIncrement: true
+        },
 
-    product: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
-
-    quantidade: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-    }
-}),
+        quantidade: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        }
+    }),
 
     avaliacao:
     database.define('avaliacao',
@@ -498,26 +483,15 @@ tabelas.item_carrinho.belongsTo(tabelas.carrinho, {
 });
 
 //Usuário-pedido-item (n-m)
-tabelas.usuario.belongsToMany(tabelas.item_pedido, {through: tabelas.pedido});
-tabelas.item_pedido.belongsToMany(tabelas.usuario, {through: tabelas.pedido});
+tabelas.usuario.belongsToMany(tabelas.item_pedido, {through: tabelas.pedido, as: "Usuario"});
+tabelas.item_pedido.belongsToMany(tabelas.usuario, {through: tabelas.pedido, as: "Item"});
 
 //sincronização
 database.sync()
 .then(async () => {
 
-   console.log(
-        await database.query(
-            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'usuario_enderecos'"
-        )
-    );
-
-    console.log(
-        await database.query(
-            "PRAGMA index_list(usuario_enderecos)"
-        )
-    );
-
-    const quantidadeCategorias = await tabelas.categoria.count();
+    const cats = await tabelas.categoria.findAll();
+    const quantidadeCategorias = cats.length;
 
     if (quantidadeCategorias === 0) {
 
@@ -549,7 +523,7 @@ database.sync()
     if (!adminExistente) {
         await tabelas.usuario.create({
             username: process.env.ADMIN_USERNAME,
-            name: 'Administrador',
+            name: 'Big Brother',
             passhash: process.env.ADMIN_PASSWORD,
             category: 'admin'
         });
