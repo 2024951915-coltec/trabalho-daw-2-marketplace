@@ -26,9 +26,9 @@
             </a>
 
             <button type="button"
-                    id="high-contrast"
-                    onclick="toggleContraste()"
-                    aria-label="Ativar alto contraste">
+                id="high-contrast"
+                onclick="toggleContraste()"
+                aria-label="Ativar alto contraste">
 
                 Alto Contraste
 
@@ -80,34 +80,24 @@
           style="max-width: 700px;">
 
             <div class="card card-body text-center mb-3">
-
-
-                <p class="lead">
-
-                    Sua compra foi realizada com sucesso.
-
-                </p>
-
-
-                <p class="text-secondary">
-
-                    Obrigado por comprar na GalinhasGordas!
-
-                </p>
-
-                
-            </div>
+                <h1>
+                    Seus pedidos:
+                </h1>            
 
             <% if (ITEMS.length > 0) { %>
-            <div class="card card-body ">
-                <h2>Seu recibo: </h2>
                 <div class="container-md">
-                <% ITEMS.forEach((item)=>{ %>
-                <% let val = (item.produto.preco * item.quantidade); %>
                 <div class="card card-body">
-                    <h3 class="card-title"><%= item.produto.name %>: R$ <%= val.toFixed(2) %></h3>
+                <% ITEMS.forEach((item)=>{ %>
+                <% let val = (item.item.produto.preco * item.item.quantidade); %>
+                
+                <div class="d-flex justify-content-between">
+                    <p class="card-text text-start"><%= item.item.produto.name %> x<%= item.item.quantidade%></p>
+                    <strong class="card-text text-end">R$ <%= val.toFixed(2) %></strong>
                 </div>
+                
+                
                 <% }) %>
+                </div>
                 </div>
             </div>
             <% } else { %>
@@ -116,6 +106,7 @@
             </div>
             <% } %>
     </main>
+
     <link rel="stylesheet" href="/css/high-contrast.css">
     <script src="/js/high-contrast-override.js"></script>
 </body>

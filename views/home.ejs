@@ -16,6 +16,8 @@
         crossorigin="anonymous"></script>
 
     <link class="style-local" rel="stylesheet" href="/css/home.css">
+
+    <link rel="stylesheet" href="/css/high-contrast.css">
 </head>
 
 <body>
@@ -26,7 +28,7 @@
         <!-- Barra de Acessibilidade Superior -->
         <div class="accessibility-bar" role="navigation" aria-label="Acessibilidade">
             <a href="#maincontent" accesskey="1">Ir para o conteúdo</a>
-            <button type="button" onclick="toggleContraste()" aria-label="Ativar alto contraste">
+            <button type="button" id="high-contrast" aria-label="Ativar alto contraste">
                 Alto Contraste
             </button>
         </div>
@@ -394,7 +396,10 @@
                                     href="/product/<%= produto.id.toString(16).padStart(16, '0') %>/view"
                                     class="h3 link-underline link-underline-opacity-0">
 
-                                    <%= produto.name %>
+                                    <%= (produto.name.length > 64)
+                                        ? produto.name.substring(0, 61) + '...'
+                                        : produto.name;
+                                    %>
 
                                 </a>
 
@@ -402,14 +407,7 @@
 
 
                             <div class="card-body">
-
-                                <p class="card-subtitle fw-semibold text-secondary">
-
-                                    <%= produto.description %>
-
-                                </p>
-
-                                <p class="card-text">
+                                <p class="card-subtitle text-secondary">
 
                                     Preço: R$ <%= produto.preco.toFixed(2) %>
 
@@ -448,7 +446,7 @@
 
 
     <script src="/js/controle_barras_busca.js"></script>
-
+    <script src="/js/high-contrast-override.js"></script>
 </body>
 
 </html>

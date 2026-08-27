@@ -1,0 +1,214 @@
+[data-bs-theme="high-contrast"] {
+    body {
+        background-color: #000000;
+        color: #FFFFFF;
+    }
+
+    .Login {
+        background-color: #000000;
+        border: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .Login h2{
+        background-color: #000000;
+        color: #FFFFFF;
+    }
+
+    .Login a{
+        background-color: #000000;
+        color: #00FFFF;
+    }
+
+    .Cadastro {
+        background-color: #000000;
+        border: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .Cadastro h2 {
+        background-color: #000000;
+        color: #FFFFFF;
+    }
+
+    .Cadastro a{
+        background-color: #000000;
+        color: #00FFFF;
+    }
+
+    .Cadastro > form > label {
+        background-color: #000000;
+        color: #FFFFFF;
+    }
+
+    .input label {
+        color: #FFFFFF;
+    }
+
+    .input input {
+        background-color: #000000;
+        border: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .input button {
+        background-color: #000000;
+        border: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .tipo-usuario {
+        background-color: #000000;
+        color: #FFFFFF;
+    }
+
+    .tipo-opcao {
+        background-color: #000000;
+        border: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .site-header {
+        background-color: #000000;
+        border-bottom: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .accessibility-bar {
+        background-color: #000000;
+        border-bottom: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .destaque {
+        border-left: 2px solid #00FFFF;
+    }
+
+    .admin-header {
+        background-color: #000000;
+        border-bottom: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .admin-header h2{
+        color: #FFFFFF;
+    }
+
+    .admin-header .btn{
+        background-color: #000000;
+        border-bottom: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .admin-header .btn::hover{
+        background-color: #000000;
+        border-bottom: 1px solid #00FFFF;
+        color: #FFFFFF;
+    }
+
+    .admin-section-title {
+        color: #FFFFFF;
+    }
+
+    .table th {
+        color: #FFFFFF !important;
+    }
+
+    .table td {
+        color: #FFFFFF !important;
+    }
+
+    --bs-body-bg: #000000;
+    --bs-body-color: #FFFFFF;
+    --bs-primary: #00FFFF;
+    --bs-link-color: #00FFFF;
+    --bs-border-color: #00FFFF;
+
+    .form-control::file-selector-button {
+        background-color: #000000 !important;
+    }
+    
+    .form-control:disabled {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+
+    .btn-primary {
+        --bs-btn-bg: #000000;
+        --bs-btn-color: #FFFFFF;
+        --bs-btn-border-color: #00FFFF;
+
+        font-weight: bold;
+    }
+
+    .btn-secondary {
+        --bs-btn-bg: #000000;
+        --bs-btn-color: #FFFFFF;
+        --bs-btn-border-color: #FFFFFF;
+
+        font-weight: bold;
+    }
+
+    .btn-success {
+        --bs-btn-bg: #000000;
+        --bs-btn-color: #FFFFFF;
+        --bs-btn-border-color: #00FF00;
+
+        font-weight: bold;
+    }
+
+    .btn-danger {
+        --bs-btn-bg: #000000;
+        --bs-btn-color: #FFFFFF;
+        --bs-btn-border-color: #FF0000;
+
+        font-weight: bold;
+    }
+
+    .input-group-text {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+    }
+
+    .cart-badge {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #FF0000 !important;
+    }
+
+    .badge.text-bg-danger {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #FF0000 !important;
+    }
+
+    .badge.text-bg-warning {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #FFFF00 !important;
+    }
+
+    .badge.text-bg-secondary {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #FFFFFF !important;
+    }
+
+    .card.text-white.bg-danger {
+        background-color: #000000 !important;
+        color: #FFFFFF !important;
+        --bs-card-border-color: #FF0000;
+    }
+
+    .card {
+        --bs-card-bg: #000000;
+        --bs-card-color: #FFFFFF;
+        --bs-card-border-color: #00FFFF;
+    }
+
+    .alert-info {
+        --bs-alert-bg: #000000;
+        --bs-alert-color: #FFFFFF;
+        --bs-alert-border-color: #00FFFF;
+    }
+}
