@@ -840,8 +840,14 @@ function pages()
         return res.render('view_addresses.ejs');
     })
 
-    app.get('/config/edit-addresses', requireAuth.default, (req, res) => {
-        return res.render('edit_addresses.ejs');
+    app.get('/:user/edit-addresses/:enderecoId', requireAuth.default, async(req, res) => {
+
+        const endereco = await tabelas.endereco.findByPk(req.params.enderecoId);
+
+        return res.render('edit-addresses.ejs', {
+            USER: req.session.user,
+            endereco: endereco,
+        });
     })
 
     //página de configuração de conta
@@ -849,6 +855,15 @@ function pages()
         const user = req.session.user;
 
         return res.render('config.ejs', {USER : user});
+    })
+
+    app.post('/config/delete-account', requireAuth.default, async(req, res) => {
+
+        const usuarioDeletado = await tabelas.usuario.findByPk(req.session.user.id);
+
+        await usuarioDeletado.destroy();
+
+        res.redirect('/login');
     })
 
    app.get('/profile_information', (req, res) => {
@@ -977,6 +992,8 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
             'Erro ao alterar a senha.'
         );
     }
+
+    return res.redirect('/login');
 });
 
     // Alterar username, nome, cpf e número de telefone (Perfil)
@@ -1028,51 +1045,26 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
     // Editar endereço (Está errado)
 
     // Pegar a tabela intermediária e editar ela caso o endereço seja igual ao de outra pessoa
-    app.post('/:user/edit-addresses', requireAuth.default, async (req, res) => {
+    app.post('/:user/edit-addresses/enderecoId', requireAuth.default, async (req, res) => {
         const { local } = req.body;
+        const { enderecoId } = req.params;
 
-        let isValid = true;
-        let idEnderecoAlterado = null;
-        let idUsuarioAlterado = null;
+        const enderecoEditado = await tabelas.usuario_endereco.findOne({
+            where: {
+                usuarioId: req.session.user.id,
+                enderecoId: enderecoId,
+            }, include: tabelas.endereco,
+        });
 
-        const relacoes = await tabelas.usuario_endereco.findAll({
-            where : {
-                usuarioId : req.session.user.id,
-            }
-        })
-
-        // For para comparação
-            for(const relacao of relacoes){
-
-                const endereco = await tabelas.endereco.findByPk(relacao.enderecoId);
-
-                // Verifica se existe dentro da conta
-                if(endereco.local == local){
-                    isValid = false;
+            // Verifica se existe dentro da conta
+                if(enderecoEditado.endereco.local == local){
+                    return res.send('Endereco já cadastrado nesta conta.')
                 }
 
-                else{
-                     // Verifica se o endereço existe cadastrado com outro usuário
-                    const verificaBD = await tabelas.endereco.findOne({where:{local}});
+            enderecoEditado.local = local;
+            await endereco.save();
 
-                    if(verificaBD){
-                        // relacao.id_endereco = verificaBD.id; 
-                        idEnderecoAlterado = verificaBD.id;
-                    }
-                }
-
-            }
-
-            if(isValid == false){
-                return res.send('Endereco já cadastrado nesta conta.');
-            }
-
-           // const idEnderecoUser = await tabelas.ender    relacoes.id_endereco = idEnderecoAlterado;
-            tabelas.endereco.local = local; // Alterar o registro específico
-            await relacoes.save();
-            await tabelas.endereco.save();
-
-            return res.send('Endereço atualizado.');
+            res.redirect(`/${req.session.user.username}/create_addresses`);   
     });
 
        app.get('/:user/shopping-cart', requireAuth.default, async (req, res) => {
@@ -1132,10 +1124,6 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
 
     // Busca o carrinho
     const carrinho = await tabelas.carrinho.findByPk(idCarrinho);
-
-    if (!carrinho) {
-        return res.status(404).send('Carrinho não encontrado.');
-    }
 
     // Busca o item
     const itemCarrinho = await tabelas.item_carrinho.findByPk(
@@ -1743,6 +1731,8 @@ app.post('/password_change', requireAuth.default, async (req, res) => {
 
         await carrinho.destroy();
     })
+
+
 }
 
 //Não é necessário incluir o app.listen(), ele já está incluso em outro arquivo :D
